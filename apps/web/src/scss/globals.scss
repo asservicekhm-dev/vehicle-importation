@@ -1,4 +1,4 @@
-// Colors, fonts and theme come in Milestone 1 (tokens.scss).
+@use './tokens';
 
 *,
 *::before,
@@ -10,4 +10,38 @@ html,
 body {
   margin: 0;
   padding: 0;
+}
+
+html {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+body {
+  background-color: var(--color-bg);
+  min-height: 100vh;
+  color: var(--color-text);
+  font-size: var(--text-md);
+  line-height: 1.5;
+  font-family: var(--font-body);
+}
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

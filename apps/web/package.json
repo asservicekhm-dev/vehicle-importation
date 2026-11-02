@@ -8,12 +8,13 @@
     "dev:docker": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build",
     "start": "next start -p 3000 -H 0.0.0.0",
-    "lint": "eslint .",
+    "lint": "eslint . && stylelint \"src/**/*.scss\"",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@autosearch/config": "workspace:*",
     "next": "15.4.11",
+    "next-intl": "4.0.2",
     "react": "19.2.1",
     "react-dom": "19.2.1"
   },
@@ -24,7 +25,9 @@
     "@types/react": "19.2.1",
     "@types/react-dom": "19.2.1",
     "eslint": "^9.17.0",
+    "postcss-scss": "^4.0.9",
     "sass": "^1.83.0",
+    "stylelint": "^16.14.1",
     "typescript": "5.7.3"
   }
 }

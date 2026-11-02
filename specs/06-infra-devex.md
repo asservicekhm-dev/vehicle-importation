@@ -113,7 +113,7 @@ Ship `apps/*/.env*.example` and `.deploy/setup.sh` that copies `*.example` → r
 ## 6. Block recipe (6 steps) + `pnpm new block`
 ## 7. Design source (Figma URL when available)
 ## 8. Styling & tokens (single set + theme switch)
-## 9. i18n (Ukrainian default `ua` + English `en`; messages sync; Payload fallback:false)
+## 9. i18n (Ukrainian default `ua` + English `en`; translations sync; Payload fallback:false)
 ## 10. Environment & infra pointers
 ## 11. Seeding & local-media
 ## 12. Deploy (pointer to DEPLOYMENT.md)

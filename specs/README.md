@@ -12,7 +12,7 @@ Reusable, code-derived blueprint for a new **AS Autosearch** car-dealership land
 | Stack | Payload CMS 3 + Next.js 15 monorepo, MongoDB, S3/MinIO, next-intl, SCSS Modules |
 | Apps | `apps/cms` (:3001, `/cms` in prod) + `apps/web` (:3000) |
 | Locales | **Ukrainian (default)** + **English**. Codes `ua` / `en`; `ua` has no URL prefix, `en` is `/en/…` |
-| Content | CMS blocks + `viewType` routing; almost no hardcoded copy; every UI string in both `messages/ua.json` and `messages/en.json` |
+| Content | CMS blocks + `viewType` routing; almost no hardcoded copy; every UI string in both `translations/ua.json` and `translations/en.json` |
 | Theme | Semantic tokens; `[data-theme=light\|dark]`; cookie + SiteSettings default; no legacy aliases |
 | Domain | Inventory (`cars`), leads, brands, services, blog, Autosearch wizard |
 | Booking / leads | Same as AS Service **primary inbox**: Form Builder → `form-submissions` → Admin `leads` (+ optional email). No GoGym. See [09-booking-and-leads.md](./09-booking-and-leads.md) |

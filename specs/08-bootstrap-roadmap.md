@@ -72,7 +72,7 @@ Ordered milestones to stand up the Autosearch repo from this spec. Each mileston
 - [ ] Theme default + toggle signed off
 - [ ] Dark palette designer review
 - [ ] Font licenses cleared
-- [ ] Ukrainian + English parity verified (messages, CMS seeds, locale switcher)
+- [ ] Ukrainian + English parity verified (translations, CMS seeds, locale switcher)
 - [ ] Booking form: `form-submissions` + `leads` inbox; success only on Payload ok; no gogym calls
 - [ ] Spam protection on public forms
 - [ ] Cross-app revalidation verified

@@ -17,3 +17,13 @@ export const localeToHreflang: Record<Locale, string> = {
 
 export const isLocale = (value: unknown): value is Locale =>
   typeof value === 'string' && (locales as readonly string[]).includes(value);
+
+export const themePreferences = ['light', 'dark', 'system'] as const;
+
+export type ThemePreference = (typeof themePreferences)[number];
+
+/** Until SiteSettings.defaultTheme lands in Milestone 3. */
+export const defaultThemePreference: ThemePreference = 'system';
+
+export const isThemePreference = (value: unknown): value is ThemePreference =>
+  typeof value === 'string' && (themePreferences as readonly string[]).includes(value);

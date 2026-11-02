@@ -108,7 +108,7 @@ Page.layout / homeBlocks
 | --- | --- | --- |
 | Locale code | `ua` | `en` |
 | URL | no prefix | `/en/…` |
-| Messages | `messages/ua.json` | `messages/en.json` |
+| Translations | `translations/ua.json` | `translations/en.json` |
 
 - `localeDetection: false`, `localePrefix: 'as-needed'` (no Accept-Language redirect).
 - Middleware: (1) fetch CMS redirects, (2) next-intl.

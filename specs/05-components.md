@@ -128,7 +128,7 @@ Paths relative to `apps/web/src/`. Tokens: “Legacy” = dark/orange Wayon; “
 
 ### Hardcoded strings to eliminate
 
-“Детальніше”, empty catalog copy, video aria-labels, Footer “Вгору” / brand text — move to CMS or `messages/{ua,en}.json`.
+“Детальніше”, empty catalog copy, video aria-labels, Footer “Вгору” / brand text — move to CMS or `translations/{ua,en}.json`.
 
 ## Priority for starter scaffold
 

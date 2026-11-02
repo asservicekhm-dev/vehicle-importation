@@ -2,7 +2,7 @@
 
 Read this before making changes. The product spec lives in [`specs/`](./specs/README.md); this file is the operational summary. When this file and the spec disagree, the spec wins — then update this file.
 
-Current state: **Milestone 0 (repo scaffold)** of [`specs/08-bootstrap-roadmap.md`](./specs/08-bootstrap-roadmap.md). Items marked _(M<n>)_ are planned, not built yet.
+Current state: **Milestone 1 (tokens & theme)** of [`specs/08-bootstrap-roadmap.md`](./specs/08-bootstrap-roadmap.md). Items marked _(M<n>)_ are planned, not built yet.
 
 ## 1. What this is
 
@@ -23,7 +23,7 @@ Pinned baseline: [`specs/01-architecture.md`](./specs/01-architecture.md) § Sta
 | Next.js / React | `15.4.11` / `19.2.1` in both apps                                                    |
 | Payload         | `3.83.0` — pin **all** `@payloadcms/*` to the same version                           |
 | DB / storage    | MongoDB 7, S3 / MinIO _(M3)_                                                         |
-| i18n            | `next-intl 4.0.2` _(M2)_                                                             |
+| i18n            | `next-intl 4.0.2` (translations + provider now; `[locale]` routing _(M2)_)           |
 | Styling         | **SCSS Modules only.** No Tailwind, no `prettier-plugin-tailwindcss`                 |
 | Later (pinned)  | `@payload-enchants/sdk 1.2.2`, `react-hook-form ^7.54`, framer-motion, lenis, swiper |
 
@@ -38,9 +38,15 @@ apps/
     src/payload-types.ts  generated; web imports it type-only
   web/                 @autosearch/web
     src/app/           App Router (root layout now; [locale]/ in M2)
-    src/scss/          mixins.scss (auto-injected), globals.scss; tokens.scss (M1)
+    src/components/    ThemeToggle (temp on home; Header in M2)
+    src/fonts/         Toxigenesis + Gilroy (localFont)
+    src/lib/fonts.ts   next/font loaders
+    src/lib/theme/     cookie + no-flash script + client apply
+    src/i18n/          next-intl request config (no locale routing yet)
+    src/scss/          mixins.scss (auto-injected), globals.scss, tokens.scss
+    translations/      ua.json + en.json
 packages/
-  config/              @autosearch/config — locales (defaultLocale=ua, locales=[ua,en])
+  config/              @autosearch/config — locales + themePreferences (default system)
   tsconfig/            @autosearch/tsconfig — base.json, nextjs.json
   eslint-config/       @autosearch/eslint-config — flat config (`.` base, `./next`)
 specs/                 product/architecture spec (read-only reference)
@@ -96,14 +102,18 @@ No Autosearch Figma file yet. Until one is provided, the spec is code-derived: f
 
 - SCSS Modules co-located with components (`Name.module.scss`).
 - Breakpoint mixins in `apps/web/src/scss/mixins.scss` are auto-injected (`sassOptions.additionalData`); do not `@use` them manually. Only `tablet` (≥768), `laptop` (≥1200), `desktop` (≥1750), `maxTablet` (≤767).
-- _(M1)_ One semantic token set in `tokens.scss` with `[data-theme=light|dark]` on `<html>`; cookie `theme` → `SiteSettings.defaultTheme` → `system`; no-flash inline script; `ThemeToggle` in Header.
+- Semantic tokens live in `apps/web/src/scss/tokens.scss` (`--color-*`, radius, space, fonts, type scale). Themes: `:root` / `[data-theme=light]` and `[data-theme=dark]`.
+- Theme preference: cookie `theme` → `defaultThemePreference` from `@autosearch/config` (`system` today) → OS. SiteSettings `defaultTheme` / `enableThemeToggle` arrive in _(M3)_.
+- SSR sets `data-theme-pref` and, when preference is explicit light/dark, `data-theme`. An inline head script resolves `system` via `matchMedia` before paint. Client helper: `apps/web/src/lib/theme/`.
+- `ThemeToggle` is temporary on the home page; _(M2)_ moves it into Header (desktop + mobile).
+- Stylelint on `*.module.scss` (web `lint`): no hex/named/rgb(a)/hsl(a), no `--_p-*`, no `var(--token, fallback)`. `tokens.scss` / `globals.scss` are exempt.
 - Hard rules (review blockers): no alias tokens (`--old: var(--new)`), no `--as-*` / legacy Wayon palette, modules never use `--_p-*` primitives, no hex/rgb literals in `*.module.scss`, no `var(--token, #fallback)`.
 
 ## 9. i18n
 
 - Exactly two locales from `@autosearch/config`: `ua` (default, **no URL prefix**) and `en` (`/en/…`). Never redefine locale lists in an app.
 - SEO / `<html lang>` map `ua` → `uk` via `localeToHreflang`; the app/CMS code stays `ua`.
-- _(M2)_ `next-intl` with `localePrefix: 'as-needed'`, `localeDetection: false`; messages in `apps/web/messages/{ua,en}.json` — every key in **both** files; locale switcher in Header.
+- `next-intl` is wired with a request config + `NextIntlClientProvider` and `translations/{ua,en}.json`. Every new key must exist in **both** files. Locale routing / middleware / Header switcher arrive in _(M2)_ (`localePrefix: 'as-needed'`, `localeDetection: false`).
 - Payload `fallback: false`: editors fill both locales; seeds write both.
 
 ## 10. Environment & infra
@@ -140,7 +150,7 @@ Payload-generated files under `apps/cms/src/app/(payload)/` and `importMap.js`: 
 ## 14. Definition of done
 
 - [ ] `pnpm generate:types` → `pnpm typecheck` → `pnpm lint` → `pnpm format` all green
-- [ ] New UI strings added to **both** `messages/ua.json` and `messages/en.json`
-- [ ] No hardcoded user-facing copy (CMS or messages)
+- [ ] New UI strings added to **both** `translations/ua.json` and `translations/en.json`
+- [ ] No hardcoded user-facing copy (CMS or translations)
 - [ ] CMS-driven components render gracefully (or `null`) when fields are empty
 - [ ] No hex/rgb in SCSS modules; tokens only
