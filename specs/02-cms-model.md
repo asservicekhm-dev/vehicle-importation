@@ -38,8 +38,11 @@ Source: `apps/cms` (Payload 3.83.0, MongoDB, Lexical, S3/MinIO). Decisions are f
 | `information` | **Keep** (legal / privacy; drop US/EU region scaffolding) |
 | `explore` | **Drop** |
 | `subscriptions` | **Drop** |
+| `catalog` | **Drop** — no inventory listing viewType |
 | `externalLinks` | **Optional** |
 | `underDevelopment` | **Optional** |
+
+**Starter enum:** `home | information | contacts | blog`.
 
 **Starter rule:** one localized `layout` (blocks) field instead of six duplicated block arrays (`homeBlocks`, `informationBlocks`, …).
 
@@ -100,9 +103,9 @@ Article content (rename from Explore; keep for blog/legal):
 | --- | --- |
 | `popular-services-block` | Features / departments; prefer relation to `services` |
 | `directions-block` | “What we offer” (new / used / trade-in / finance) |
-| `services-catalog-block` | Drive filters from `cars` / categories, not manual keys |
-| `related-services-block` | Relationship-driven related cars/services |
-| `car-brands-block` | Drive from `brands` collection |
+| `services-catalog-block` | Service/department tiles with CMS filters (no inventory) |
+| `related-services-block` | Relationship-driven related services |
+| `car-brands-block` | Marketing logo marquee — manual CMS logos (no `brands` collection) |
 | `booking-form-block` + `contacts-form-block` | Merge into one `lead-form-block` |
 | `parts-info` / `parts-why` / `parts-how` / `parts-need` | Generic info / why / steps / CTA panels |
 | `parts-assortment-block` | **Drop** or accessories only |
@@ -120,7 +123,7 @@ Article content (rename from Explore; keep for blog/legal):
 
 | Field | Path | Notes |
 | --- | --- | --- |
-| `link()` / `linkGroup()` | `fields/link.ts` | Extend `relationTo` with `cars`, `services`, `promotions` |
+| `link()` / `linkGroup()` | `fields/link.ts` | Extend `relationTo` with `services`, `promotions` |
 | `slugField()` | `fields/slug/` | Localized slug + lock |
 | `seoFields` | `fields/seo/` | Manual SEO group |
 | `dateField()` | `fields/date/` | `publishedOn` |
@@ -148,7 +151,7 @@ Article content (rename from Explore; keep for blog/legal):
 
 | Language | Code | URL | Role |
 | --- | --- | --- | --- |
-| Ukrainian | `ua` | no prefix (`/`, `/cars`) | **Default** |
+| Ukrainian | `ua` | no prefix (`/`, `/about`) | **Default** |
 | English | `en` | `/en/…` | Second locale |
 
 - Payload localization: both locales registered; `defaultLocale: 'ua'`; `fallback: false` (editors fill each locale; missing copy does not silently fall back).
@@ -158,35 +161,24 @@ Article content (rename from Explore; keep for blog/legal):
 
 ## Proposed dealership collections
 
+No inventory collections (`brands`, `models`, `cars`, car taxonomies, `car-features`) in v1.
+
 | Collection | Purpose | Key fields |
 | --- | --- | --- |
-| `brands` | Makes | name, slug, logo, order, featured, SEO |
-| `models` | Model per brand | brand, name, slug, bodyTypes, yearFrom/To |
-| `cars` | Inventory | See below |
-| Taxonomies | body/fuel/transmission/drive | Or `select` enums if static |
-| `car-features` | Equipment tags | title, group, icon |
 | `branches` | Showrooms | address, geo, phones, hours, mapEmbed |
 | `team-members` | Sales staff | name, photo, phone, branch |
 | `services` | Trade-in, finance, after-sales | title, slug, blocks, SEO |
-| `leads` | Unified inbox | type, status, car, branch, UTM, consent |
-| `reviews` | Testimonials | rating, text, optional car, video |
-| `promotions` | Offers | validity, cars[], blocks |
+| `leads` | Unified inbox | type, status, branch, UTM, consent |
+| `reviews` | Testimonials | rating, text, video |
+| `promotions` | Offers | validity, blocks |
 | `partners` | Banks / leasing | logo, url, type |
 | `faqs` | Reusable FAQ items | question, answer, category |
-
-### `cars` (core)
-
-- Identity: `title`, `slug`, `stockNumber`, `vin`, `brand`, `model`, `year`, `condition` (`new`/`used`/`certified`), `status` (`available`/`reserved`/`sold`/`coming-soon`).
-- Pricing: `price`, `currency`, `oldPrice`, `monthlyPayment`, `negotiable`.
-- Specs: mileage, body, fuel, transmission, drive, engine, power, color, doors, seats.
-- Content: `features[]`, `branch`, `gallery[]`, `videoUrl`, `description`, optional `blocks`, `featured`.
-- System: SEO, `publishedAt`, indexes on filter fields.
 
 ### `leads`
 
 - `type`: `callback` | `test-drive` | `trade-in` | `finance` | `general`.
 - `status`: `new` | `in-progress` | `won` | `lost`.
-- Contact fields + `car` / `branch` relations + source URL + UTM + consent + `formSubmission` link.
+- Contact fields + optional `branch` relation + source URL + UTM + consent + `formSubmission` link.
 - Add rate-limit / honeypot (public create is open today).
 - Full booking → inbox behaviour: [09-booking-and-leads.md](./09-booking-and-leads.md).
 

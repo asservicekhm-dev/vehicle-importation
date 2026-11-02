@@ -47,7 +47,6 @@ Optional fields / hidden context — still one `sendForm` call:
 | Extra | How |
 | --- | --- |
 | Lead type | Hidden field or Form `submissionKind` / block prop → `leads.type` (`callback` \| `test-drive` \| `trade-in` \| `finance` \| `general`) |
-| Car of interest | Hidden `car` id when opened from `/cars/[slug]` |
 | Preferred date | Optional date field (informational only) |
 | Consent | Checkbox → stored on lead |
 | UTM / page URL | Server action attaches from headers/referrer or client fields |
@@ -111,7 +110,7 @@ Seed a Form titled e.g. `AS Autosearch — Booking` with `submissionKind: 'lead'
 | `status` | `new` → `in-progress` → `won` / `lost` (Admin) |
 | `type` | From form/block/hidden field |
 | `name`, `phone`, `email`, `message` | Picked from `submissionData` by field name (same pickers as today’s hook) |
-| `car`, `branch` | Optional relationships |
+| `branch` | Optional relationship |
 | `form`, `formSubmission` | Links back to Form Builder docs |
 | `source` | Page URL |
 | `utm` | Optional group |
@@ -125,10 +124,9 @@ Editors work primarily in **`leads`**, not raw `form-submissions` (raw remains f
 | Page | Usage |
 | --- | --- |
 | Home | `#booking` section; nav/CTA anchors |
-| Car detail | Same block; pass car id as hidden / `additionalField` |
 | Contacts | Same form pipeline (contacts-form or shared lead-form) |
+| Service landings | Same booking block |
 | Modal | `CMSLink type='form'` → FeedbackModal → same `sendForm` |
-| Autosearch wizard | Final step calls same `sendForm` with wizard answers in `submissionData` or message |
 
 ## Seed & Admin checklist
 
@@ -160,4 +158,3 @@ Editors work primarily in **`leads`**, not raw `form-submissions` (raw remains f
 - [ ] Optional email fires when configured; otherwise inbox-only is enough.
 - [ ] Payload errors surface as error toasts; success only on `ok`.
 - [ ] No dependency on `GOGYM_*` env or `api.beta.gogym.club`.
-- [ ] Car detail can attach car id to the same pipeline.

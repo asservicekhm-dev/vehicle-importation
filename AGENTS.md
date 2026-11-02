@@ -50,7 +50,7 @@ packages/
   tsconfig/            @autosearch/tsconfig — base.json, nextjs.json
   eslint-config/       @autosearch/eslint-config — flat config (`.` base, `./next`)
 specs/                 product/architecture spec (read-only reference)
-Dockerfile.cms, Dockerfile.web, .deploy/   stubs until M7
+Dockerfile.cms, Dockerfile.web, .deploy/   stubs until M6
 ```
 
 Shared packages ship TypeScript source (no build step). Apps list them in `transpilePackages`.
@@ -70,17 +70,17 @@ Run from the repo root:
 | `pnpm format` / `pnpm format:fix`                  | Prettier check / write                     |
 | `pnpm --filter @autosearch/cms generate:importmap` | Regenerate Payload admin import map        |
 
-Planned: `pnpm new component|view|block` _(M7)_, `pnpm seed <area> [--local-media]` _(M3+)_, `seed:backup` / `seed:restore` _(M7)_.
+Planned: `pnpm new component|view|block` _(M6)_, `pnpm seed <area> [--local-media]` _(M3+)_, `seed:backup` / `seed:restore` _(M6)_.
 
 ## 5. Content model
 
 Spec: [`specs/02-cms-model.md`](./specs/02-cms-model.md).
 
 - **Now:** `users` (auth) only. Localization is on: `ua` (default) + `en`, `fallback: false`.
-- _(M3)_ `pages` with one localized `layout` blocks field + `viewType` (`home | information | contacts | catalog | blog`), `media`, globals `header`, `footer`, `contacts`, `site-settings` (incl. `defaultTheme`, `enableThemeToggle`), plugins SEO / redirects / form-builder / S3.
+- _(M3)_ `pages` with one localized `layout` blocks field + `viewType` (`home | information | contacts | blog`), `media`, globals `header`, `footer`, `contacts`, `site-settings` (incl. `defaultTheme`, `enableThemeToggle`), plugins SEO / redirects / form-builder / S3.
 - _(M4)_ `forms` → `form-submissions` → `leads` inbox ([`specs/09-booking-and-leads.md`](./specs/09-booking-and-leads.md)).
-- _(M5)_ `brands`, `cars` (+ taxonomies); `/cars`, `/cars/[slug]` routes.
-- **Never add:** Explore, `subscriptions` viewType, gamification blocks, GoGym/Smarty APIs.
+- _(M5)_ Secondary IA: About, Contacts, Blog, Services landings.
+- **Never add:** Inventory (`cars` / `brands` catalogs, `/cars` routes), Autosearch search wizard, Explore, `subscriptions` / `catalog` viewTypes, gamification blocks, GoGym/Smarty APIs.
 - Do not create a Pages slug `cms` (collides with the prod `/cms` base path).
 
 ## 6. Block recipe _(M3+)_
@@ -92,7 +92,7 @@ Spec: [`specs/02-cms-model.md`](./specs/02-cms-model.md).
 5. Build the component; return `null` when CMS fields are empty (graceful-null, [`specs/03-frontend-patterns.md`](./specs/03-frontend-patterns.md) § 10).
 6. Rendered via `RenderBlocks` + registry; unknown `blockType` → `null`.
 
-`pnpm new block <area>/<Name>` will scaffold steps 1, 4 and 5 _(M7)_.
+`pnpm new block <area>/<Name>` will scaffold steps 1, 4 and 5 _(M6)_.
 
 ## 7. Design source
 
@@ -122,14 +122,14 @@ No Autosearch Figma file yet. Until one is provided, the spec is code-derived: f
 - CMS fails fast on missing `PAYLOAD_SECRET` / `DATABASE_URI` (`src/lib/env.ts`).
 - Full env matrix: [`specs/06-infra-devex.md`](./specs/06-infra-devex.md) § Env matrix. No default GTM id, no GoGym vars.
 - Turbo runs in strict env mode: build-time vars go in `turbo.json` `globalEnv`, runtime-only secrets in `globalPassThroughEnv`. Add new vars there or Turbo strips them.
-- Local MongoDB: anything on `mongodb://127.0.0.1:27017/autosearch` (e.g. `docker run --rm -p 27017:27017 mongo:7`) until the dev compose lands _(M7)_.
+- Local MongoDB: anything on `mongodb://127.0.0.1:27017/autosearch` (e.g. `docker run --rm -p 27017:27017 mongo:7`) until the dev compose lands _(M6)_.
 - Naming: packages `@autosearch/*`; containers / network / bucket / DB `autosearch-*` / `autosearch-network` / `autosearch-media` / `autosearch`.
 
 ## 11. Seeding & local media _(M3+)_
 
 Idempotent `payload run` scripts that upsert by slug/filename and write both locales; `--local-media` blanks S3 env to use local disk. No AS Service content or assets.
 
-## 12. Deploy _(M7)_
+## 12. Deploy _(M6)_
 
 `DEPLOYMENT.md` will cover it. Pattern: `turbo prune` 3-stage Docker images built with `pnpm --filter … build` (not `turbo run build`), Next standalone, CMS basePath assert, Traefik with site `/` + CMS `/cms`.
 

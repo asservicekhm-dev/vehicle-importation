@@ -44,7 +44,7 @@ src/app/
 
 - Hardcode site title (`Smarty Landing`) or `themeColor: '#130520'`.
 - Keep `/go` chrome-hiding gate.
-- Add App Router routes for content that a `viewType` can model — except inventory detail (`/cars/[slug]`), which should mirror `blog/[slug]`.
+- Add App Router routes for content that a `viewType` can model — prefer CMS pages over one-off routes (blog detail may still be a dedicated route).
 
 ## 2. viewType routing
 
@@ -67,7 +67,7 @@ Handlers live in `appViewHandlers/pageBySlugViewHandlers.tsx`.
 - Import Explore / Subscriptions viewTypes into a greenfield project.
 - Use unbounded `limit: 1000` scans without `select`.
 
-**Autosearch enum sketch:** `home | information | contacts | catalog | blog` (+ optional placeholders).
+**Autosearch enum sketch:** `home | information | contacts | blog` (+ optional placeholders).
 
 ## 3. RenderBlocks
 
@@ -127,7 +127,7 @@ Page.layout / homeBlocks
 
 - Drive metadata from Payload SEO `meta` fields + per-locale `slugs` (hreflang `ua` → `uk`).
 - Sitemap: dynamic, degrade to home-only if CMS down; Cache-Control with SWR.
-- **Adapt:** site name from `SiteSettings`; paginate large collections (`cars`); add JSON-LD (`AutoDealer`, `Vehicle`); filter duplicate `/home` URLs; disallow admin/api in robots.
+- **Adapt:** site name from `SiteSettings`; paginate large collections (e.g. blog); add JSON-LD (`AutoDealer`); filter duplicate `/home` URLs; disallow admin/api in robots.
 
 ## 7. Forms
 
@@ -163,7 +163,7 @@ Booking / enquiry must match the AS Service **primary inbox** only. Full spec: [
 | `lib/gtmConsent.ts` + GTM component | **Adapt** — no default GTM id |
 | `lib/gogymApiBase.ts` | **Drop** |
 | `lib/explore*` | **Drop** |
-| `hooks/useLoadMore.ts` | **Adapt** for inventory |
+| `hooks/useLoadMore.ts` | **Adapt** for blog / list UIs |
 | `utils/resolvePayloadMediaUrl.ts` | **Keep** |
 
 ## 9. force-dynamic and depth
@@ -195,8 +195,6 @@ Reference pattern (`AboutWayonBlock` and AS sections):
 | Route | Source |
 | --- | --- |
 | `/`, `/[slug]` | Pages + viewType |
-| `/cars` | Catalog view / collection listing |
-| `/cars/[slug]` | Car detail (dedicated route) |
 | `/blog`, `/blog/[slug]` | Blog |
 | `/contacts` | Contacts viewType |
 | Legal pages | Information viewType |

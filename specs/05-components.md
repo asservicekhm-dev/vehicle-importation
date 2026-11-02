@@ -11,11 +11,11 @@ Paths relative to `apps/web/src/`. Tokens: “Legacy” = dark/orange Wayon; “
 | CheckboxGroup | `components/CheckboxGroup` | Multi-select + extras | **Adapt** | Consent / interests. |
 | Accordion | `components/Accordion` | Headless Radix | **Keep** | FAQ / specs. |
 | Modal | `components/Modal` | Dialog + mobile menu | **Adapt** | Re-skin; fix empty `Dialog.Title`; test-drive modal. |
-| Tag | `components/Tag` | Outlined pill | **Adapt** | `VehicleBadge` (New/Used/Warranty). |
+| Tag | `components/Tag` | Outlined pill | **Adapt** | Generic badge (promo / status labels). |
 | AlertNotification | `components/AlertNotification` | Radix toast | **Adapt or Drop** | Prefer one system (sonner already used by ContactsForm). |
 | SpinningLoader | `components/SpinningLoader` | Spinner | **Adapt** | Map primary → brand. |
 | Text | `components/Text` | Legacy type scale | **Drop for AS** | AS sections set typography in SCSS. |
-| Copy / Email | `components/Copy`, `Email` | Clipboard / mailto | **Keep** | Phone/VIN copy. |
+| Copy / Email | `components/Copy`, `Email` | Clipboard / mailto | **Keep** | Phone / email copy. |
 | SelectLanguage | `components/SelectLanguage` | Locale switcher (`ua` ↔ `en`) | **Adapt** | Dead code in source — **mount in Header** (desktop + mobile). Ukrainian default; English required. |
 
 ## 2. Layout
@@ -36,9 +36,9 @@ Paths relative to `apps/web/src/`. Tokens: “Legacy” = dark/orange Wayon; “
 | Component | Verdict | Notes |
 | --- | --- | --- |
 | CMSMedia | **Keep** | Image/video by mimeType. |
-| CMSLink | **Keep** | reference / custom / anchor / form; add `cars` relation. |
+| CMSLink | **Keep** | reference / custom / anchor / form; add `services` / `promotions` relations as needed. |
 | CMSForm + ContactsForm | **Adapt** | Merge into one Form; layout slots + dealership fields. |
-| RichText | **Adapt** | Re-skin for articles / car descriptions. |
+| RichText | **Adapt** | Re-skin for articles / service descriptions. |
 | RenderBlocks | **Keep** | Drop Parts gallery hack. |
 | LocalizedLink | **Adapt** | Prefer next-intl navigation. |
 | PayloadLivePreview | **Keep** | |
@@ -50,7 +50,7 @@ Paths relative to `apps/web/src/`. Tokens: “Legacy” = dark/orange Wayon; “
 | --- | --- | --- |
 | UniversalSlider | **Keep / Adapt** | Bullets → primary; carousels. |
 | PartnersBlock | **Drop** | Prefer `CarBrands` pattern. |
-| ServiceCard | **Keep** | `LinkTile` / category tiles; later real `CarCard`. |
+| ServiceCard | **Keep** | `LinkTile` / category tiles. |
 | Faq / FaqBlock | **Drop** | Use `ServiceFaq`. |
 | Banner (empty) | **Drop** | |
 | BannerBlock | **Adapt or Drop** | Promo. |
@@ -60,22 +60,22 @@ Paths relative to `apps/web/src/`. Tokens: “Legacy” = dark/orange Wayon; “
 
 | Block slug | Component | Verdict | Dealership use |
 | --- | --- | --- | --- |
-| `auto-hero-block` | AutoHero | **Keep** | Home hero; optional quick-search strip later |
+| `auto-hero-block` | AutoHero | **Keep** | Home hero |
 | `about-intro-block` | AboutIntro | **Keep** | About dealership + stats |
-| `popular-services-block` | PopularServices | **Adapt** | Featured models / departments; i18n “Детальніше” |
-| `services-catalog-block` | ServicesCatalog | **Adapt** | Client filter only — replace with real inventory listing |
+| `popular-services-block` | PopularServices | **Adapt** | Featured departments / services; i18n “Детальніше” |
+| `services-catalog-block` | ServicesCatalog | **Adapt** | Client filter for service tiles (no inventory) |
 | `directions-block` | Directions | **Keep** | New / used / trade-in / finance |
 | `testimonials-block` | Testimonials | **Keep** | Customer stories |
 | `reviews-block` | Reviews | **Keep** | Ratings |
 | `service-faq-block` | ServiceFaq | **Keep** | FAQ |
-| `booking-form-block` | BookingForm | **Keep** | Lead form → Payload inbox ([09-booking-and-leads.md](./09-booking-and-leads.md)); test-drive / callback / trade-in |
-| `service-hero-block` | ServiceHero | **Adapt** | Vehicle hero → gallery |
-| `service-info-block` | ServiceInfo | **Adapt** | Vehicle summary + price |
-| `service-feature-cards-block` | ServiceFeatureCards | **Adapt** | Equipment / features |
+| `booking-form-block` | BookingForm | **Keep** | Lead form → Payload inbox ([09-booking-and-leads.md](./09-booking-and-leads.md)); callback / enquiry / trade-in |
+| `service-hero-block` | ServiceHero | **Adapt** | Service landing hero |
+| `service-info-block` | ServiceInfo | **Adapt** | Service summary + CTAs |
+| `service-feature-cards-block` | ServiceFeatureCards | **Adapt** | Service features |
 | `service-benefits-block` | ServiceBenefits | **Keep** | Why us |
-| `service-gallery-block` | ServiceGallery | **Keep** | Car photos; add lightbox |
-| `related-services-block` | RelatedServices | **Keep** | Similar cars (needs real cards) |
-| `car-brands-block` | CarBrands | **Keep** | Brands marquee |
+| `service-gallery-block` | ServiceGallery | **Keep** | Service / showroom media; optional lightbox |
+| `related-services-block` | RelatedServices | **Keep** | Related service cards |
+| `car-brands-block` | CarBrands | **Keep** | Marketing brand logo marquee (CMS media) |
 | `team-block` | TeamBlock | **Keep** | Sales team |
 | `video-banner-block` | VideoBlock | **Keep** | Showroom video |
 | `page-breadcrumbs-block` | PageBreadcrumbs | **Keep** | |
@@ -128,12 +128,11 @@ Paths relative to `apps/web/src/`. Tokens: “Legacy” = dark/orange Wayon; “
 
 ### Hardcoded strings to eliminate
 
-“Детальніше”, empty catalog copy, video aria-labels, Footer “Вгору” / brand text — move to CMS or `translations/{ua,en}.json`.
+“Детальніше”, empty-state copy, video aria-labels, Footer “Вгору” / brand text — move to CMS or `translations/{ua,en}.json`.
 
 ## Priority for starter scaffold
 
 1. Tokens + ThemeToggle + Header/Footer restyle.
 2. Shared `Button`, `Input`, `SectionEyebrow`, `Container`, CMS glue.
 3. AutoHero, AboutIntro, CarBrands, ServiceFaq, BookingForm, Testimonials.
-4. Inventory-specific: CarCard, catalog filters, car detail gallery (new).
-5. Drop all legacy/gamification components at scaffold time.
+4. Drop all legacy/gamification components at scaffold time.

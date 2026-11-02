@@ -45,29 +45,20 @@ Ordered milestones to stand up the Autosearch repo from this spec. Each mileston
 - Home seed content (placeholder media).
 - **Exit:** Home matches AS Service rhythm on light theme; dark theme readable; booking creates inbox lead.
 
-## Milestone 5 — Inventory
+## Milestone 5 — Secondary IA
 
-- Collections: `brands`, `cars` (+ taxonomies as needed), `leads`.
-- Routes: `/cars`, `/cars/[slug]`.
-- `CarCard`, filters, pagination/load-more; car detail using adapted service blocks.
-- Sitemap + Vehicle JSON-LD.
-- Booking form accepts hidden car context.
-- **Exit:** Editors can publish a car; public list/detail + lead with car id.
-
-## Milestone 6 — Secondary IA
-
-- About, Contacts, Blog (port), Services landings, Autosearch wizard MVP.
+- About, Contacts, Blog (port), Services landings.
 - Partners / promotions optional.
 - SEO polish, robots, GTM with consent (no default container id).
 
-## Milestone 7 — Infra harden
+## Milestone 6 — Infra harden
 
 - Full `.deploy` compose (dev/prod), Traefik, MinIO, seed backup/restore.
 - CI + deploy workflows with health gates.
 - `pnpm new block` scaffolder; seed-all runner.
 - Docs: README, DEPLOYMENT, SERVER_SETUP.
 
-## Milestone 8 — Soft launch checklist
+## Milestone 7 — Soft launch checklist
 
 - [ ] Theme default + toggle signed off
 - [ ] Dark palette designer review
@@ -77,13 +68,14 @@ Ordered milestones to stand up the Autosearch repo from this spec. Each mileston
 - [ ] Spam protection on public forms
 - [ ] Cross-app revalidation verified
 - [ ] Staging content seed (not AS Service dump)
-- [ ] Performance pass on car gallery images
 - [ ] Accessibility pass (focus, contrast, reduced motion)
 
 ## Explicit non-goals for v1
 
+- Inventory / cars catalog (`brands`, `cars`, `/cars` routes, CarCard)
+- Autosearch multi-step search wizard
 - Explore / knowledge-base system
 - Gamification / app-download / tariff pages
 - GoGym / Smarty Landing integrations
 - Preserving Wayon dark-orange dual palette
-- Full DMS/CRM sync (unless product requires it in parallel)
+- Full DMS/CRM sync

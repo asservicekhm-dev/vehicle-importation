@@ -14,10 +14,10 @@ Reusable, code-derived blueprint for a new **AS Autosearch** car-dealership land
 | Locales | **Ukrainian (default)** + **English**. Codes `ua` / `en`; `ua` has no URL prefix, `en` is `/en/…` |
 | Content | CMS blocks + `viewType` routing; almost no hardcoded copy; every UI string in both `translations/ua.json` and `translations/en.json` |
 | Theme | Semantic tokens; `[data-theme=light\|dark]`; cookie + SiteSettings default; no legacy aliases |
-| Domain | Inventory (`cars`), leads, brands, services, blog, Autosearch wizard |
+| Domain | Leads, services, blog, about/contacts (no inventory catalog, no search wizard) |
 | Booking / leads | Same as AS Service **primary inbox**: Form Builder → `form-submissions` → Admin `leads` (+ optional email). No GoGym. See [09-booking-and-leads.md](./09-booking-and-leads.md) |
 | Naming | `@autosearch/*`, containers/buckets `autosearch-*` |
-| Drop | Explore, gamification blocks, subscriptions, gogym APIs, Tailwind prettier plugin, dual Wayon/`--as-*` palettes |
+| Drop | Inventory / cars catalog, Autosearch search wizard, Explore, gamification blocks, subscriptions, gogym APIs, Tailwind prettier plugin, dual Wayon/`--as-*` palettes |
 
 ```mermaid
 flowchart TB
@@ -44,7 +44,7 @@ flowchart TB
 | [05-components.md](./05-components.md) | Primitives, sections, Header/Footer, design patterns |
 | [06-infra-devex.md](./06-infra-devex.md) | Docker, compose, CI/CD, seeds, AGENTS.md outline |
 | [07-domain-and-pages.md](./07-domain-and-pages.md) | Sitemap, page recipes, feature mapping, open questions |
-| [08-bootstrap-roadmap.md](./08-bootstrap-roadmap.md) | Ordered milestones 0–8 |
+| [08-bootstrap-roadmap.md](./08-bootstrap-roadmap.md) | Ordered milestones 0–7 |
 | [09-booking-and-leads.md](./09-booking-and-leads.md) | Booking form + Payload leads inbox (parity with AS Service primary path) |
 
 ## Cross-cutting Keep / Adapt / Drop
@@ -55,11 +55,11 @@ flowchart TB
 
 ### Adapt
 
-- Rename everything off `wayon-landing`; single semantic theme + toggle; merge form UIs; cache redirects; webhook revalidation; inventory routes/collections; shared Button; slim block registry; env examples + validation.
+- Rename everything off `wayon-landing`; single semantic theme + toggle; merge form UIs; cache redirects; webhook revalidation; shared Button; slim block registry; env examples + validation.
 
 ### Drop
 
-- `@wayon-landing` / GoGym / Smarty branding and APIs; Explore system; subscriptions viewType; gamification blocks; dual token palettes and alias chains; default GTM id; unused Dockerfiles and dead components (`Banner`, unwired `SelectLanguage` until needed).
+- Inventory (`cars` / `brands` catalogs, `/cars` routes); Autosearch search wizard; `@wayon-landing` / GoGym / Smarty branding and APIs; Explore system; subscriptions viewType; gamification blocks; dual token palettes and alias chains; default GTM id; unused Dockerfiles and dead components (`Banner`, unwired `SelectLanguage` until needed).
 
 ## How to use this spec
 
@@ -78,4 +78,4 @@ flowchart TB
 
 ---
 
-*Generated as analysis deliverable for Autosearch greenfield. Living docs: update when product decisions land (DMS sync, dark palette sign-off). Locales are fixed: Ukrainian default + English.*
+*Generated as analysis deliverable for Autosearch greenfield. Living docs: update when product decisions land (dark palette sign-off). Locales are fixed: Ukrainian default + English. Inventory and search wizard are out of scope for v1.*
