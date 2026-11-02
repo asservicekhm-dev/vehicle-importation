@@ -1,0 +1,4 @@
+{
+  "extends": "@autosearch/tsconfig/base.json",
+  "include": ["src/**/*.ts"]
+}

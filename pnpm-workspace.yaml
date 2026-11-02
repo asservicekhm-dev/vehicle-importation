@@ -1,0 +1,12 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - esbuild
+  - sharp
+
+overrides:
+  '@types/react': 19.2.1
+  '@types/react-dom': 19.2.1

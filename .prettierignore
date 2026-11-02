@@ -1,0 +1,12 @@
+**/node_modules/**
+**/.next/**
+**/.turbo/**
+**/dist/**
+**/build/**
+**/coverage/**
+**/*.min.*
+**/*.map
+pnpm-lock.yaml
+apps/cms/src/payload-types.ts
+apps/cms/src/app/(payload)/admin/importMap.js
+specs/

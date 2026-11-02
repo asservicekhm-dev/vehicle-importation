@@ -1,0 +1,35 @@
+# dependencies
+node_modules
+.pnpm-store
+.pnp.*
+package-lock.json
+yarn.lock
+
+# build / cache
+.next
+.next.bak
+.turbo
+dist
+out
+coverage
+*.tsbuildinfo
+
+# env (examples stay tracked)
+.env
+.env*.local
+!.env*.example
+
+# deploy secrets (examples stay tracked)
+.deploy/env.*
+!.deploy/env.*.example
+.deploy/media
+
+# local data
+apps/cms/media
+mongodb-data
+
+# misc
+.DS_Store
+*.log
+*.pem
+.idea

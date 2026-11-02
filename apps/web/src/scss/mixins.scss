@@ -1,0 +1,26 @@
+// Auto-injected into every SCSS file via `sassOptions.additionalData` (next.config.ts).
+// Breakpoints: specs/04-design-tokens.md § Breakpoints. Laptop is 1200px everywhere.
+
+@mixin tablet {
+  @media (min-width: 768px) {
+    @content;
+  }
+}
+
+@mixin laptop {
+  @media (min-width: 1200px) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: 1750px) {
+    @content;
+  }
+}
+
+@mixin maxTablet {
+  @media (max-width: 767px) {
+    @content;
+  }
+}

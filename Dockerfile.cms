@@ -1,0 +1,5 @@
+# syntax=docker/dockerfile:1
+# Stub — implemented in Milestone 7 (specs/06-infra-devex.md § Docker).
+# Pattern: turbo prune --scope=@autosearch/cms --docker → pnpm install from pruned json + lockfile
+# → `pnpm --filter @autosearch/cms build` (not `turbo run build`) → Next standalone runner.
+# Assert .next/routes-manifest.json basePath === CMS_BASE_PATH; HEALTHCHECK /cms/api/health.
