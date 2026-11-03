@@ -194,14 +194,17 @@ export function AnimatedContent({
         return;
       }
 
-      const start = `top ${(1 - threshold) * 100}%`;
+      // Fire as soon as the top peeks into the viewport. Using `top 85%`-style
+      // starts (via threshold) left below-the-fold peeks stuck at opacity 0.
+      const start = 'top bottom';
       const scrollTriggerScroller = scroller || undefined;
 
       if (scrub) {
+        const scrubStart = `top ${(1 - Math.min(Math.max(threshold, 0), 1)) * 100}%`;
         ScrollTrigger.create({
           trigger: el,
           scroller: scrollTriggerScroller,
-          start,
+          start: scrubStart,
           end: `top ${Math.max((1 - threshold) * 100 - 45, 5)}%`,
           scrub: scrub === true ? true : Math.max(Number(scrub) || 0, 0.01),
           animation: tl,
@@ -209,12 +212,16 @@ export function AnimatedContent({
         return;
       }
 
+      const play = () => {
+        if (tl.progress() === 0 && !tl.isActive()) tl.play();
+      };
+
       ScrollTrigger.create({
         trigger: el,
         scroller: scrollTriggerScroller,
         start,
         once,
-        onEnter: () => tl.play(),
+        onEnter: play,
         onLeaveBack: once
           ? undefined
           : () => {
@@ -222,6 +229,23 @@ export function AnimatedContent({
               tl.reverse();
             },
       });
+
+      // ScrollTrigger onEnter can miss content that is already peeking into the
+      // viewport on first paint (hero height / layout). If the top is already
+      // above the bottom of the viewport, reveal now instead of waiting for scroll.
+      const revealIfAlreadyDue = () => {
+        const rect = el.getBoundingClientRect();
+        const viewH = window.innerHeight || document.documentElement.clientHeight;
+        if (rect.bottom <= 0) {
+          // Fully above the fold (e.g. scroll restoration) — show final state.
+          tl.progress(1);
+          return;
+        }
+        if (rect.top < viewH) play();
+      };
+
+      revealIfAlreadyDue();
+      requestAnimationFrame(revealIfAlreadyDue);
     }, el);
 
     return () => ctx.revert();
