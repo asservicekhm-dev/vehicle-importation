@@ -186,10 +186,10 @@ async function main(): Promise<void> {
     copyrightText: 'Автопідбір «AS Autosearch» (c) 2026. Усі права захищено.',
     navItems: [
       { link: { type: 'custom', label: 'Автопідбір', url: '/' } },
-      { link: { type: 'custom', label: 'Послуги', url: '/services' } },
-      { link: { type: 'custom', label: 'Про нас', url: '/about' } },
+      { link: { type: 'custom', label: 'Послуги', url: '#services' } },
+      { link: { type: 'custom', label: 'Про нас', url: '#about' } },
       { link: { type: 'custom', label: 'Блог', url: '/blog' } },
-      { link: { type: 'custom', label: 'Контакти', url: '/contacts' } },
+      { link: { type: 'custom', label: 'Контакти', url: '#contacts' } },
     ],
   });
 
@@ -204,10 +204,10 @@ async function main(): Promise<void> {
     copyrightText: 'Car search “AS Autosearch” (c) 2026. All rights reserved.',
     navItems: [
       { id: footerNavIds[0], link: { type: 'custom', label: 'Car search', url: '/' } },
-      { id: footerNavIds[1], link: { type: 'custom', label: 'Services', url: '/services' } },
-      { id: footerNavIds[2], link: { type: 'custom', label: 'About', url: '/about' } },
+      { id: footerNavIds[1], link: { type: 'custom', label: 'Services', url: '#services' } },
+      { id: footerNavIds[2], link: { type: 'custom', label: 'About', url: '#about' } },
       { id: footerNavIds[3], link: { type: 'custom', label: 'Blog', url: '/blog' } },
-      { id: footerNavIds[4], link: { type: 'custom', label: 'Contacts', url: '/contacts' } },
+      { id: footerNavIds[4], link: { type: 'custom', label: 'Contacts', url: '#contacts' } },
     ],
   });
 

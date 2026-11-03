@@ -177,7 +177,7 @@ Article content (rename from Explore; keep for blog/legal):
 
 | Language | Code | URL | Role |
 | --- | --- | --- | --- |
-| Ukrainian | `ua` | no prefix (`/`, `/about`) | **Default** |
+| Ukrainian | `ua` | no prefix (`/`, `/blog`) | **Default** |
 | English | `en` | `/en/…` | Second locale |
 
 - Payload localization: both locales registered; `defaultLocale: 'ua'`; `fallback: false` (editors fill each locale; missing copy does not silently fall back).

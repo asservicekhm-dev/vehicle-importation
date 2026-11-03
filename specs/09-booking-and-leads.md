@@ -22,7 +22,7 @@ Reuse the AS Service layout:
 - CMS block: keep slug `booking-form-block` (or rename greenfield to `lead-form-block` — pick one and stick to it).
 - Section: eyebrow + title / titleAccent + description + optional image + form card.
 - Component: `ServiceBookingForm` (mode-aware UI). Booking section is a thin wrapper. Payload Form doc is still the submit target (`submissionKind: lead`).
-- Also usable from Contacts page and from `CMSLink type='form'` (modal) with the same pipeline.
+- Also usable from the Home contacts / callback sections and from `CMSLink type='form'` (modal) with the same pipeline.
 - Directions «Замовити» deep-links with `?service=<mode>#callback`.
 
 ### Service modes
@@ -125,8 +125,7 @@ Editors work primarily in **`leads`**, not raw `form-submissions` (raw remains f
 
 | Page | Usage |
 | --- | --- |
-| Home | `#booking` section; nav/CTA anchors |
-| Contacts | Same form pipeline (contacts-form or shared lead-form) |
+| Home | Pitch + `#callback` booking; nav/CTA anchors (`#contacts`, `#callback`, …) |
 | Service landings | Same booking block |
 | Modal | `CMSLink type='form'` → FeedbackModal → same `sendForm` |
 

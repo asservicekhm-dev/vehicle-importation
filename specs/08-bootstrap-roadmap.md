@@ -49,7 +49,8 @@ Ordered milestones to stand up the Autosearch repo from this spec. Each mileston
 
 ## Milestone 5 — Secondary IA
 
-- About, Contacts, Blog (port), Services landings.
+- Blog (port) + Services landings (`/services/{perevirka,pid-kliuch,ekspert-na-den,diagnostyka,vyizd}`).
+- **Not in M5:** separate About / Contacts pages. Primary chrome keeps Home section anchors (`#about`, `#contacts`, etc.) — same as current header seed; do not add `/about` or `/contacts` routes for v1.
 - Partners / promotions optional.
 - SEO polish, robots, GTM with consent (no default container id).
 

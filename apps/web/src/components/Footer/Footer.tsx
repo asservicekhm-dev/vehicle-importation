@@ -36,9 +36,9 @@ type SocialRow = {
 };
 
 const FALLBACK_NAV: { href: string; labelKey: 'navAbout' | 'navServices' | 'navContacts' }[] = [
-  { href: '/about', labelKey: 'navAbout' },
-  { href: '/services', labelKey: 'navServices' },
-  { href: '/contacts', labelKey: 'navContacts' },
+  { href: '#about', labelKey: 'navAbout' },
+  { href: '#services', labelKey: 'navServices' },
+  { href: '#contacts', labelKey: 'navContacts' },
 ];
 
 function extractNavRows(raw: unknown): NavRow[] {

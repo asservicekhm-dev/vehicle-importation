@@ -67,18 +67,29 @@ Heading on the source sheet: “FAS AUTO SEARCH”. Site name stays **AS Autosea
 ## Sitemap (proposed)
 
 ```
-/                         Home
+/                         Home (single marketing landing; About + Contacts are sections)
 /services/perevirka       Pre-purchase inspection
 /services/pid-kliuch      Turnkey car search
 /services/ekspert-na-den  Expert for a day
 /services/diagnostyka     Computer diagnostics
 /services/vyizd           Travel to other cities
-/about                    About / team
 /blog                     News
 /blog/[slug]              Post
-/contacts                 Contacts + map + form
 /privacy (etc.)           Information viewType
 ```
+
+**Home section anchors (primary chrome — header / footer):** not separate pages in v1.
+
+| Anchor | Section |
+| --- | --- |
+| `#about` | `about-intro-block` |
+| `#services` | Directions / services |
+| `#route` | Turnkey route (“how we work”) |
+| `#prices` | Price list |
+| `#contacts` | Contacts band (footer `id="contacts"` + coverage) |
+| `#callback` | Bottom booking form |
+
+Do **not** ship `/about` or `/contacts` routes for v1; nav must not deep-link those paths.
 
 Locales: Ukrainian (`ua`) unprefixed by default; English (`en`) under `/en/…`. Both are required for chrome, CMS copy, and seeds.
 
@@ -86,11 +97,9 @@ Locales: Ukrainian (`ua`) unprefixed by default; English (`en`) under `/en/…`.
 
 | Page | Mechanism | Primary blocks / collections |
 | --- | --- | --- |
-| Home | `Pages` viewType `home` | auto-hero, early booking-form (pitch), about-intro, why-choose-us, directions, comparison, price-list, inspection-checklist, turnkey-route, ukraine-coverage, testimonials, faq, booking-form (callback) |
+| Home | `Pages` viewType `home` | auto-hero, early booking-form (pitch), about-intro, why-choose-us, directions, comparison, price-list, inspection-checklist, turnkey-route, ukraine-coverage, testimonials, faq, booking-form (callback); About + Contacts live here as sections |
 | Service landing | `Pages` or `services` collection + blocks | Same stack as AS single-service |
-| About | `Pages` blocks | about-intro, team, video, reviews, faq |
 | Blog | viewType `blog` + collection | Existing Blog views |
-| Contacts | viewType `contacts` | contacts-info, form, our-links |
 | Legal | viewType `information` | Rich text / article blocks |
 
 ## Feature → pattern reuse

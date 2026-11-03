@@ -95,7 +95,7 @@ Spec: [`specs/02-cms-model.md`](./specs/02-cms-model.md).
 - Booking UI: `ServiceBookingForm` modes `consultation` \| `turnkey` \| `inspection` \| `expert`; Directions «Замовити» uses `?service=<mode>#callback`; option lists in `@autosearch/config`.
 - Revalidate: CMS hooks POST `WEB_URL/api/revalidate` with `REVALIDATE_SECRET` (not CMS-local `revalidatePath`).
 - _(design seed)_ `/design-seed` remains a noindex visual reference; production Home is CMS-driven.
-- _(M5)_ Secondary IA: About, Contacts, Blog, Services landings (`/services/{perevirka,pid-kliuch,ekspert-na-den,diagnostyka,vyizd}`).
+- _(M5)_ Secondary IA: Blog + Services landings (`/services/{perevirka,pid-kliuch,ekspert-na-den,diagnostyka,vyizd}`). About (`#about`) and Contacts (`#contacts`) stay Home section anchors — no `/about` or `/contacts` routes in v1.
 - Booking / leads: [`specs/09-booking-and-leads.md`](./specs/09-booking-and-leads.md).
 - **Never add:** Inventory (`cars` / `brands` catalogs, `/cars` routes), Autosearch search wizard, Explore, `subscriptions` / `catalog` viewTypes, gamification blocks, GoGym/Smarty APIs.
 - Do not create a Pages slug `cms` (collides with the prod `/cms` base path).

@@ -14,7 +14,7 @@ Reusable, code-derived blueprint for a new **AS Autosearch** car-dealership land
 | Locales | **Ukrainian (default)** + **English**. Codes `ua` / `en`; `ua` has no URL prefix, `en` is `/en/…` |
 | Content | CMS blocks + `viewType` routing; almost no hardcoded copy; every UI string in both `translations/ua.json` and `translations/en.json` |
 | Theme | Semantic tokens; `[data-theme=light\|dark]`; cookie + SiteSettings default; no legacy aliases |
-| Domain | Import/search from USA·EU·KR; five services (inspection, turnkey, expert-for-a-day, diagnostics, travel); CMS price list; leads, blog, about/contacts (no inventory catalog, no search wizard) |
+| Domain | Import/search from USA·EU·KR; five services (inspection, turnkey, expert-for-a-day, diagnostics, travel); CMS price list; leads, blog; About/Contacts as Home sections (no `/about`/`/contacts` in v1; no inventory catalog, no search wizard) |
 | Booking / leads | Same as AS Service **primary inbox**: Form Builder → `form-submissions` → Admin `leads` (+ optional email). No GoGym. See [09-booking-and-leads.md](./09-booking-and-leads.md) |
 | Naming | `@autosearch/*`, containers/buckets `autosearch-*` |
 | Drop | Inventory / cars catalog, Autosearch search wizard, Explore, gamification blocks, subscriptions, gogym APIs, Tailwind prettier plugin, dual Wayon/`--as-*` palettes |

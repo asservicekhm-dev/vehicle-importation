@@ -194,7 +194,9 @@ Reference pattern (`AboutWayonBlock` and AS sections):
 
 | Route | Source |
 | --- | --- |
-| `/`, `/[slug]` | Pages + viewType |
+| `/`, `/[slug]` | Pages + viewType (Home holds About `#about` + Contacts `#contacts` sections) |
 | `/blog`, `/blog/[slug]` | Blog |
-| `/contacts` | Contacts viewType |
+| `/services/…` | Service landings (M5) |
 | Legal pages | Information viewType |
+
+No `/about` or `/contacts` routes in v1 — chrome uses Home anchors.
