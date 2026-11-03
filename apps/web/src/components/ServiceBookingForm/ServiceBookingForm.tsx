@@ -23,6 +23,7 @@ import {
   parseBudgetInput,
 } from '@/lib/booking/priceEstimate';
 import { subscribeBookingServiceDeepLink } from '@/lib/booking/serviceDeepLink';
+import { FORM_HONEYPOT_FIELD } from '@/lib/formSpam';
 import {
   formatUaPhoneMask,
   isCompleteUaPhone,
@@ -65,6 +66,8 @@ type FormValues = {
   deliveryCity: string;
   priceRange: string;
   addons: string[];
+  /** Honeypot — must stay empty. */
+  companyWebsite: string;
 };
 
 type Props = {
@@ -151,6 +154,7 @@ export function ServiceBookingForm({
   const {
     control,
     handleSubmit,
+    register,
     watch,
     setValue,
     reset,
@@ -171,6 +175,7 @@ export function ServiceBookingForm({
       deliveryCity: '',
       priceRange: '',
       addons: [],
+      companyWebsite: '',
     },
   });
 
@@ -311,6 +316,11 @@ export function ServiceBookingForm({
       rows.push({ field: 'source', value: window.location.href });
     }
 
+    rows.push({
+      field: FORM_HONEYPOT_FIELD,
+      value: data.companyWebsite?.trim() ?? '',
+    });
+
     const result = await sendForm({ form: formId, submissionData: rows });
     if (!result.ok) {
       setStatus({
@@ -325,6 +335,7 @@ export function ServiceBookingForm({
       name: '',
       phone: '',
       message: '',
+      companyWebsite: '',
       budget: '',
       budgetCurrency: 'usd',
       origin: '',
@@ -378,6 +389,18 @@ export function ServiceBookingForm({
       noValidate
       onSubmit={onSubmit}
     >
+      <div className={styles.honeypot} aria-hidden='true'>
+        <label htmlFor={`hp-${form.id}`}>
+          Company website
+          <input
+            id={`hp-${form.id}`}
+            type='text'
+            tabIndex={-1}
+            autoComplete='off'
+            {...register('companyWebsite')}
+          />
+        </label>
+      </div>
       <div className={styles.fields}>
         <Controller
           control={control}

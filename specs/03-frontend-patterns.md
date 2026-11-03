@@ -152,7 +152,7 @@ Booking / enquiry must match the AS Service **primary inbox** only. Full spec: [
 **Don't**
 
 - Hardcode Russian validation strings.
-- Ship without spam protection (honeypot / rate limit).
+- Ship without spam protection (honeypot `companyWebsite` + `sendForm` rate limit are required).
 - Call any external lead API in parallel with Payload.
 
 ## 8. lib / hooks

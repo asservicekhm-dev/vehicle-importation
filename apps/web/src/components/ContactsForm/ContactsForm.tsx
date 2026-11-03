@@ -9,6 +9,7 @@ import { sendForm } from '@/actions/sendForm';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { Textarea } from '@/components/Textarea';
+import { FORM_HONEYPOT_FIELD } from '@/lib/formSpam';
 import {
   formatUaPhoneMask,
   isCompleteUaPhone,
@@ -120,17 +121,21 @@ export function ContactsForm({
 
   const {
     control,
+    register,
     formState: { isSubmitting },
     handleSubmit,
     reset,
   } = useForm<Record<string, string>>({
     mode: 'onChange',
-    defaultValues: fields.reduce<Record<string, string>>((acc, field) => {
-      if ('name' in field && typeof field.name === 'string') {
-        acc[field.name] = '';
-      }
-      return acc;
-    }, {}),
+    defaultValues: fields.reduce<Record<string, string>>(
+      (acc, field) => {
+        if ('name' in field && typeof field.name === 'string') {
+          acc[field.name] = '';
+        }
+        return acc;
+      },
+      { [FORM_HONEYPOT_FIELD]: '' },
+    ),
   });
 
   const onSubmit = handleSubmit(async (data) => {
@@ -143,8 +148,15 @@ export function ContactsForm({
     }
 
     const submissionData = Object.entries(data)
-      .filter(([fieldName]) => !(hideMessage && slotFor(fieldName, layout) === 'message'))
+      .filter(
+        ([fieldName]) =>
+          fieldName === FORM_HONEYPOT_FIELD ||
+          !(hideMessage && slotFor(fieldName, layout) === 'message'),
+      )
       .map(([fieldName, value]) => {
+        if (fieldName === FORM_HONEYPOT_FIELD) {
+          return { field: fieldName, value: valueToSubmissionString(value) };
+        }
         const slot = slotFor(fieldName, layout);
         const raw = valueToSubmissionString(value);
         const normalized =
@@ -173,6 +185,18 @@ export function ContactsForm({
 
   return (
     <form className={clsx(styles.root, className)} noValidate onSubmit={onSubmit}>
+      <div className={styles.honeypot} aria-hidden='true'>
+        <label htmlFor={`hp-contacts-${form.id}`}>
+          Company website
+          <input
+            id={`hp-contacts-${form.id}`}
+            type='text'
+            tabIndex={-1}
+            autoComplete='off'
+            {...register(FORM_HONEYPOT_FIELD)}
+          />
+        </label>
+      </div>
       <div className={clsx(styles.fields, compact && styles.fieldsCompact)}>
         {fields.map((field) => {
           if (!('name' in field) || typeof field.name !== 'string') return null;

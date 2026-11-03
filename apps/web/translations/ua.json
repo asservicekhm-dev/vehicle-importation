@@ -22,6 +22,9 @@
     "ua": "UA",
     "en": "EN"
   },
+  "Layout": {
+    "skipToContent": "Перейти до вмісту"
+  },
   "Header": {
     "brand": "AS Autosearch",
     "navAbout": "Як ми працюємо",

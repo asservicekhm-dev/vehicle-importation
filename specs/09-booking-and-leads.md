@@ -81,7 +81,7 @@ sequenceDiagram
 3. **Fail closed on UX:** if Payload returns `!ok`, show error toast and **do not** show success / do not `reset()` (fix the AS Service bug).
 4. Values normalized to strings before POST (`submissionData: [{ field, value }]`).
 5. Unpopulated form relationship (`typeof form === 'string'`) → block renders `null`.
-6. Public create on submissions stays open; add honeypot and/or rate limit before production.
+6. Public create on submissions stays open; spam controls: honeypot field `companyWebsite` (web fake-ok + CMS `rejectSpamSubmission`) and `sendForm` IP rate limit (5/min).
 
 ## CMS side (what “primary inbox” means)
 

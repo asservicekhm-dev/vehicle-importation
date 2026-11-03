@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload';
 
 import { onFormSubmissionCreate } from '../hooks/onFormSubmissionCreate';
 import { preventDuplicateFormEmail } from '../hooks/preventDuplicateFormEmail';
+import { rejectSpamSubmission } from '../hooks/rejectSpamSubmission';
 
 export const FormSubmissions: CollectionConfig = {
   slug: 'form-submissions',
@@ -32,7 +33,7 @@ export const FormSubmissions: CollectionConfig = {
     },
   ],
   hooks: {
-    beforeChange: [preventDuplicateFormEmail],
+    beforeChange: [rejectSpamSubmission, preventDuplicateFormEmail],
     afterChange: [onFormSubmissionCreate],
   },
   labels: {

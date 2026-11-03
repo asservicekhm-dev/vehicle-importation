@@ -1,6 +1,9 @@
 'use server';
 
+import { headers } from 'next/headers';
+
 import { getCmsBaseUrl } from '@/lib/cmsBaseUrl';
+import { FORM_HONEYPOT_FIELD, honeypotFilled } from '@/lib/formSpam';
 
 export type SendFormResult =
   { doc: unknown; ok: true } | { message: string; ok: false; title: string };
@@ -13,6 +16,29 @@ type CmsFormSubmissionResponse = {
   errors?: CmsErrorShape[] | null;
   message?: string | null;
 };
+
+const RATE_WINDOW_MS = 60_000;
+const RATE_MAX = 5;
+const rateBuckets = new Map<string, number[]>();
+
+function clientIp(headerList: Headers): string {
+  const forwarded = headerList.get('x-forwarded-for');
+  if (forwarded) return forwarded.split(',')[0]?.trim() || 'unknown';
+  return headerList.get('x-real-ip')?.trim() || 'unknown';
+}
+
+function rateLimited(ip: string): boolean {
+  const now = Date.now();
+  const prev = rateBuckets.get(ip) ?? [];
+  const recent = prev.filter((ts) => now - ts < RATE_WINDOW_MS);
+  if (recent.length >= RATE_MAX) {
+    rateBuckets.set(ip, recent);
+    return true;
+  }
+  recent.push(now);
+  rateBuckets.set(ip, recent);
+  return false;
+}
 
 function safeJsonParse<T>(raw: string): T | null {
   if (!raw) return null;
@@ -41,6 +67,20 @@ export async function sendForm({
   form: string | number;
   submissionData: SubmissionRow[];
 }): Promise<SendFormResult> {
+  // Honeypot filled → pretend success so bots do not retry loudly.
+  if (honeypotFilled(submissionData)) {
+    return { doc: null, ok: true };
+  }
+
+  const headerList = await headers();
+  if (rateLimited(clientIp(headerList))) {
+    return {
+      ok: false,
+      title: 'Too many requests',
+      message: 'Please wait a minute and try again.',
+    };
+  }
+
   let cmsBase: string;
   try {
     cmsBase = getCmsBaseUrl();
@@ -54,14 +94,17 @@ export async function sendForm({
   }
 
   const formId = String(form);
+  const sanitized = submissionData
+    .filter((row) => row.field !== FORM_HONEYPOT_FIELD)
+    .map((row) => ({
+      field: row.field,
+      value: row.value == null ? '' : String(row.value),
+    }));
 
   const res = await fetch(`${cmsBase}/api/form-submissions`, {
     body: JSON.stringify({
       form: formId,
-      submissionData: submissionData.map((row) => ({
-        field: row.field,
-        value: row.value == null ? '' : String(row.value),
-      })),
+      submissionData: sanitized,
     }),
     headers: {
       'Content-Type': 'application/json',

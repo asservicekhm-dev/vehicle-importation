@@ -73,6 +73,28 @@ Verify:
 - `https://<WEB_DOMAIN>/cms/api/health`
 - MinIO hosts from Traefik env
 
+## Staging content seed (soft launch)
+
+Use Autosearch Payload seeds only — **never** restore an AS Service Mongo/MinIO dump onto Autosearch.
+
+On the staging host (after compose is up and CMS env points at staging Mongo/S3):
+
+```bash
+cd ~/autosearch-landing
+# Prefer local-media if staging MinIO is empty / not yet wired:
+pnpm seed:all:local-media
+# or with S3/MinIO configured:
+pnpm seed:all
+```
+
+Verify both locales in Admin and on the site (`/` and `/en`): home, five service landings, blog index + posts, header/footer.
+
+Optional snapshot after a good seed (for restore drills):
+
+```bash
+pnpm seed:backup:prod
+```
+
 ## Backups
 
 ```bash

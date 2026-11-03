@@ -47,6 +47,7 @@ flowchart TB
 | [08-bootstrap-roadmap.md](./08-bootstrap-roadmap.md) | Ordered milestones 0–7 |
 | [09-booking-and-leads.md](./09-booking-and-leads.md) | Booking form + Payload leads inbox (parity with AS Service primary path) |
 | [10-design-direction.md](./10-design-direction.md) | Design seed: palette, type, wireframes, principles, rejected defaults |
+| [11-soft-launch-checklist.md](./11-soft-launch-checklist.md) | M7 soft-launch gates: engineering vs human/staging sign-off |
 
 ## Cross-cutting Keep / Adapt / Drop
 

@@ -6,6 +6,25 @@
   overflow-x: clip;
 }
 
+.skipLink {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 1000;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  text-decoration: none;
+  transform: translateY(-200%);
+
+  &:focus-visible {
+    transform: translateY(0);
+  }
+}
+
 .main {
   flex: 1;
   min-width: 0;

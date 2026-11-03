@@ -2,7 +2,7 @@
 
 Read this before making changes. The product spec lives in [`specs/`](./specs/README.md); this file is the operational summary. When this file and the spec disagree, the spec wins — then update this file.
 
-Current state: **Milestone 6 shipped** (infra harden). Next: **Milestone 7 (soft launch checklist)** of [`specs/08-bootstrap-roadmap.md`](./specs/08-bootstrap-roadmap.md). Items marked _(M<n>)_ are planned, not built yet.
+Current state: **Milestone 7 engineering done** (soft launch code + checklist). Remaining: human/staging gates in [`specs/11-soft-launch-checklist.md`](./specs/11-soft-launch-checklist.md) (theme/palette/fonts sign-off, staging seed + revalidate smoke, a11y QA).
 
 ## 1. What this is
 
@@ -93,9 +93,9 @@ Run from the repo root:
 Spec: [`specs/02-cms-model.md`](./specs/02-cms-model.md).
 
 - **Now:** `users`, `media` (WebP `formatOptions` + `favicon`/`icon` sizes), `pages` (localized `layout` + `viewType`: `home | information | contacts | blog`), `blog` + `blog-categories` + `blog-authors`, `leads` inbox, globals `header` / `footer` (`logoLight`/`logoDark`/`logoText`) / `contacts` / `site-settings` (`favicon*` + `appleTouchIcon*` + optional `gtmId`) / `price-list`, plugins SEO / redirects / form-builder (Forms + FormSubmissions → leads when `submissionKind: lead`) / conditional S3. Localization: `ua` + `en`, `fallback: false`. Brand WebPs live in `apps/cms/src/seed-assets/brand/` and are upserted by `seed:globals`.
-- Home marketing blocks (seed order): `auto-hero`, early `booking-form` (pitch), `about-intro`, `why-choose-us`, `directions`, `comparison`, `price-list` (reads global), `inspection-checklist`, `turnkey-route`, `ukraine-coverage`, `testimonials`, `service-faq`, bottom `booking-form` (callback); also registered `car-brands`, `page-breadcrumbs`. Service landings use `service-hero` / `service-info` / `service-feature-cards` / `service-benefits` / `related-services` + breadcrumbs + booking. Web `sendForm` is the only write path (no GoGym).
+- Home marketing blocks (seed order): `auto-hero`, early `booking-form` (pitch), `about-intro`, `why-choose-us`, `directions`, `comparison`, `price-list` (reads global), `inspection-checklist`, `turnkey-route`, `ukraine-coverage`, `testimonials`, `service-faq`, bottom `booking-form` (callback); also registered `car-brands`, `page-breadcrumbs`. Service landings use `service-hero` / `service-info` / `service-feature-cards` / `service-benefits` / `related-services` + breadcrumbs + booking. Web `sendForm` is the only write path (no GoGym). Spam: honeypot `companyWebsite` + CMS reject + `sendForm` IP rate limit.
 - Booking UI: `ServiceBookingForm` modes `consultation` \| `turnkey` \| `inspection` \| `expert`; Directions primary «Замовити» → `?service=<mode>#callback`, secondary «Детальніше» → `/services/…`; option lists in `@autosearch/config`.
-- Revalidate: CMS hooks POST `WEB_URL/api/revalidate` with `REVALIDATE_SECRET` (not CMS-local `revalidatePath`).
+- Revalidate: CMS hooks POST `WEB_URL/api/revalidate` with `REVALIDATE_SECRET` (not CMS-local `revalidatePath`). Soft-launch gates: [`specs/11-soft-launch-checklist.md`](./specs/11-soft-launch-checklist.md).
 - SEO: page `generateMetadata`, `robots.ts`, dynamic `sitemap.ts`. GTM via `NEXT_PUBLIC_GTM_ID` or SiteSettings `gtmId` (empty = off) + cookie consent banner.
 - _(design seed)_ `/design-seed` remains a noindex visual reference; production Home is CMS-driven.
 - About (`#about`) and Contacts (`#contacts`) stay Home section anchors — no `/about` or `/contacts` routes in v1.

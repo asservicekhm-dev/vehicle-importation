@@ -67,15 +67,24 @@ Ordered milestones to stand up the Autosearch repo from this spec. Each mileston
 
 ## Milestone 7 — Soft launch checklist
 
+Tracking sheet: [11-soft-launch-checklist.md](./11-soft-launch-checklist.md).
+
+**Engineering done in repo:**
+
+- [x] Ukrainian + English parity verified (translations, CMS seeds, locale switcher)
+- [x] Booking form: `form-submissions` + `leads` inbox; success only on Payload ok; no gogym calls
+- [x] Spam protection on public forms (honeypot `companyWebsite` + CMS reject + `sendForm` 5/min/IP)
+- [x] Cross-app revalidation wired (`WEB_URL` + `REVALIDATE_SECRET` → `/api/revalidate`) — smoke on staging still required
+- [x] Staging content seed runbook (`SERVER_SETUP.md`; not AS Service dump)
+- [x] A11y baselines (skip link, `:focus-visible`, `prefers-reduced-motion`) — full QA pass still required
+
+**Human / staging gates (block public launch):**
+
 - [ ] Theme default + toggle signed off
 - [ ] Dark palette designer review
-- [ ] Font licenses cleared
-- [ ] Ukrainian + English parity verified (translations, CMS seeds, locale switcher)
-- [ ] Booking form: `form-submissions` + `leads` inbox; success only on Payload ok; no gogym calls
-- [ ] Spam protection on public forms
-- [ ] Cross-app revalidation verified
-- [ ] Staging content seed (not AS Service dump)
-- [ ] Accessibility pass (focus, contrast, reduced motion)
+- [ ] Font licenses cleared (`apps/web/src/fonts/NOTICE.md`)
+- [ ] Staging seed applied + revalidate smoke
+- [ ] Accessibility QA pass (keyboard, contrast, reduced motion)
 
 ## Explicit non-goals for v1
 

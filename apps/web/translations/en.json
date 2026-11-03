@@ -22,6 +22,9 @@
     "ua": "UA",
     "en": "EN"
   },
+  "Layout": {
+    "skipToContent": "Skip to content"
+  },
   "Header": {
     "brand": "AS Autosearch",
     "navAbout": "How we work",

@@ -205,7 +205,7 @@ No inventory collections (`brands`, `models`, `cars`, car taxonomies, `car-featu
 - `type`: `callback` | `test-drive` | `trade-in` | `finance` | `general`.
 - `status`: `new` | `in-progress` | `won` | `lost`.
 - Contact fields + optional `branch` relation + source URL + UTM + consent + `formSubmission` link.
-- Add rate-limit / honeypot (public create is open today).
+- Spam: honeypot `companyWebsite` + CMS reject hook; web `sendForm` rate-limits before POST.
 - Full booking → inbox behaviour: [09-booking-and-leads.md](./09-booking-and-leads.md).
 
 ## Block recipe (carry into AGENTS.md)

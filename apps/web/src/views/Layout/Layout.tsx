@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { getTranslations } from 'next-intl/server';
 
 import { BackToTop } from '@/components/BackToTop';
 import { Footer } from '@/components/Footer';
@@ -13,11 +14,22 @@ type Props = {
   enableThemeToggle?: boolean;
 };
 
-export function Layout({ children, themePreference, enableThemeToggle = true }: Props) {
+export async function Layout({
+  children,
+  themePreference,
+  enableThemeToggle = true,
+}: Props) {
+  const t = await getTranslations('Layout');
+
   return (
     <div className={styles.shell}>
+      <a className={styles.skipLink} href='#main'>
+        {t('skipToContent')}
+      </a>
       <Header themePreference={themePreference} enableThemeToggle={enableThemeToggle} />
-      <main className={styles.main}>{children}</main>
+      <main id='main' className={styles.main} tabIndex={-1}>
+        {children}
+      </main>
       <Footer />
       <BackToTop />
     </div>
