@@ -71,6 +71,9 @@ export interface Config {
     media: Media;
     pages: Page;
     leads: Lead;
+    blog: Blog;
+    'blog-categories': BlogCategory;
+    'blog-authors': BlogAuthor;
     forms: Form;
     'form-submissions': FormSubmission;
     redirects: Redirect;
@@ -85,6 +88,9 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     leads: LeadsSelect<false> | LeadsSelect<true>;
+    blog: BlogSelect<false> | BlogSelect<true>;
+    'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
+    'blog-authors': BlogAuthorsSelect<false> | BlogAuthorsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -237,8 +243,17 @@ export interface Page {
         | UkraineCoverageBlockFields
         | CarBrandsBlockFields
         | PageBreadcrumbsBlockFields
+        | ServiceHeroBlockFields
+        | ServiceInfoBlockFields
+        | ServiceFeatureCardsBlockFields
+        | ServiceBenefitsBlockFields
+        | RelatedServicesBlockFields
       )[]
     | null;
+  /**
+   * Overrides the “Read more” label on blog cards. Leave empty for the site default.
+   */
+  blogReadMoreLabel?: string | null;
   meta?: {
     title?: string | null;
     /**
@@ -442,6 +457,21 @@ export interface DirectionsBlockFields {
        */
       hash?: string | null;
     };
+    secondaryCta?: {
+      type?: ('reference' | 'custom' | 'anchor' | 'form') | null;
+      newTab?: boolean | null;
+      label?: string | null;
+      reference?: {
+        relationTo: 'pages';
+        value: string | Page;
+      } | null;
+      url?: string | null;
+      form?: (string | null) | Form;
+      /**
+       * HTML id without #. Appended as URL hash for internal/custom links; required for anchor type when label is set.
+       */
+      hash?: string | null;
+    };
     image?: (string | null) | Media;
   };
   items?:
@@ -449,6 +479,21 @@ export interface DirectionsBlockFields {
         title: string;
         scope?: string | null;
         link?: {
+          type?: ('reference' | 'custom' | 'anchor' | 'form') | null;
+          newTab?: boolean | null;
+          label?: string | null;
+          reference?: {
+            relationTo: 'pages';
+            value: string | Page;
+          } | null;
+          url?: string | null;
+          form?: (string | null) | Form;
+          /**
+           * HTML id without #. Appended as URL hash for internal/custom links; required for anchor type when label is set.
+           */
+          hash?: string | null;
+        };
+        secondaryLink?: {
           type?: ('reference' | 'custom' | 'anchor' | 'form') | null;
           newTab?: boolean | null;
           label?: string | null;
@@ -816,6 +861,126 @@ export interface PageBreadcrumbsBlockFields {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceHeroBlockFields".
+ */
+export interface ServiceHeroBlockFields {
+  eyebrow?: string | null;
+  title: string;
+  description?: string | null;
+  image?: (string | null) | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'service-hero-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceInfoBlockFields".
+ */
+export interface ServiceInfoBlockFields {
+  title?: string | null;
+  body?: string | null;
+  primaryCta?: {
+    type?: ('reference' | 'custom' | 'anchor' | 'form') | null;
+    newTab?: boolean | null;
+    label?: string | null;
+    reference?: {
+      relationTo: 'pages';
+      value: string | Page;
+    } | null;
+    url?: string | null;
+    form?: (string | null) | Form;
+    /**
+     * HTML id without #. Appended as URL hash for internal/custom links; required for anchor type when label is set.
+     */
+    hash?: string | null;
+  };
+  secondaryCta?: {
+    type?: ('reference' | 'custom' | 'anchor' | 'form') | null;
+    newTab?: boolean | null;
+    label?: string | null;
+    reference?: {
+      relationTo: 'pages';
+      value: string | Page;
+    } | null;
+    url?: string | null;
+    form?: (string | null) | Form;
+    /**
+     * HTML id without #. Appended as URL hash for internal/custom links; required for anchor type when label is set.
+     */
+    hash?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'service-info-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceFeatureCardsBlockFields".
+ */
+export interface ServiceFeatureCardsBlockFields {
+  title?: string | null;
+  items?:
+    | {
+        title: string;
+        body?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'service-feature-cards-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceBenefitsBlockFields".
+ */
+export interface ServiceBenefitsBlockFields {
+  title?: string | null;
+  items?:
+    | {
+        title: string;
+        body?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'service-benefits-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RelatedServicesBlockFields".
+ */
+export interface RelatedServicesBlockFields {
+  title?: string | null;
+  items?:
+    | {
+        title: string;
+        body?: string | null;
+        link?: {
+          type?: ('reference' | 'custom' | 'anchor' | 'form') | null;
+          newTab?: boolean | null;
+          label?: string | null;
+          reference?: {
+            relationTo: 'pages';
+            value: string | Page;
+          } | null;
+          url?: string | null;
+          form?: (string | null) | Form;
+          /**
+           * HTML id without #. Appended as URL hash for internal/custom links; required for anchor type when label is set.
+           */
+          hash?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'related-services-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "leads".
  */
 export interface Lead {
@@ -880,6 +1045,74 @@ export interface FormSubmission {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog".
+ */
+export interface Blog {
+  id: string;
+  title: string;
+  excerpt?: string | null;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  thumbnail?: (string | null) | Media;
+  category?: (string | null) | BlogCategory;
+  author?: (string | null) | BlogAuthor;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+    description?: string | null;
+  };
+  slug?: string | null;
+  slugLock?: boolean | null;
+  /**
+   * Automatically generated or edit manually
+   */
+  publishedOn?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-categories".
+ */
+export interface BlogCategory {
+  id: string;
+  title: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-authors".
+ */
+export interface BlogAuthor {
+  id: string;
+  name: string;
+  photo?: (string | null) | Media;
+  role?: string | null;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -936,6 +1169,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'leads';
         value: string | Lead;
+      } | null)
+    | ({
+        relationTo: 'blog';
+        value: string | Blog;
+      } | null)
+    | ({
+        relationTo: 'blog-categories';
+        value: string | BlogCategory;
+      } | null)
+    | ({
+        relationTo: 'blog-authors';
+        value: string | BlogAuthor;
       } | null)
     | ({
         relationTo: 'forms';
@@ -1092,7 +1337,13 @@ export interface PagesSelect<T extends boolean = true> {
         'ukraine-coverage-block'?: T | UkraineCoverageBlockFieldsSelect<T>;
         'car-brands-block'?: T | CarBrandsBlockFieldsSelect<T>;
         'page-breadcrumbs-block'?: T | PageBreadcrumbsBlockFieldsSelect<T>;
+        'service-hero-block'?: T | ServiceHeroBlockFieldsSelect<T>;
+        'service-info-block'?: T | ServiceInfoBlockFieldsSelect<T>;
+        'service-feature-cards-block'?: T | ServiceFeatureCardsBlockFieldsSelect<T>;
+        'service-benefits-block'?: T | ServiceBenefitsBlockFieldsSelect<T>;
+        'related-services-block'?: T | RelatedServicesBlockFieldsSelect<T>;
       };
+  blogReadMoreLabel?: T;
   meta?:
     | T
     | {
@@ -1175,6 +1426,17 @@ export interface DirectionsBlockFieldsSelect<T extends boolean = true> {
               form?: T;
               hash?: T;
             };
+        secondaryCta?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              label?: T;
+              reference?: T;
+              url?: T;
+              form?: T;
+              hash?: T;
+            };
         image?: T;
       };
   items?:
@@ -1183,6 +1445,17 @@ export interface DirectionsBlockFieldsSelect<T extends boolean = true> {
         title?: T;
         scope?: T;
         link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              label?: T;
+              reference?: T;
+              url?: T;
+              form?: T;
+              hash?: T;
+            };
+        secondaryLink?:
           | T
           | {
               type?: T;
@@ -1479,6 +1752,109 @@ export interface PageBreadcrumbsBlockFieldsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceHeroBlockFields_select".
+ */
+export interface ServiceHeroBlockFieldsSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  description?: T;
+  image?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceInfoBlockFields_select".
+ */
+export interface ServiceInfoBlockFieldsSelect<T extends boolean = true> {
+  title?: T;
+  body?: T;
+  primaryCta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        label?: T;
+        reference?: T;
+        url?: T;
+        form?: T;
+        hash?: T;
+      };
+  secondaryCta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        label?: T;
+        reference?: T;
+        url?: T;
+        form?: T;
+        hash?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceFeatureCardsBlockFields_select".
+ */
+export interface ServiceFeatureCardsBlockFieldsSelect<T extends boolean = true> {
+  title?: T;
+  items?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceBenefitsBlockFields_select".
+ */
+export interface ServiceBenefitsBlockFieldsSelect<T extends boolean = true> {
+  title?: T;
+  items?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RelatedServicesBlockFields_select".
+ */
+export interface RelatedServicesBlockFieldsSelect<T extends boolean = true> {
+  title?: T;
+  items?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              label?: T;
+              reference?: T;
+              url?: T;
+              form?: T;
+              hash?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "leads_select".
  */
 export interface LeadsSelect<T extends boolean = true> {
@@ -1514,6 +1890,53 @@ export interface LeadsSelect<T extends boolean = true> {
         medium?: T;
         campaign?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog_select".
+ */
+export interface BlogSelect<T extends boolean = true> {
+  title?: T;
+  excerpt?: T;
+  body?: T;
+  thumbnail?: T;
+  category?: T;
+  author?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  slug?: T;
+  slugLock?: T;
+  publishedOn?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-categories_select".
+ */
+export interface BlogCategoriesSelect<T extends boolean = true> {
+  title?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-authors_select".
+ */
+export interface BlogAuthorsSelect<T extends boolean = true> {
+  name?: T;
+  photo?: T;
+  role?: T;
+  slug?: T;
+  slugLock?: T;
   updatedAt?: T;
   createdAt?: T;
 }

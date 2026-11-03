@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 
+import { Cookies } from '@/components/Cookies';
+import { GoogleTagManager, GoogleTagManagerNoscript } from '@/components/GoogleTagManager';
 import { GlobalsProvider } from '@/contexts/GlobalsContext';
 import { routing } from '@/i18n/routing';
 import { getBrandIconUrls, pickBrandIcon } from '@/lib/cms/brandIcons';
@@ -64,6 +66,8 @@ export default async function LocaleLayout({ children, params }: Props) {
     icons.appleTouchDark,
   );
 
+  const gtmId = siteSettings?.gtmId?.trim() || process.env.NEXT_PUBLIC_GTM_ID?.trim() || '';
+
   return (
     <html
       lang={localeToHreflang[locale]}
@@ -85,8 +89,10 @@ export default async function LocaleLayout({ children, params }: Props) {
           <link id={APPLE_TOUCH_LINK_ID} rel='apple-touch-icon' href={initialAppleTouch} />
         ) : null}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <GoogleTagManager gtmId={gtmId} />
       </head>
       <body suppressHydrationWarning>
+        <GoogleTagManagerNoscript gtmId={gtmId} />
         <NextIntlClientProvider locale={locale} messages={translations}>
           <GlobalsProvider
             header={header}
@@ -98,6 +104,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             <Layout themePreference={preference} enableThemeToggle={enableThemeToggle}>
               {children}
             </Layout>
+            <Cookies enabled={Boolean(gtmId)} />
           </GlobalsProvider>
         </NextIntlClientProvider>
       </body>

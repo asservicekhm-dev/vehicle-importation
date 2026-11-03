@@ -12,14 +12,19 @@ import styles from './Directions.module.scss';
 
 type Props = DirectionsBlockFields;
 
+type LinkField =
+  | NonNullable<DirectionsBlockFields['featured']>['cta']
+  | NonNullable<DirectionsBlockFields['featured']>['secondaryCta']
+  | NonNullable<NonNullable<DirectionsBlockFields['items']>[number]>['link']
+  | NonNullable<NonNullable<DirectionsBlockFields['items']>[number]>['secondaryLink'];
+
 type ServiceCard = {
   id?: string | null;
   title: string;
   description?: string | null;
   image?: DirectionsBlockFields['featured'] extends { image?: infer I } ? I : unknown;
-  link?: NonNullable<DirectionsBlockFields['featured']>['cta'] | NonNullable<
-    NonNullable<DirectionsBlockFields['items']>[number]
-  >['link'];
+  primary?: LinkField;
+  secondary?: LinkField;
 };
 
 function Eyebrow({ text }: { text?: string | null }) {
@@ -56,7 +61,8 @@ export function Directions({
       title: featured.title.trim(),
       description: featured.body?.trim() || null,
       image: featured.image,
-      link: featured.cta,
+      primary: featured.cta,
+      secondary: featured.secondaryCta,
     });
   }
 
@@ -67,7 +73,8 @@ export function Directions({
       title: item.title.trim(),
       description: item.scope?.trim() || null,
       image: item.image,
-      link: item.link,
+      primary: item.link,
+      secondary: item.secondaryLink,
     });
   });
 
@@ -100,7 +107,8 @@ export function Directions({
           {cards.length > 0 ? (
             <ul className={styles.grid}>
               {cards.map((card) => {
-                const hasLink = Boolean(card.link?.label?.trim());
+                const hasPrimary = Boolean(card.primary?.label?.trim());
+                const hasSecondary = Boolean(card.secondary?.label?.trim());
                 const hasImage = Boolean(card.image && typeof card.image !== 'string');
 
                 return (
@@ -121,10 +129,19 @@ export function Directions({
                         {card.description ? (
                           <p className={styles.cardDesc}>{card.description}</p>
                         ) : null}
-                        {hasLink ? (
-                          <CMSLink link={card.link} className={styles.cardCta}>
-                            {card.link?.label}
-                          </CMSLink>
+                        {hasPrimary || hasSecondary ? (
+                          <div className={styles.cardActions}>
+                            {hasPrimary ? (
+                              <CMSLink link={card.primary} className={styles.cardCta}>
+                                {card.primary?.label}
+                              </CMSLink>
+                            ) : null}
+                            {hasSecondary ? (
+                              <CMSLink link={card.secondary} className={styles.cardCtaSecondary}>
+                                {card.secondary?.label}
+                              </CMSLink>
+                            ) : null}
+                          </div>
                         ) : (
                           <span className={styles.cardCtaMuted}>{t('order')}</span>
                         )}

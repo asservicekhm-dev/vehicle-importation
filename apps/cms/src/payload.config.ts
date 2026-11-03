@@ -20,6 +20,9 @@ import { s3Storage } from '@payloadcms/storage-s3';
 
 import { defaultLocale, localeLabels, locales } from '@autosearch/config';
 
+import { Blog } from './collections/Blog';
+import { BlogAuthors } from './collections/BlogAuthors';
+import { BlogCategories } from './collections/BlogCategories';
 import { Leads } from './collections/Leads';
 import { Media } from './collections/Media';
 import { Pages } from './collections/Pages';
@@ -58,13 +61,13 @@ export default buildConfig({
         { height: 844, label: 'Mobile', name: 'mobile', width: 390 },
         { height: 900, label: 'Desktop', name: 'desktop', width: 1440 },
       ],
-      collections: ['pages'],
+      collections: ['pages', 'blog'],
       globals: ['header', 'footer', 'contacts', 'site-settings', 'price-list'],
       url: buildLivePreviewUrl,
     },
     user: Users.slug,
   },
-  collections: [Users, Media, Pages, Leads],
+  collections: [Users, Media, Pages, Leads, Blog, BlogCategories, BlogAuthors],
   db: mongooseAdapter({
     url: requireEnv('DATABASE_URI'),
   }),

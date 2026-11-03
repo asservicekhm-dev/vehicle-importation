@@ -6,6 +6,8 @@ export const HOME_SLUG = 'home';
 export const CACHE_TAGS = {
   pages: 'pages',
   page: (slug: string) => `pages:${slug}`,
+  blog: 'blog',
+  blogPost: (slug: string) => `blog:${slug}`,
   redirects: 'redirects',
   globals: 'globals',
   header: 'global_header',

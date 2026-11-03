@@ -1,14 +1,20 @@
 import type { FieldHook } from 'payload';
 import slugify from 'slugify';
 
+/** Slugify path segments separately so nested page slugs like `services/perevirka` keep `/`. */
 export const formatSlug = (val: string) => {
-  if (typeof val === 'string') {
-    return slugify(val, {
-      lower: true,
-      strict: true,
-    });
-  }
-  return val;
+  if (typeof val !== 'string') return val;
+
+  return val
+    .split('/')
+    .map((segment) =>
+      slugify(segment, {
+        lower: true,
+        strict: true,
+      }),
+    )
+    .filter(Boolean)
+    .join('/');
 };
 
 export const formatSlugHook =

@@ -8,7 +8,12 @@ import { DummySection } from '@/components/DummySection';
 import { InspectionChecklist } from '@/components/InspectionChecklist';
 import { PageBreadcrumbs } from '@/components/PageBreadcrumbs';
 import { PriceListSection } from '@/components/PriceListSection';
+import { RelatedServices } from '@/components/RelatedServices';
+import { ServiceBenefits } from '@/components/ServiceBenefits';
 import { ServiceFaq } from '@/components/ServiceFaq';
+import { ServiceFeatureCards } from '@/components/ServiceFeatureCards';
+import { ServiceHero } from '@/components/ServiceHero';
+import { ServiceInfo } from '@/components/ServiceInfo';
 import { Testimonials } from '@/components/Testimonials';
 import { TurnkeyRoute } from '@/components/TurnkeyRoute';
 import { UkraineCoverage } from '@/components/UkraineCoverage';
@@ -32,4 +37,9 @@ export const unifiedBlocksMapper = {
   'ukraine-coverage-block': (block) => <UkraineCoverage {...block} />,
   'car-brands-block': (block) => <CarBrands {...block} />,
   'page-breadcrumbs-block': (block) => <PageBreadcrumbs {...block} />,
+  'service-hero-block': (block) => <ServiceHero {...block} />,
+  'service-info-block': (block) => <ServiceInfo {...block} />,
+  'service-feature-cards-block': (block) => <ServiceFeatureCards {...block} />,
+  'service-benefits-block': (block) => <ServiceBenefits {...block} />,
+  'related-services-block': (block) => <RelatedServices {...block} />,
 } satisfies UnifiedBlockMapper;

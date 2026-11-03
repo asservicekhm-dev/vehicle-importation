@@ -2,14 +2,14 @@
 
 Read this before making changes. The product spec lives in [`specs/`](./specs/README.md); this file is the operational summary. When this file and the spec disagree, the spec wins — then update this file.
 
-Current state: **Milestone 4 (first marketing pages / home-first)** of [`specs/08-bootstrap-roadmap.md`](./specs/08-bootstrap-roadmap.md). Items marked _(M<n>)_ are planned, not built yet.
+Current state: **Milestone 5 shipped** (secondary IA). Next: **Milestone 6 (infra harden)** of [`specs/08-bootstrap-roadmap.md`](./specs/08-bootstrap-roadmap.md). Items marked _(M<n>)_ are planned, not built yet.
 
 ## 1. What this is
 
 Website for **AS Autosearch**, a car-search and import business (“Автопідбір”). Cars from the USA, Europe and South Korea. Core services: pre-purchase inspection, turnkey car search (main), expert for a day, computer diagnostics, and travel to other cities. Ukrainian is the default language, English is the second one. Payload CMS 3 + Next.js 15 monorepo with the same architecture as the AS Service site (`wayon/landing`), minus its Wayon/GoGym legacy.
 
-- `apps/cms` — `@autosearch/cms`, Payload admin + REST API (port 3001; `/cms` in prod). Source of truth for all content.
-- `apps/web` — `@autosearch/web`, public Next.js site (port 3000). Renders CMS content; almost no hardcoded copy.
+- `apps/cms` — `@autosearch/cms`, Payload admin + REST API (port 3001; `/cms` in prod). Source of truth for all content (Pages, Blog, Leads, globals).
+- `apps/web` — `@autosearch/web`, public Next.js site (port 3000). Renders CMS content; almost no hardcoded copy. Nested Pages via `[...slug]`; Blog at `/blog` + `/blog/[slug]`.
 
 ## 2. Stack cheat sheet
 
@@ -35,21 +35,22 @@ Pinned baseline: [`specs/01-architecture.md`](./specs/01-architecture.md) § Sta
 apps/
   cms/                 @autosearch/cms
     src/payload.config.ts
-    src/collections/   Users, Media, Pages (marketing blocks), Leads
+    src/collections/   Users, Media, Pages (marketing + service blocks), Blog, BlogCategories, BlogAuthors, Leads
     src/globals/       header, footer, contacts, site-settings, price-list
     src/plugins/       SEO, redirects, form-builder (Forms + FormSubmissions → Leads)
-    src/scripts/       seed-globals, seed-home
+    src/scripts/       seed-globals, seed-home, seed-services, seed-blog
     src/app/(payload)/ Payload admin + API routes (generated files — don't hand-edit)
     src/app/api/media-redirect/  S3/local media redirect
     src/payload-types.ts  generated (CMS); web imports stripped `payload-types-export.ts` via `@autosearch/cms/payload-types`
   web/                 @autosearch/web
-    src/app/[locale]/  App Router locale segment + [slug] CMS pages + design-seed (dev-only)
+    src/app/[locale]/  App Router locale + [...slug] CMS pages + blog/[slug] + design-seed (dev-only)
     src/app/api/revalidate/  CMS→web webhook
     src/api/           Payload SDK client
     src/components/    primitives, Header/Footer, ThemeToggle, LocaleSwitcher, CMS glue, RenderBlocks
     src/contexts/      GlobalsProvider
     src/views/Layout/  Header + main + Footer shell
-    src/views/DesignSeed/  Design seed preview sections (before M4 blocks)
+    src/views/BlogList|BlogPost/  Blog index + post
+    src/views/DesignSeed/  Design seed preview sections (dev-only)
     src/fonts/         Toxigenesis + Gilroy (localFont)
     src/lib/fonts.ts   next/font loaders
     src/lib/theme/     cookie + no-flash script + client apply
@@ -72,17 +73,17 @@ Shared packages ship TypeScript source (no build step). Apps list them in `trans
 
 Run from the repo root:
 
-| Command                                            | What it does                                             |
-| -------------------------------------------------- | -------------------------------------------------------- |
-| `pnpm install`                                     | Install workspace                                        |
-| `pnpm dev` / `pnpm dev:cms` / `pnpm dev:web`       | Turbo dev (web :3000, cms :3001)                         |
-| `pnpm build` / `build:cms` / `build:web`           | Production builds                                        |
-| `pnpm generate:types`                              | Regenerate `apps/cms/src/payload-types.ts`               |
-| `pnpm seed:globals` / `seed:home`                  | Idempotent dual-locale seeds (`*:local-media` blanks S3) |
-| `pnpm lint` / `pnpm lint:fix`                      | ESLint in every package                                  |
-| `pnpm typecheck`                                   | `tsc --noEmit` in every package                          |
-| `pnpm format` / `pnpm format:fix`                  | Prettier check / write                                   |
-| `pnpm --filter @autosearch/cms generate:importmap` | Regenerate Payload admin import map                      |
+| Command                                                           | What it does                                             |
+| ----------------------------------------------------------------- | -------------------------------------------------------- |
+| `pnpm install`                                                    | Install workspace                                        |
+| `pnpm dev` / `pnpm dev:cms` / `pnpm dev:web`                      | Turbo dev (web :3000, cms :3001)                         |
+| `pnpm build` / `build:cms` / `build:web`                          | Production builds                                        |
+| `pnpm generate:types`                                             | Regenerate `apps/cms/src/payload-types.ts`               |
+| `pnpm seed:globals` / `seed:home` / `seed:services` / `seed:blog` | Idempotent dual-locale seeds (`*:local-media` blanks S3) |
+| `pnpm lint` / `pnpm lint:fix`                                     | ESLint in every package                                  |
+| `pnpm typecheck`                                                  | `tsc --noEmit` in every package                          |
+| `pnpm format` / `pnpm format:fix`                                 | Prettier check / write                                   |
+| `pnpm --filter @autosearch/cms generate:importmap`                | Regenerate Payload admin import map                      |
 
 Planned: `pnpm new component|view|block` _(M6)_, unified `pnpm seed <area>` _(polish)_, `seed:backup` / `seed:restore` _(M6)_.
 
@@ -90,12 +91,14 @@ Planned: `pnpm new component|view|block` _(M6)_, unified `pnpm seed <area>` _(po
 
 Spec: [`specs/02-cms-model.md`](./specs/02-cms-model.md).
 
-- **Now:** `users`, `media` (WebP `formatOptions` + `favicon`/`icon` sizes), `pages` (localized `layout` + `viewType`: `home | information | contacts | blog`), `leads` inbox, globals `header` / `footer` (`logoLight`/`logoDark`/`logoText`) / `contacts` / `site-settings` (`favicon*` + `appleTouchIcon*`) / `price-list`, plugins SEO / redirects / form-builder (Forms + FormSubmissions → leads when `submissionKind: lead`) / conditional S3. Localization: `ua` + `en`, `fallback: false`. Brand WebPs live in `apps/cms/src/seed-assets/brand/` and are upserted by `seed:globals`.
-- Home marketing blocks (seed order): `auto-hero`, early `booking-form` (pitch), `about-intro`, `why-choose-us`, `directions`, `comparison`, `price-list` (reads global), `inspection-checklist`, `turnkey-route`, `ukraine-coverage`, `testimonials`, `service-faq`, bottom `booking-form` (callback); also registered `car-brands`, `page-breadcrumbs`. Web `sendForm` is the only write path (no GoGym).
-- Booking UI: `ServiceBookingForm` modes `consultation` \| `turnkey` \| `inspection` \| `expert`; Directions «Замовити» uses `?service=<mode>#callback`; option lists in `@autosearch/config`.
+- **Now:** `users`, `media` (WebP `formatOptions` + `favicon`/`icon` sizes), `pages` (localized `layout` + `viewType`: `home | information | contacts | blog`), `blog` + `blog-categories` + `blog-authors`, `leads` inbox, globals `header` / `footer` (`logoLight`/`logoDark`/`logoText`) / `contacts` / `site-settings` (`favicon*` + `appleTouchIcon*` + optional `gtmId`) / `price-list`, plugins SEO / redirects / form-builder (Forms + FormSubmissions → leads when `submissionKind: lead`) / conditional S3. Localization: `ua` + `en`, `fallback: false`. Brand WebPs live in `apps/cms/src/seed-assets/brand/` and are upserted by `seed:globals`.
+- Home marketing blocks (seed order): `auto-hero`, early `booking-form` (pitch), `about-intro`, `why-choose-us`, `directions`, `comparison`, `price-list` (reads global), `inspection-checklist`, `turnkey-route`, `ukraine-coverage`, `testimonials`, `service-faq`, bottom `booking-form` (callback); also registered `car-brands`, `page-breadcrumbs`. Service landings use `service-hero` / `service-info` / `service-feature-cards` / `service-benefits` / `related-services` + breadcrumbs + booking. Web `sendForm` is the only write path (no GoGym).
+- Booking UI: `ServiceBookingForm` modes `consultation` \| `turnkey` \| `inspection` \| `expert`; Directions primary «Замовити» → `?service=<mode>#callback`, secondary «Детальніше» → `/services/…`; option lists in `@autosearch/config`.
 - Revalidate: CMS hooks POST `WEB_URL/api/revalidate` with `REVALIDATE_SECRET` (not CMS-local `revalidatePath`).
+- SEO: page `generateMetadata`, `robots.ts`, dynamic `sitemap.ts`. GTM via `NEXT_PUBLIC_GTM_ID` or SiteSettings `gtmId` (empty = off) + cookie consent banner.
 - _(design seed)_ `/design-seed` remains a noindex visual reference; production Home is CMS-driven.
-- _(M5)_ Secondary IA: Blog + Services landings (`/services/{perevirka,pid-kliuch,ekspert-na-den,diagnostyka,vyizd}`). About (`#about`) and Contacts (`#contacts`) stay Home section anchors — no `/about` or `/contacts` routes in v1.
+- About (`#about`) and Contacts (`#contacts`) stay Home section anchors — no `/about` or `/contacts` routes in v1.
+- _(M6)_ Infra harden: compose, Traefik, MinIO, CI, `pnpm new block`, deploy docs.
 - Booking / leads: [`specs/09-booking-and-leads.md`](./specs/09-booking-and-leads.md).
 - **Never add:** Inventory (`cars` / `brands` catalogs, `/cars` routes), Autosearch search wizard, Explore, `subscriptions` / `catalog` viewTypes, gamification blocks, GoGym/Smarty APIs.
 - Do not create a Pages slug `cms` (collides with the prod `/cms` base path).

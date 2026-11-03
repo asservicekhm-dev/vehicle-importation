@@ -1,8 +1,10 @@
 'use client';
 
 import type { MouseEvent, ReactNode } from 'react';
+import { useLocale } from 'next-intl';
 
 import { Link, usePathname } from '@/i18n/navigation';
+import { routing } from '@/i18n/routing';
 import {
   emitBookingServiceDeepLink,
   readServiceFromHref,
@@ -27,13 +29,28 @@ function isInternalPath(url: string) {
   return url.startsWith('/') && !url.startsWith('//');
 }
 
+function parseInternalHref(href: string): { pathname: string; search: string; hash: string } {
+  const url = new URL(href, 'http://local.invalid');
+  return {
+    pathname: url.pathname.replace(/\/$/, '') || '/',
+    search: url.search,
+    hash: url.hash,
+  };
+}
+
+/** Locale-prefixed href for native <a> (next-intl Link drops/ignores hashes). */
+function withLocalePrefix(href: string, locale: string): string {
+  if (!isInternalPath(href)) return href;
+  if (locale === routing.defaultLocale) return href;
+  return `/${locale}${href}`;
+}
+
 /** Same document: `#hash`, `?query#hash`, or same pathname with query/hash. */
 function isSameDocumentHref(href: string, pathname: string): boolean {
   if (href.startsWith('#') || href.startsWith('?')) return true;
   if (!isInternalPath(href)) return false;
   try {
-    const url = new URL(href, 'http://local.invalid');
-    const linkPath = url.pathname.replace(/\/$/, '') || '/';
+    const { pathname: linkPath } = parseInternalHref(href);
     const current = pathname.replace(/\/$/, '') || '/';
     return linkPath === current;
   } catch {
@@ -43,6 +60,7 @@ function isSameDocumentHref(href: string, pathname: string): boolean {
 
 export function CMSLink({ link, className, children, onNavigate }: Props) {
   const pathname = usePathname();
+  const locale = useLocale();
 
   if (!link) return null;
 
@@ -100,15 +118,27 @@ export function CMSLink({ link, className, children, onNavigate }: Props) {
     };
 
     return (
-      <a className={className} href={href} onClick={onClick}>
+      <a className={className} href={withLocalePrefix(href, locale)} onClick={onClick}>
         {label}
       </a>
     );
   }
 
   if (isInternalPath(href)) {
+    const { pathname: targetPath, search, hash } = parseInternalHref(href);
+
+    // Cross-route section links (`/#services` from `/blog`): native <a> keeps the hash.
+    // next-intl <Link> soft-nav often lands on `/` without scrolling to the section.
+    if (hash) {
+      return (
+        <a className={className} href={withLocalePrefix(href, locale)} onClick={onNavigate}>
+          {label}
+        </a>
+      );
+    }
+
     return (
-      <Link className={className} href={href} onClick={onNavigate}>
+      <Link className={className} href={`${targetPath}${search}`} onClick={onNavigate}>
         {label}
       </Link>
     );

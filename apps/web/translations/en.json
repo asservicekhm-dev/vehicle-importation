@@ -1,4 +1,16 @@
 {
+  "Cookies": {
+    "title": "Cookies",
+    "description": "We use cookies and analytics to improve the site. You can accept or decline optional cookies.",
+    "accept": "Accept",
+    "decline": "Decline"
+  },
+  "Blog": {
+    "readMore": "Read more",
+    "empty": "No posts yet.",
+    "backToList": "Back to blog",
+    "publishedAt": "Published"
+  },
   "ThemeToggle": {
     "label": "Theme",
     "light": "Light",

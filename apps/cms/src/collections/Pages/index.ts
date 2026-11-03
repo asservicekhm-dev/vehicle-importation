@@ -71,6 +71,16 @@ export const Pages: CollectionConfig = {
       blocks: pageBlocks,
     },
     {
+      name: 'blogReadMoreLabel',
+      type: 'text',
+      localized: true,
+      label: 'Blog cards CTA label (“Read more”)',
+      admin: {
+        condition: (data) => data.viewType === 'blog',
+        description: 'Overrides the “Read more” label on blog cards. Leave empty for the site default.',
+      },
+    },
+    {
       type: 'tabs',
       tabs: [seoFields],
     },

@@ -54,6 +54,8 @@ Ordered milestones to stand up the Autosearch repo from this spec. Each mileston
 - Partners / promotions optional.
 - SEO polish, robots, GTM with consent (no default container id).
 
+**Shipped:** nested `[...slug]` Pages; five service seeds + service-* blocks; Directions primary Order / secondary Learn more; `blog` + categories + authors; `/blog` + `/blog/[slug]`; `robots.ts` + `sitemap.ts`; GTM + Cookies (empty id = off).
+
 ## Milestone 6 — Infra harden
 
 - Full `.deploy` compose (dev/prod), Traefik, MinIO, seed backup/restore.

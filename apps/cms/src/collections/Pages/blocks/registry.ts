@@ -14,6 +14,11 @@ import { WhyChooseUsBlock } from './home/WhyChooseUsBlock';
 import { DummySectionBlock } from './misc/DummySectionBlock';
 import { AboutIntroBlock } from './shared/AboutIntroBlock';
 import { CarBrandsBlock } from './shared/CarBrandsBlock';
+import { RelatedServicesBlock } from './services/RelatedServicesBlock';
+import { ServiceBenefitsBlock } from './services/ServiceBenefitsBlock';
+import { ServiceFeatureCardsBlock } from './services/ServiceFeatureCardsBlock';
+import { ServiceHeroBlock } from './services/ServiceHeroBlock';
+import { ServiceInfoBlock } from './services/ServiceInfoBlock';
 import { PageBreadcrumbsBlock } from './shared/PageBreadcrumbsBlock';
 
 /** Shared page layout blocks. */
@@ -33,4 +38,9 @@ export const pageBlocks: Block[] = [
   UkraineCoverageBlock,
   CarBrandsBlock,
   PageBreadcrumbsBlock,
+  ServiceHeroBlock,
+  ServiceInfoBlock,
+  ServiceFeatureCardsBlock,
+  ServiceBenefitsBlock,
+  RelatedServicesBlock,
 ];

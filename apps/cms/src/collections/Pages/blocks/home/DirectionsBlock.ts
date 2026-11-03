@@ -52,7 +52,15 @@ export const DirectionsBlock: Block = {
           optional: true,
           overrides: {
             name: 'cta',
-            label: 'CTA',
+            label: 'Primary CTA (order)',
+          },
+        }),
+        link({
+          appearances: false,
+          optional: true,
+          overrides: {
+            name: 'secondaryCta',
+            label: 'Secondary CTA (details)',
           },
         }),
         {
@@ -88,7 +96,15 @@ export const DirectionsBlock: Block = {
           optional: true,
           overrides: {
             name: 'link',
-            label: 'Link',
+            label: 'Primary CTA (order)',
+          },
+        }),
+        link({
+          appearances: false,
+          optional: true,
+          overrides: {
+            name: 'secondaryLink',
+            label: 'Secondary CTA (details)',
           },
         }),
         {

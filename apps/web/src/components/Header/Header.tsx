@@ -24,13 +24,13 @@ import {
 import styles from './Header.module.scss';
 
 const FALLBACK_NAV = [
-  { href: '#services', labelKey: 'navServices' as const },
-  { href: '#route', labelKey: 'navAbout' as const },
-  { href: '#prices', labelKey: 'navPricing' as const },
-  { href: '#contacts', labelKey: 'navContacts' as const },
+  { href: '/#services', labelKey: 'navServices' as const },
+  { href: '/#route', labelKey: 'navAbout' as const },
+  { href: '/#prices', labelKey: 'navPricing' as const },
+  { href: '/#contacts', labelKey: 'navContacts' as const },
 ];
 
-const FALLBACK_CTA = { type: 'custom' as const, label: '', url: '#callback' };
+const FALLBACK_CTA = { type: 'custom' as const, label: '', url: '/#callback' };
 
 type SocialRow = {
   id: string;
@@ -141,9 +141,10 @@ export function Header({ themePreference, enableThemeToggle = true }: Props) {
                     ))
                   : FALLBACK_NAV.map((item) => (
                       <li key={item.href}>
-                        <Link className={styles.navLink} href={item.href}>
-                          {t(item.labelKey)}
-                        </Link>
+                        <CMSLink
+                          className={styles.navLink}
+                          link={{ type: 'custom', label: t(item.labelKey), url: item.href }}
+                        />
                       </li>
                     ))}
               </ul>
@@ -205,13 +206,11 @@ export function Header({ themePreference, enableThemeToggle = true }: Props) {
                 ))
               : FALLBACK_NAV.map((item) => (
                   <li key={item.href}>
-                    <Link
+                    <CMSLink
                       className={styles.navLink}
-                      href={item.href}
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      {t(item.labelKey)}
-                    </Link>
+                      link={{ type: 'custom', label: t(item.labelKey), url: item.href }}
+                      onNavigate={() => setMenuOpen(false)}
+                    />
                   </li>
                 ))}
             <li>
