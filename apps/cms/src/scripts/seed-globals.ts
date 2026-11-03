@@ -1,10 +1,54 @@
+import path from 'path';
 import { getPayload } from 'payload';
+import { fileURLToPath } from 'url';
 
 import config from '../payload.config';
 import { updateGlobalLocale } from './lib/upsert';
+import { upsertMediaByFilename } from './lib/upsertMedia';
+
+const brandDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../seed-assets/brand');
 
 async function main(): Promise<void> {
   const payload = await getPayload({ config });
+
+  payload.logger.info('Seeding brand media (WebP)…');
+
+  const logoLightId = await upsertMediaByFilename(payload, {
+    filePath: path.join(brandDir, 'logo-light.webp'),
+    filename: 'logo-light.webp',
+    altUa: 'AS Autosearch',
+    altEn: 'AS Autosearch',
+  });
+  const logoDarkId = await upsertMediaByFilename(payload, {
+    filePath: path.join(brandDir, 'logo-dark.webp'),
+    filename: 'logo-dark.webp',
+    altUa: 'AS Autosearch',
+    altEn: 'AS Autosearch',
+  });
+  const faviconLightId = await upsertMediaByFilename(payload, {
+    filePath: path.join(brandDir, 'favicon-light.webp'),
+    filename: 'favicon-light.webp',
+    altUa: 'Іконка AS Autosearch',
+    altEn: 'AS Autosearch icon',
+  });
+  const faviconDarkId = await upsertMediaByFilename(payload, {
+    filePath: path.join(brandDir, 'favicon-dark.webp'),
+    filename: 'favicon-dark.webp',
+    altUa: 'Іконка AS Autosearch',
+    altEn: 'AS Autosearch icon',
+  });
+  const appleTouchLightId = await upsertMediaByFilename(payload, {
+    filePath: path.join(brandDir, 'apple-touch-icon-light.webp'),
+    filename: 'apple-touch-icon-light.webp',
+    altUa: 'AS Autosearch',
+    altEn: 'AS Autosearch',
+  });
+  const appleTouchDarkId = await upsertMediaByFilename(payload, {
+    filePath: path.join(brandDir, 'apple-touch-icon-dark.webp'),
+    filename: 'apple-touch-icon-dark.webp',
+    altUa: 'AS Autosearch',
+    altEn: 'AS Autosearch',
+  });
 
   payload.logger.info('Seeding globals (ua + en)…');
 
@@ -14,6 +58,10 @@ async function main(): Promise<void> {
     defaultMetaDescription: 'Професійний автопідбір під ваш запит.',
     defaultTheme: 'system',
     enableThemeToggle: true,
+    faviconLight: faviconLightId,
+    faviconDark: faviconDarkId,
+    appleTouchIconLight: appleTouchLightId,
+    appleTouchIconDark: appleTouchDarkId,
   });
 
   await updateGlobalLocale(payload, 'site-settings', 'en', {
@@ -22,9 +70,16 @@ async function main(): Promise<void> {
     defaultMetaDescription: 'Professional car search tailored to your request.',
     defaultTheme: 'system',
     enableThemeToggle: true,
+    faviconLight: faviconLightId,
+    faviconDark: faviconDarkId,
+    appleTouchIconLight: appleTouchLightId,
+    appleTouchIconDark: appleTouchDarkId,
   });
 
   await updateGlobalLocale(payload, 'header', 'ua', {
+    logoLight: logoLightId,
+    logoDark: logoDarkId,
+    logoText: 'Autosearch',
     phone: '+380 (00) 000 00 00',
     navItems: [
       {
@@ -60,6 +115,9 @@ async function main(): Promise<void> {
   const navIds = headerUa.navItems?.map((item) => item.id) ?? [];
 
   await updateGlobalLocale(payload, 'header', 'en', {
+    logoLight: logoLightId,
+    logoDark: logoDarkId,
+    logoText: 'Autosearch',
     phone: '+380 (00) 000 00 00',
     navItems: [
       {
@@ -83,6 +141,9 @@ async function main(): Promise<void> {
   });
 
   await updateGlobalLocale(payload, 'footer', 'ua', {
+    logoLight: logoLightId,
+    logoDark: logoDarkId,
+    logoText: 'Autosearch',
     description: 'Автопідбір під ваш запит.',
     copyrightText: '© AS Autosearch. Усі права захищено.',
     navItems: [
@@ -96,6 +157,9 @@ async function main(): Promise<void> {
   const footerNavIds = footerUa.navItems?.map((item) => item.id) ?? [];
 
   await updateGlobalLocale(payload, 'footer', 'en', {
+    logoLight: logoLightId,
+    logoDark: logoDarkId,
+    logoText: 'Autosearch',
     description: 'Car search tailored to your request.',
     copyrightText: '© AS Autosearch. All rights reserved.',
     navItems: [

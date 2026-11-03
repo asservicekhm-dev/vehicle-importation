@@ -22,6 +22,7 @@
     "menuTitle": "Menu"
   },
   "Footer": {
+    "brand": "AS Autosearch",
     "navAbout": "About",
     "navServices": "Services",
     "navContacts": "Contacts",

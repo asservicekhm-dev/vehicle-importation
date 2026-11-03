@@ -31,10 +31,40 @@ export const SiteSettings: GlobalConfig = {
       label: 'Default meta description',
     },
     {
-      name: 'favicon',
+      name: 'faviconLight',
       type: 'upload',
       relationTo: 'media',
-      label: 'Favicon',
+      label: 'Favicon (light theme)',
+      admin: {
+        description: 'Used when the resolved theme is light. Prefer 32×32 WebP.',
+      },
+    },
+    {
+      name: 'faviconDark',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Favicon (dark theme)',
+      admin: {
+        description: 'Used when the resolved theme is dark. Prefer 32×32 WebP.',
+      },
+    },
+    {
+      name: 'appleTouchIconLight',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Apple touch icon (light)',
+      admin: {
+        description: 'Home-screen icon for light appearances. Prefer 180×180 WebP.',
+      },
+    },
+    {
+      name: 'appleTouchIconDark',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Apple touch icon (dark)',
+      admin: {
+        description: 'Home-screen icon for dark appearances. Prefer 180×180 WebP.',
+      },
     },
     {
       name: 'gtmId',

@@ -5,9 +5,11 @@ import { getMessages, setRequestLocale } from 'next-intl/server';
 
 import { GlobalsProvider } from '@/contexts/GlobalsContext';
 import { routing } from '@/i18n/routing';
+import { getBrandIconUrls, pickBrandIcon } from '@/lib/cms/brandIcons';
 import { getGlobals } from '@/lib/cms/getGlobals';
 import { fontClassNames } from '@/lib/fonts';
 import { THEME_COLOR } from '@/lib/theme/constants';
+import { APPLE_TOUCH_LINK_ID, FAVICON_LINK_ID } from '@/lib/theme/icons';
 import { themeInitScript } from '@/lib/theme/script';
 import { getThemePreference } from '@/lib/theme/server';
 import { Layout } from '@/views/Layout';
@@ -54,16 +56,34 @@ export default async function LocaleLayout({ children, params }: Props) {
         ? THEME_COLOR.light
         : undefined;
 
+  const icons = getBrandIconUrls(siteSettings);
+  const initialFavicon = pickBrandIcon(resolvedTheme, icons.faviconLight, icons.faviconDark);
+  const initialAppleTouch = pickBrandIcon(
+    resolvedTheme,
+    icons.appleTouchLight,
+    icons.appleTouchDark,
+  );
+
   return (
     <html
       lang={localeToHreflang[locale]}
       className={fontClassNames}
       data-theme-pref={preference}
       {...(resolvedTheme ? { 'data-theme': resolvedTheme } : {})}
+      {...(icons.faviconLight ? { 'data-favicon-light': icons.faviconLight } : {})}
+      {...(icons.faviconDark ? { 'data-favicon-dark': icons.faviconDark } : {})}
+      {...(icons.appleTouchLight ? { 'data-apple-touch-light': icons.appleTouchLight } : {})}
+      {...(icons.appleTouchDark ? { 'data-apple-touch-dark': icons.appleTouchDark } : {})}
       suppressHydrationWarning
     >
       <head>
         <meta name='theme-color' content={themeColor} suppressHydrationWarning />
+        {initialFavicon ? (
+          <link id={FAVICON_LINK_ID} rel='icon' type='image/webp' href={initialFavicon} />
+        ) : null}
+        {initialAppleTouch ? (
+          <link id={APPLE_TOUCH_LINK_ID} rel='apple-touch-icon' href={initialAppleTouch} />
+        ) : null}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body suppressHydrationWarning>

@@ -12,11 +12,31 @@ export const Footer: GlobalConfig = {
   },
   fields: [
     {
-      label: 'Logo',
-      name: 'logo',
-      relationTo: 'media',
-      required: false,
+      name: 'logoLight',
       type: 'upload',
+      relationTo: 'media',
+      label: 'Logo (light theme)',
+      admin: {
+        description: 'Dark mark for light backgrounds. Prefer WebP.',
+      },
+    },
+    {
+      name: 'logoDark',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Logo (dark theme)',
+      admin: {
+        description: 'Light mark for dark backgrounds. Prefer WebP.',
+      },
+    },
+    {
+      name: 'logoText',
+      type: 'text',
+      localized: true,
+      label: 'Logo text',
+      admin: {
+        description: 'Wordmark shown next to the logo mark. Leave empty to hide.',
+      },
     },
     {
       label: 'Description',

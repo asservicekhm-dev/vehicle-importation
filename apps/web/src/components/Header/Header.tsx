@@ -7,9 +7,11 @@ import { CMSLink } from '@/components/CMSLink';
 import { Container } from '@/components/Container';
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { Modal } from '@/components/Modal';
+import { ThemeLogo } from '@/components/ThemeLogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useGlobals } from '@/contexts/GlobalsContext';
 import { Link } from '@/i18n/navigation';
+import { getMediaUrl } from '@/lib/cms/resolveMediaUrl';
 import type { ThemePreference } from '@autosearch/config';
 
 import styles from './Header.module.scss';
@@ -33,13 +35,24 @@ export function Header({ themePreference, enableThemeToggle = true }: Props) {
   const cmsNav = header?.navItems?.filter((item) => item.link?.label) ?? [];
   const phone = header?.phone?.trim() || t('phone');
   const phoneHref = `tel:${phone.replace(/\s+/g, '')}`;
+  const logoText = header?.logoText?.trim() || '';
+  const hasMark = Boolean(getMediaUrl(header?.logoLight) || getMediaUrl(header?.logoDark));
+  const brandLabel = logoText || t('brand');
+  const showBrandText = Boolean(logoText) || !hasMark;
 
   return (
     <header className={styles.header}>
       <Container>
         <div className={styles.inner}>
-          <Link className={styles.brand} href='/'>
-            {t('brand')}
+          <Link className={styles.brand} href='/' aria-label={brandLabel}>
+            <ThemeLogo
+              light={header?.logoLight}
+              dark={header?.logoDark}
+              alt={brandLabel}
+              size={56}
+              priority
+            />
+            {showBrandText ? <span className={styles.brandText}>{brandLabel}</span> : null}
           </Link>
 
           <nav className={styles.desktopNav} aria-label={t('menuTitle')}>

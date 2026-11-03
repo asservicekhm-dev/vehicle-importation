@@ -12,9 +12,42 @@
 
   @include tablet {
     flex-direction: row;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: flex-end;
   }
+}
+
+.brandBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 20rem;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: inherit;
+  text-decoration: none;
+}
+
+.brandText {
+  color: inherit;
+  font-weight: 700;
+  font-size: var(--text-lg);
+  line-height: 1;
+  font-family: var(--font-heading);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.description {
+  opacity: 0.85;
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.5;
 }
 
 .navList {

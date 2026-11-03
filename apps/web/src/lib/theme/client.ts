@@ -1,6 +1,7 @@
 import type { ThemePreference } from '@autosearch/config';
 
 import { THEME_COLOR, THEME_COOKIE, THEME_COOKIE_MAX_AGE } from './constants';
+import { syncThemeIcons } from './icons';
 
 /** Resolve preference to a concrete theme. Keep in sync with `script.ts`. */
 export function resolveTheme(pref: ThemePreference): 'light' | 'dark' {
@@ -25,4 +26,6 @@ export function applyThemePreference(pref: ThemePreference): void {
   if (meta) {
     meta.setAttribute('content', THEME_COLOR[resolved]);
   }
+
+  syncThemeIcons(resolved);
 }

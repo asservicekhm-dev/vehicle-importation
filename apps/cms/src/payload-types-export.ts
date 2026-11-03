@@ -185,6 +185,24 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    favicon?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    icon?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -481,6 +499,30 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        favicon?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        icon?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -679,8 +721,18 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface Header {
   id: string;
-  desktopLogo?: (string | null) | Media;
-  mobileLogo?: (string | null) | Media;
+  /**
+   * Dark mark for light backgrounds. Prefer WebP.
+   */
+  logoLight?: (string | null) | Media;
+  /**
+   * Light mark for dark backgrounds. Prefer WebP.
+   */
+  logoDark?: (string | null) | Media;
+  /**
+   * Wordmark shown next to the logo mark. Leave empty to hide.
+   */
+  logoText?: string | null;
   /**
    * Primary navigation links.
    */
@@ -735,7 +787,18 @@ export interface Header {
  */
 export interface Footer {
   id: string;
-  logo?: (string | null) | Media;
+  /**
+   * Dark mark for light backgrounds. Prefer WebP.
+   */
+  logoLight?: (string | null) | Media;
+  /**
+   * Light mark for dark backgrounds. Prefer WebP.
+   */
+  logoDark?: (string | null) | Media;
+  /**
+   * Wordmark shown next to the logo mark. Leave empty to hide.
+   */
+  logoText?: string | null;
   description?: string | null;
   /**
    * Footer navigation links.
@@ -813,7 +876,22 @@ export interface SiteSetting {
   siteName?: string | null;
   defaultMetaTitle?: string | null;
   defaultMetaDescription?: string | null;
-  favicon?: (string | null) | Media;
+  /**
+   * Used when the resolved theme is light. Prefer 32×32 WebP.
+   */
+  faviconLight?: (string | null) | Media;
+  /**
+   * Used when the resolved theme is dark. Prefer 32×32 WebP.
+   */
+  faviconDark?: (string | null) | Media;
+  /**
+   * Home-screen icon for light appearances. Prefer 180×180 WebP.
+   */
+  appleTouchIconLight?: (string | null) | Media;
+  /**
+   * Home-screen icon for dark appearances. Prefer 180×180 WebP.
+   */
+  appleTouchIconDark?: (string | null) | Media;
   /**
    * Optional. Leave empty to disable GTM. No default id.
    */
@@ -887,8 +965,9 @@ export interface PriceList {
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
-  desktopLogo?: T;
-  mobileLogo?: T;
+  logoLight?: T;
+  logoDark?: T;
+  logoText?: T;
   navItems?:
     | T
     | {
@@ -926,7 +1005,9 @@ export interface HeaderSelect<T extends boolean = true> {
  * via the `definition` "footer_select".
  */
 export interface FooterSelect<T extends boolean = true> {
-  logo?: T;
+  logoLight?: T;
+  logoDark?: T;
+  logoText?: T;
   description?: T;
   navItems?:
     | T
@@ -993,7 +1074,10 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   siteName?: T;
   defaultMetaTitle?: T;
   defaultMetaDescription?: T;
-  favicon?: T;
+  faviconLight?: T;
+  faviconDark?: T;
+  appleTouchIconLight?: T;
+  appleTouchIconDark?: T;
   gtmId?: T;
   defaultTheme?: T;
   enableThemeToggle?: T;

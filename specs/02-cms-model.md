@@ -16,7 +16,7 @@ Source: `apps/cms` (Payload 3.83.0, MongoDB, Lexical, S3/MinIO). Decisions are f
 | Slug | Purpose | Verdict |
 | --- | --- | --- |
 | `users` | Admin auth | **Keep** — add `role`, `name` |
-| `media` | Uploads | **Keep** — localize `alt`, optional `caption` |
+| `media` | Uploads | **Keep** — localize `alt`, optional `caption`; store as WebP (`formatOptions`) with `favicon` (32) + `icon` (180) sizes |
 | `pages` | CMS-driven routes via `viewType` | **Adapt** — see below |
 | `blog` | Posts | **Keep** (optional rename News/Journal) |
 | `blog-categories` | Taxonomy | **Keep** |
@@ -50,11 +50,11 @@ Source: `apps/cms` (Payload 3.83.0, MongoDB, Lexical, S3/MinIO). Decisions are f
 
 | Slug | Verdict | Notes |
 | --- | --- | --- |
-| `header` | **Adapt** | Rename `prototypeLink` → `ctaLink`; drop GoGym store-link variants |
-| `footer` | **Keep** | Fix copyright default |
+| `header` | **Adapt** | `logoLight` / `logoDark` (upload), localized `logoText`, `ctaLink`, phone, nav |
+| `footer` | **Adapt** | `logoLight` / `logoDark` (upload), localized `logoText`, description, nav, copyright |
 | `contacts` | **Adapt** | `phones[]`, hours, `branches` relationship |
 | `banner` | **Adapt** | Announcement / promo |
-| `site-settings` | **Adapt** | Add `siteName`, default meta, analytics IDs, **`defaultTheme`**, `enableThemeToggle` |
+| `site-settings` | **Adapt** | `siteName`, default meta, `faviconLight` / `faviconDark`, `appleTouchIconLight` / `appleTouchIconDark`, analytics IDs, **`defaultTheme`**, `enableThemeToggle` |
 | `price-list` | **Add** | Company price sheets (inspection + turnkey). One global so prices edit in one place. See below. |
 | `top-banner` | **Adapt or Drop** | Register as strip, or omit |
 

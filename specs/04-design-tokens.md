@@ -263,12 +263,15 @@ Resolve `system` via `matchMedia('(prefers-color-scheme: dark)')` and set `data-
 ```ts
 defaultTheme: 'system' | 'light' | 'dark'
 enableThemeToggle: boolean // default true
+faviconLight / faviconDark: upload // theme-aware tab icon (WebP)
+appleTouchIconLight / appleTouchIconDark: upload // 180² home-screen icons
 ```
 
-### Media
+### Media / brand marks
 
-- Prefer `currentColor` SVGs over CSS filter hacks.
-- Optional `logoDark` on Header global, or one SVG that adapts.
+- Uploads normalize to **WebP** (`Media.formatOptions` + `favicon` / `icon` sizes).
+- Header + Footer: `logoLight` (dark mark) / `logoDark` (light mark). Web dual-renders both and toggles via `[data-theme]` (Footer uses inverse swap on `surface-inverse`).
+- Favicons swap from `data-favicon-*` / `data-apple-touch-*` in the theme init script + `applyThemePreference`.
 
 ## Do not reintroduce aliases
 

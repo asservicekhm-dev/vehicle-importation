@@ -17,10 +17,40 @@ export const Media: CollectionConfig = {
       name: 'caption',
       type: 'text',
       localized: true,
-      required: false,
     },
   ],
   upload: {
     staticDir: process.env.MEDIA_PATH || path.resolve(process.cwd(), 'media'),
+    mimeTypes: ['image/*'],
+    formatOptions: {
+      format: 'webp',
+      options: {
+        quality: 90,
+      },
+    },
+    imageSizes: [
+      {
+        name: 'favicon',
+        width: 32,
+        height: 32,
+        position: 'centre',
+        withoutEnlargement: false,
+        formatOptions: {
+          format: 'webp',
+          options: { quality: 90 },
+        },
+      },
+      {
+        name: 'icon',
+        width: 180,
+        height: 180,
+        position: 'centre',
+        withoutEnlargement: false,
+        formatOptions: {
+          format: 'webp',
+          options: { quality: 92 },
+        },
+      },
+    ],
   },
 };

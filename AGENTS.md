@@ -90,7 +90,7 @@ Planned: `pnpm new component|view|block` _(M6)_, unified `pnpm seed <area>` _(po
 
 Spec: [`specs/02-cms-model.md`](./specs/02-cms-model.md).
 
-- **Now:** `users`, `media`, `pages` (localized `layout` + `viewType`: `home | information | contacts | blog`), globals `header` / `footer` / `contacts` / `site-settings` / `price-list`, plugins SEO / redirects / form-builder (Forms + FormSubmissions) / conditional S3. Localization: `ua` + `en`, `fallback: false`.
+- **Now:** `users`, `media` (WebP `formatOptions` + `favicon`/`icon` sizes), `pages` (localized `layout` + `viewType`: `home | information | contacts | blog`), globals `header` / `footer` (`logoLight`/`logoDark`/`logoText`) / `contacts` / `site-settings` (`favicon*` + `appleTouchIcon*`) / `price-list`, plugins SEO / redirects / form-builder (Forms + FormSubmissions) / conditional S3. Localization: `ua` + `en`, `fallback: false`. Brand WebPs live in `apps/cms/src/seed-assets/brand/` and are upserted by `seed:globals`.
 - Revalidate: CMS hooks POST `WEB_URL/api/revalidate` with `REVALIDATE_SECRET` (not CMS-local `revalidatePath`).
 - _(design seed)_ tokens + `/design-seed` preview; price list seeded from Instagram sheet ([`specs/07-domain-and-pages.md`](./specs/07-domain-and-pages.md), [`specs/10-design-direction.md`](./specs/10-design-direction.md)).
 - _(M4)_ marketing blocks; `forms` → `form-submissions` → `leads` inbox ([`specs/09-booking-and-leads.md`](./specs/09-booking-and-leads.md)).
