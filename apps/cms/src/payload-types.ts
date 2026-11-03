@@ -821,7 +821,19 @@ export interface PageBreadcrumbsBlockFields {
 export interface Lead {
   id: string;
   status: 'new' | 'in-progress' | 'won' | 'lost';
-  type?: ('callback' | 'test-drive' | 'trade-in' | 'finance' | 'general') | null;
+  type?:
+    | (
+        | 'consultation'
+        | 'turnkey'
+        | 'inspection'
+        | 'expert'
+        | 'callback'
+        | 'test-drive'
+        | 'trade-in'
+        | 'finance'
+        | 'general'
+      )
+    | null;
   readAt?: string | null;
   formSubmission: string | FormSubmission;
   form: string | Form;
@@ -829,6 +841,18 @@ export interface Lead {
   phone?: string | null;
   email?: string | null;
   message?: string | null;
+  request?: {
+    budget?: string | null;
+    budgetCurrency?: ('uah' | 'usd' | 'eur') | null;
+    origin?: string | null;
+    carType?: string | null;
+    carBrand?: string | null;
+    otherCity?: boolean | null;
+    deliveryCity?: string | null;
+    priceRange?: string | null;
+    addons?: string | null;
+    expectedPrice?: string | null;
+  };
   source?: string | null;
   consent?: boolean | null;
   utm?: {
@@ -1467,6 +1491,20 @@ export interface LeadsSelect<T extends boolean = true> {
   phone?: T;
   email?: T;
   message?: T;
+  request?:
+    | T
+    | {
+        budget?: T;
+        budgetCurrency?: T;
+        origin?: T;
+        carType?: T;
+        carBrand?: T;
+        otherCity?: T;
+        deliveryCity?: T;
+        priceRange?: T;
+        addons?: T;
+        expectedPrice?: T;
+      };
   source?: T;
   consent?: T;
   utm?:

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { CMSLink } from '@/components/CMSLink';
@@ -17,10 +17,13 @@ import { defaultPhoneDisplay, type ThemePreference } from '@autosearch/config';
 import styles from './Header.module.scss';
 
 const FALLBACK_NAV = [
-  { href: '/about', labelKey: 'navAbout' as const },
-  { href: '/services', labelKey: 'navServices' as const },
-  { href: '/contacts', labelKey: 'navContacts' as const },
+  { href: '#services', labelKey: 'navServices' as const },
+  { href: '#route', labelKey: 'navAbout' as const },
+  { href: '#prices', labelKey: 'navPricing' as const },
+  { href: '#contacts', labelKey: 'navContacts' as const },
 ];
+
+const FALLBACK_CTA = { type: 'custom' as const, label: '', url: '#callback' };
 
 type Props = {
   themePreference: ThemePreference;
@@ -61,6 +64,7 @@ export function Header({ themePreference, enableThemeToggle = true }: Props) {
   const t = useTranslations('Header');
   const { header } = useGlobals();
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const cmsNav = header?.navItems?.filter((item) => item.link?.label) ?? [];
   const phone = header?.phone?.trim() || defaultPhoneDisplay;
@@ -69,73 +73,85 @@ export function Header({ themePreference, enableThemeToggle = true }: Props) {
   const hasMark = Boolean(getMediaUrl(header?.logoLight) || getMediaUrl(header?.logoDark));
   const brandLabel = logoText || t('brand');
   const showBrandText = Boolean(logoText) || !hasMark;
+  const ctaLink = header?.ctaLink?.label?.trim()
+    ? header.ctaLink
+    : { ...FALLBACK_CTA, label: t('cta') };
 
   return (
-    <header className={styles.header}>
-      <Container>
-        <div className={styles.inner}>
-          <Link className={styles.brand} href='/' aria-label={brandLabel}>
-            <ThemeLogo
-              light={header?.logoLight}
-              dark={header?.logoDark}
-              alt={brandLabel}
-              size={48}
-              priority
-            />
-            {showBrandText ? <span className={styles.brandText}>{brandLabel}</span> : null}
-          </Link>
+    <>
+      <header className={styles.header}>
+        <Container>
+          <div className={styles.inner}>
+            <Link className={styles.brand} href='/' aria-label={brandLabel}>
+              <ThemeLogo
+                light={header?.logoLight}
+                dark={header?.logoDark}
+                alt={brandLabel}
+                size={48}
+                priority
+              />
+              {showBrandText ? <span className={styles.brandText}>{brandLabel}</span> : null}
+            </Link>
 
-          <nav className={styles.desktopNav} aria-label={t('menuTitle')}>
-            <ul className={styles.navList}>
-              {cmsNav.length > 0
-                ? cmsNav.map((item, index) => (
-                    <li key={item.id ?? index}>
-                      <CMSLink className={styles.navLink} link={item.link} />
-                    </li>
-                  ))
-                : FALLBACK_NAV.map((item) => (
-                    <li key={item.href}>
-                      <Link className={styles.navLink} href={item.href}>
-                        {t(item.labelKey)}
-                      </Link>
-                    </li>
-                  ))}
-            </ul>
-          </nav>
+            <nav className={styles.desktopNav} aria-label={t('menuTitle')}>
+              <ul className={styles.navList}>
+                {cmsNav.length > 0
+                  ? cmsNav.map((item, index) => (
+                      <li key={item.id ?? index}>
+                        <CMSLink className={styles.navLink} link={item.link} />
+                      </li>
+                    ))
+                  : FALLBACK_NAV.map((item) => (
+                      <li key={item.href}>
+                        <Link className={styles.navLink} href={item.href}>
+                          {t(item.labelKey)}
+                        </Link>
+                      </li>
+                    ))}
+              </ul>
+            </nav>
 
-          <div className={styles.desktopRight}>
-            <a className={styles.phonePill} href={phoneHref} aria-label={t('phoneAria')}>
-              <span className={styles.phoneIconWrap}>
+            <div className={styles.desktopRight}>
+              <a className={styles.phonePill} href={phoneHref} aria-label={t('phoneAria')}>
+                <span className={styles.phoneIconWrap}>
+                  <PhoneIcon />
+                </span>
+                <span className={styles.phoneText}>{phone}</span>
+              </a>
+              <CMSLink className={styles.cta} link={ctaLink} />
+              <LocaleSwitcher />
+              {enableThemeToggle ? <ThemeToggle initialPreference={themePreference} /> : null}
+            </div>
+
+            <div className={styles.mobileRight}>
+              <a className={styles.phoneIconButton} href={phoneHref} aria-label={t('phoneAria')}>
                 <PhoneIcon />
-              </span>
-              <span className={styles.phoneText}>{phone}</span>
-            </a>
-            <LocaleSwitcher />
-            {enableThemeToggle ? <ThemeToggle initialPreference={themePreference} /> : null}
+              </a>
+              <button
+                ref={menuButtonRef}
+                type='button'
+                className={menuOpen ? `${styles.menuButton} ${styles.menuButtonOpen}` : styles.menuButton}
+                aria-label={menuOpen ? t('menuClose') : t('menuOpen')}
+                aria-expanded={menuOpen}
+                onClick={() => setMenuOpen((open) => !open)}
+              >
+                <MenuIcon />
+              </button>
+            </div>
           </div>
-
-          <div className={styles.mobileRight}>
-            <a className={styles.phoneIconButton} href={phoneHref} aria-label={t('phoneAria')}>
-              <PhoneIcon />
-            </a>
-            <button
-              type='button'
-              className={menuOpen ? `${styles.menuButton} ${styles.menuButtonOpen}` : styles.menuButton}
-              aria-label={menuOpen ? t('menuClose') : t('menuOpen')}
-              aria-expanded={menuOpen}
-              onClick={() => setMenuOpen((open) => !open)}
-            >
-              <MenuIcon />
-            </button>
-          </div>
-        </div>
-      </Container>
+        </Container>
+      </header>
+      <div className={styles.spacer} aria-hidden />
 
       <Modal
         open={menuOpen}
         onOpenChange={setMenuOpen}
         title={t('menuTitle')}
         closeLabel={t('menuClose')}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          menuButtonRef.current?.focus({ preventScroll: true });
+        }}
       >
         <nav className={styles.mobileNav} aria-label={t('menuTitle')}>
           <ul className={styles.mobileLinks}>
@@ -168,6 +184,13 @@ export function Header({ themePreference, enableThemeToggle = true }: Props) {
                 <span className={styles.phoneText}>{phone}</span>
               </a>
             </li>
+            <li>
+              <CMSLink
+                className={styles.cta}
+                link={ctaLink}
+                onNavigate={() => setMenuOpen(false)}
+              />
+            </li>
           </ul>
           <div className={styles.mobileControls}>
             <LocaleSwitcher />
@@ -175,6 +198,6 @@ export function Header({ themePreference, enableThemeToggle = true }: Props) {
           </div>
         </nav>
       </Modal>
-    </header>
+    </>
   );
 }

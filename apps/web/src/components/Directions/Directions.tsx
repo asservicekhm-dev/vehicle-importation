@@ -22,19 +22,6 @@ type ServiceCard = {
   >['link'];
 };
 
-function ArrowIcon() {
-  return (
-    <svg width='8' height='8' viewBox='0 0 8 8' fill='none' aria-hidden>
-      <path
-        d='M6.6499 6.6499V0.649902H0.649902M6.6499 0.649902L0.649902 6.6499'
-        stroke='currentColor'
-        strokeWidth='1.3'
-        strokeLinecap='round'
-      />
-    </svg>
-  );
-}
-
 function Eyebrow({ text }: { text?: string | null }) {
   const value = text?.trim();
   if (!value) return null;
@@ -111,35 +98,37 @@ export function Directions({
           </div>
 
           {cards.length > 0 ? (
-            <ul className={styles.list}>
+            <ul className={styles.grid}>
               {cards.map((card) => {
                 const hasLink = Boolean(card.link?.label?.trim());
                 const hasImage = Boolean(card.image && typeof card.image !== 'string');
 
                 return (
-                  <li key={card.id}>
+                  <li key={card.id} className={styles.gridItem}>
                     <article className={styles.card}>
-                      <div className={styles.cardMain}>
-                        <h3 className={styles.cardTitle}>{card.title}</h3>
-                        {hasLink ? (
-                          <CMSLink link={card.link} className={styles.cardCta}>
-                            <span className={styles.cardCtaInner}>
-                              {card.link?.label}
-                              <ArrowIcon />
-                            </span>
-                          </CMSLink>
-                        ) : (
-                          <span className={styles.cardCtaInnerMuted}>{t('more')}</span>
-                        )}
-                      </div>
-
-                      {card.description ? <p className={styles.cardDesc}>{card.description}</p> : null}
-
                       {hasImage ? (
                         <div className={styles.cardImage}>
-                          <CMSMedia media={card.image} className={styles.cardImg} fill sizes='200px' />
+                          <CMSMedia
+                            media={card.image}
+                            className={styles.cardImg}
+                            fill
+                            sizes='(min-width: 768px) 40vw, 100vw'
+                          />
                         </div>
                       ) : null}
+                      <div className={styles.cardBody}>
+                        <h3 className={styles.cardTitle}>{card.title}</h3>
+                        {card.description ? (
+                          <p className={styles.cardDesc}>{card.description}</p>
+                        ) : null}
+                        {hasLink ? (
+                          <CMSLink link={card.link} className={styles.cardCta}>
+                            {card.link?.label}
+                          </CMSLink>
+                        ) : (
+                          <span className={styles.cardCtaMuted}>{t('order')}</span>
+                        )}
+                      </div>
                     </article>
                   </li>
                 );

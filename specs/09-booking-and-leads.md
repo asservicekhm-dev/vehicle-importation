@@ -2,7 +2,7 @@
 
 Spec for Autosearch’s booking / enquiry form. It mirrors what the AS Service site already does for the **primary inbox** (Payload), and deliberately **does not** call the secondary GoGym API.
 
-Source behaviour reference: `booking-form-block` → `BookingForm` → `ContactsForm` → `sendForm` → `POST /api/form-submissions` → `form-submissions` + `contact-submissions` (+ optional email).
+Source behaviour reference: `booking-form-block` → `BookingForm` → `ServiceBookingForm` → `sendForm` → `POST /api/form-submissions` → `form-submissions` → `leads` (+ optional email).
 
 ## Product intent
 
@@ -21,34 +21,35 @@ Reuse the AS Service layout:
 
 - CMS block: keep slug `booking-form-block` (or rename greenfield to `lead-form-block` — pick one and stick to it).
 - Section: eyebrow + title / titleAccent + description + optional image + form card.
-- Component: one shared form renderer (merge `ContactsForm` + `CMSForm`); Booking section is a thin wrapper.
+- Component: `ServiceBookingForm` (mode-aware UI). Booking section is a thin wrapper. Payload Form doc is still the submit target (`submissionKind: lead`).
 - Also usable from Contacts page and from `CMSLink type='form'` (modal) with the same pipeline.
+- Directions «Замовити» deep-links with `?service=<mode>#callback`.
 
-### Default fields (seed)
+### Service modes
 
-Same shape as AS Service booking form:
+Always-visible single select (no search): `consultation` | `turnkey` | `inspection` | `expert`. Mode switch animates field sets; shared `name` / `phone` stay mounted.
 
-| Field name | Type | Required | Notes |
-| --- | --- | --- | --- |
-| `name` | text | yes | 3–50 chars validation on web |
-| `phone` | phone-number | yes | digits; store as string |
-| `message` | message | no | free text (car interest, question) |
+| Mode | Fields | Expected price |
+| --- | --- | --- |
+| `consultation` | name*, phone*, message≤500 | — |
+| `turnkey` | + budget (spaced digits) + currency uah/usd/eur, origin, carType, carBrand (creatable selects), otherCity + deliveryCity, message | turnkey `price-list` band from budget |
+| `inspection` | + priceRange + addons (multi) from inspection group, message | sum of selected row + addons (excludes expert-for-a-day addon) |
+| `expert` | name*, phone*, message | expert-for-a-day addon from inspection group |
 
-Localized labels/placeholders/button/success via Form Builder (`ua` + `en`).
+Option lists (`carTypes`, `carBrands`, `carOrigins`, `deliveryCities`) live in `@autosearch/config`. Creatable Select: filter, pick, or free-text when no match.
 
-### Layout mapping
+Success UX: animated reward panel (not a silent status line). Fail closed: success only when `sendForm` returns `ok`.
 
-CMS block `layout` maps Form field **names** to slots (`nameField`, `phoneField`, `messageField`, optional `emailField`, `surnameField`, `termsField`) so one React form serves many Form docs.
+### Submission fields
+
+Always: `service`, `type` (= service), `name`, `phone`, optional `message`, plus `source` (page URL). Mode extras as named keys (`budget`, `budgetCurrency`, `origin`, …). Lead hook maps `service`/`type` onto `leads.type` and stores extras on `leads.request.*` — `message` stays the visitor’s free-text only.
 
 ### Autosearch extensions (same inbox)
 
-Optional fields / hidden context — still one `sendForm` call:
-
 | Extra | How |
 | --- | --- |
-| Lead type | Hidden field or Form `submissionKind` / block prop → `leads.type` (`callback` \| `test-drive` \| `trade-in` \| `finance` \| `general`) |
-| Preferred date | Optional date field (informational only) |
-| Consent | Checkbox → stored on lead |
+| Lead type | `service` / `type` → `leads.type` (`consultation` \| `turnkey` \| `inspection` \| `expert` \| legacy values) |
+| Consent | Checkbox → stored on lead (when present) |
 | UTM / page URL | Server action attaches from headers/referrer or client fields |
 
 ## Submit pipeline (primary inbox only)
@@ -108,11 +109,12 @@ Seed a Form titled e.g. `AS Autosearch — Booking` with `submissionKind: 'lead'
 | Field | Source |
 | --- | --- |
 | `status` | `new` → `in-progress` → `won` / `lost` (Admin) |
-| `type` | From form/block/hidden field |
-| `name`, `phone`, `email`, `message` | Picked from `submissionData` by field name (same pickers as today’s hook) |
+| `type` | `service` / `type` from submission (`consultation` \| `turnkey` \| `inspection` \| `expert` \| legacy) |
+| `name`, `phone`, `email`, `message` | Contact fields from `submissionData` (`message` = free-text only) |
+| `request.*` | Booking extras: `budget`, `budgetCurrency`, `origin`, `carType`, `carBrand`, `otherCity`, `deliveryCity`, `priceRange`, `addons`, `expectedPrice` |
 | `branch` | Optional relationship |
 | `form`, `formSubmission` | Links back to Form Builder docs |
-| `source` | Page URL |
+| `source` | Page URL from submission (`source` / `pageUrl`) — not the service slug |
 | `utm` | Optional group |
 | `consent` | Boolean |
 | `readAt` / auto-mark-read | Keep AS Service Admin UX if useful |

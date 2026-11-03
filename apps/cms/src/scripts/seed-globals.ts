@@ -126,15 +126,22 @@ async function main(): Promise<void> {
       {
         link: {
           type: 'custom',
+          label: 'Ціни',
+          url: '#prices',
+        },
+      },
+      {
+        link: {
+          type: 'custom',
           label: 'Контакти',
-          url: '#callback',
+          url: '#contacts',
         },
       },
     ],
     ctaLink: {
       type: 'custom',
       label: 'Залишити заявку',
-      url: '/contacts',
+      url: '#callback',
     },
   });
 
@@ -157,13 +164,17 @@ async function main(): Promise<void> {
       },
       {
         id: navIds[2],
-        link: { type: 'custom', label: 'Contacts', url: '#callback' },
+        link: { type: 'custom', label: 'Pricing', url: '#prices' },
+      },
+      {
+        id: navIds[3],
+        link: { type: 'custom', label: 'Contacts', url: '#contacts' },
       },
     ],
     ctaLink: {
       type: 'custom',
       label: 'Leave a request',
-      url: '/contacts',
+      url: '#callback',
     },
   });
 

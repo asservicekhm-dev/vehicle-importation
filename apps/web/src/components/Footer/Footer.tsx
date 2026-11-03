@@ -155,7 +155,7 @@ export function Footer() {
     navItems.length > 0 ? renderCmsNav(keyPrefix) : renderFallbackNav(keyPrefix);
 
   return (
-    <footer className={styles.wrapper}>
+    <footer id='contacts' className={styles.wrapper}>
       <div className={styles.card}>
         <div className={styles.navBarDesktop}>
           <nav className={styles.navLinks} aria-label={t('navAria')}>

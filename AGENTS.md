@@ -92,6 +92,7 @@ Spec: [`specs/02-cms-model.md`](./specs/02-cms-model.md).
 
 - **Now:** `users`, `media` (WebP `formatOptions` + `favicon`/`icon` sizes), `pages` (localized `layout` + `viewType`: `home | information | contacts | blog`), `leads` inbox, globals `header` / `footer` (`logoLight`/`logoDark`/`logoText`) / `contacts` / `site-settings` (`favicon*` + `appleTouchIcon*`) / `price-list`, plugins SEO / redirects / form-builder (Forms + FormSubmissions → leads when `submissionKind: lead`) / conditional S3. Localization: `ua` + `en`, `fallback: false`. Brand WebPs live in `apps/cms/src/seed-assets/brand/` and are upserted by `seed:globals`.
 - Home marketing blocks (seed order): `auto-hero`, early `booking-form` (pitch), `about-intro`, `why-choose-us`, `directions`, `comparison`, `price-list` (reads global), `inspection-checklist`, `turnkey-route`, `ukraine-coverage`, `testimonials`, `service-faq`, bottom `booking-form` (callback); also registered `car-brands`, `page-breadcrumbs`. Web `sendForm` is the only write path (no GoGym).
+- Booking UI: `ServiceBookingForm` modes `consultation` \| `turnkey` \| `inspection` \| `expert`; Directions «Замовити» uses `?service=<mode>#callback`; option lists in `@autosearch/config`.
 - Revalidate: CMS hooks POST `WEB_URL/api/revalidate` with `REVALIDATE_SECRET` (not CMS-local `revalidatePath`).
 - _(design seed)_ `/design-seed` remains a noindex visual reference; production Home is CMS-driven.
 - _(M5)_ Secondary IA: About, Contacts, Blog, Services landings (`/services/{perevirka,pid-kliuch,ekspert-na-den,diagnostyka,vyizd}`).

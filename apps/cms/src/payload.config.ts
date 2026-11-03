@@ -1,5 +1,7 @@
 import path from 'path';
 import { buildConfig, type SharpDependency } from 'payload';
+import { en } from 'payload/i18n/en';
+import { uk } from 'payload/i18n/uk';
 import sharp from 'sharp';
 import { fileURLToPath } from 'url';
 import { mongooseAdapter } from '@payloadcms/db-mongodb';
@@ -136,6 +138,10 @@ export default buildConfig({
     }),
     ...plugins,
   ],
+  i18n: {
+    fallbackLanguage: 'uk',
+    supportedLanguages: { en, uk },
+  },
   localization: {
     defaultLocale,
     fallback: false,

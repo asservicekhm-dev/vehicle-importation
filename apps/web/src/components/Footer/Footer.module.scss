@@ -1,5 +1,6 @@
 .wrapper {
   margin-top: auto;
+  scroll-margin-top: var(--header-offset);
   background-color: var(--color-bg);
   padding: 0 var(--space-4) var(--space-10);
 

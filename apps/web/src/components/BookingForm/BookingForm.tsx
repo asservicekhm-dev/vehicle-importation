@@ -1,34 +1,48 @@
 'use client';
 
+import { Suspense, useMemo } from 'react';
 import clsx from 'clsx';
+import { useSearchParams } from 'next/navigation';
 
 import { AnimatedContent } from '@/components/AnimatedContent';
 import { CMSMedia } from '@/components/CMSMedia';
-import { ContactsForm } from '@/components/ContactsForm';
 import { Container } from '@/components/Container';
+import { ServiceBookingForm } from '@/components/ServiceBookingForm';
 import type { BookingFormBlockFields, Form, Media } from '@autosearch/cms/payload-types';
+import { type BookingServiceMode,isBookingServiceMode } from '@autosearch/config';
 
 import styles from './BookingForm.module.scss';
 
 type Props = BookingFormBlockFields;
 
-export function BookingForm({
-  id,
-  blockName,
-  variant: variantProp,
-  eyebrow,
-  note,
-  title,
-  titleAccent,
-  description,
-  image,
-  form,
-  layout,
-}: Props) {
-  if (!form || typeof form === 'string') return null;
+function readServiceParam(raw: string | null): BookingServiceMode | undefined {
+  if (!raw) return undefined;
+  return isBookingServiceMode(raw) ? raw : undefined;
+}
+
+function BookingFormInner(props: Props) {
+  const {
+    id,
+    blockName,
+    variant: variantProp,
+    eyebrow,
+    note,
+    title,
+    titleAccent,
+    description,
+    image,
+    form,
+  } = props;
 
   const variant = variantProp === 'pitch' ? 'pitch' : 'callback';
   const isPitch = variant === 'pitch';
+  const searchParams = useSearchParams();
+  const initialMode = useMemo(() => {
+    return readServiceParam(searchParams.get('service')) ?? 'consultation';
+  }, [searchParams]);
+
+  if (!form || typeof form === 'string') return null;
+
   const heading = title?.trim();
   const accent = titleAccent?.trim();
   const body = description?.trim();
@@ -60,12 +74,7 @@ export function BookingForm({
                     {aside ? <p className={styles.note}>{aside}</p> : null}
                   </div>
                   <div className={clsx(styles.card, styles.cardPitch)}>
-                    <ContactsForm
-                      form={form as Form}
-                      layout={layout ?? null}
-                      hideMessage
-                      compact
-                    />
+                    <ServiceBookingForm form={form as Form} initialMode={initialMode} compact />
                   </div>
                 </div>
                 {media ? (
@@ -104,7 +113,7 @@ export function BookingForm({
                   ) : null}
                 </div>
                 <div className={styles.card}>
-                  <ContactsForm form={form as Form} layout={layout ?? null} />
+                  <ServiceBookingForm form={form as Form} initialMode={initialMode} />
                 </div>
               </>
             )}
@@ -112,5 +121,13 @@ export function BookingForm({
         </AnimatedContent>
       </Container>
     </section>
+  );
+}
+
+export function BookingForm(props: Props) {
+  return (
+    <Suspense fallback={null}>
+      <BookingFormInner {...props} />
+    </Suspense>
   );
 }

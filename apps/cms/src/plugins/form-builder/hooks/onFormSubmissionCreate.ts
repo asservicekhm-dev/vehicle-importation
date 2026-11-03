@@ -70,6 +70,10 @@ const sendEmails = (
   }
 };
 
+function optionalText(value: string): string | undefined {
+  return value || undefined;
+}
+
 export const onFormSubmissionCreate: CollectionAfterChangeHook<FormSubmission> = ({
   doc,
   operation,
@@ -95,12 +99,69 @@ export const onFormSubmissionCreate: CollectionAfterChangeHook<FormSubmission> =
       const message = pickField(submissionData, ['message', 'comment']);
       const source = pickField(submissionData, ['source', 'pageUrl', 'page_url']);
       const consentRaw = pickField(submissionData, ['consent', 'acceptTerms', 'terms']);
-      const leadTypeRaw = pickField(submissionData, ['type', 'leadType', 'lead_type']) || 'general';
-      const allowedTypes = ['callback', 'test-drive', 'trade-in', 'finance', 'general'] as const;
+      const service = pickField(submissionData, ['service']);
+      const leadTypeRaw =
+        pickField(submissionData, ['type', 'leadType', 'lead_type']) || service || 'general';
+      const allowedTypes = [
+        'consultation',
+        'turnkey',
+        'inspection',
+        'expert',
+        'callback',
+        'test-drive',
+        'trade-in',
+        'finance',
+        'general',
+      ] as const;
       type LeadType = (typeof allowedTypes)[number];
       const leadType: LeadType = (allowedTypes as readonly string[]).includes(leadTypeRaw)
         ? (leadTypeRaw as LeadType)
         : 'general';
+
+      const budget = pickField(submissionData, ['budget']);
+      const budgetCurrencyRaw = pickField(submissionData, ['budgetCurrency']);
+      const budgetCurrency = (['uah', 'usd', 'eur'] as const).includes(
+        budgetCurrencyRaw as 'uah' | 'usd' | 'eur',
+      )
+        ? (budgetCurrencyRaw as 'uah' | 'usd' | 'eur')
+        : undefined;
+      const origin = pickField(submissionData, ['origin']);
+      const carType = pickField(submissionData, ['carType']);
+      const carBrand = pickField(submissionData, ['carBrand']);
+      const otherCityRaw = pickField(submissionData, ['otherCity']);
+      const deliveryCity = pickField(submissionData, ['deliveryCity']);
+      const priceRange = pickField(submissionData, ['priceRange']);
+      const addons = pickField(submissionData, ['addons']);
+      const expectedPrice = pickField(submissionData, ['expectedPrice']);
+
+      const hasOtherCityField = Boolean(
+        submissionData?.some(
+          (item) => String(item.field ?? '').trim().toLowerCase() === 'othercity',
+        ),
+      );
+
+      const request = {
+        budget: optionalText(budget),
+        budgetCurrency,
+        origin: optionalText(origin),
+        carType: optionalText(carType),
+        carBrand: optionalText(carBrand),
+        ...(hasOtherCityField
+          ? {
+              otherCity:
+                otherCityRaw === 'true' || otherCityRaw === '1' || otherCityRaw === 'yes',
+            }
+          : {}),
+        deliveryCity: optionalText(deliveryCity),
+        priceRange: optionalText(priceRange),
+        addons: optionalText(addons),
+        expectedPrice: optionalText(expectedPrice),
+      };
+
+      const hasRequestDetails = Object.values(request).some((value) => {
+        if (typeof value === 'boolean') return true;
+        return Boolean(value);
+      });
 
       await req.payload.create({
         collection: 'leads',
@@ -112,8 +173,9 @@ export const onFormSubmissionCreate: CollectionAfterChangeHook<FormSubmission> =
           name,
           email,
           phone,
-          message,
-          source: source || undefined,
+          message: optionalText(message),
+          ...(hasRequestDetails ? { request } : {}),
+          source: optionalText(source),
           consent: consentRaw === 'true' || consentRaw === '1' || consentRaw === 'yes',
         },
         overrideAccess: true,

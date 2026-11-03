@@ -48,3 +48,19 @@ export const defaultHoursEn = 'Mon–Fri: 09:30–18:00\nSat–Sun: closed';
 /** Known public social profiles — CMS Contacts.socialLinks override; UI may fall back. */
 export const defaultInstagramUrl = 'https://www.instagram.com/autosearch.khm/';
 export const defaultFacebookUrl = 'https://www.facebook.com/autosearch.khm/';
+
+export {
+  bookingServiceModes,
+  budgetCurrencies,
+  budgetCurrencyLabels,
+  carBrands,
+  carOrigins,
+  carTypes,
+  deliveryCities,
+  isBookingServiceMode,
+  localizeOptions,
+  optionLabel,
+  type BookingServiceMode,
+  type BudgetCurrency,
+  type LocalizedOption,
+} from './booking';

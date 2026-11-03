@@ -24,7 +24,7 @@
   /* iPad / tablet: fill the empty side (laptop-only left a blank half). */
   @include tablet {
     grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
-    align-items: stretch;
+    align-items: start;
     gap: var(--space-8);
   }
 
@@ -133,19 +133,12 @@
   overflow: hidden;
 
   @include tablet {
-    /* Width from grid track only — do NOT pair aspect-ratio with stretched height
-       (that computes width = height × ratio and overflows the page on iPad). */
+    /* Fixed ratio from grid track width — never stretch to left-column height
+       (form validation / expansion must not resize the image). */
     display: block;
     align-self: start;
     aspect-ratio: 4 / 3;
     height: auto;
-  }
-
-  @include laptop {
-    align-self: stretch;
-    aspect-ratio: auto;
-    height: auto;
-    min-height: 100%;
   }
 }
 

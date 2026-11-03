@@ -26,11 +26,11 @@ const markAsReadOnOpen: CollectionAfterReadHook = async ({ doc, req }) => {
 export const Leads: CollectionConfig = {
   slug: 'leads',
   labels: {
-    singular: 'Lead',
-    plural: 'Leads',
+    singular: { en: 'Lead', uk: 'Заявка' },
+    plural: { en: 'Leads', uk: 'Заявки' },
   },
   admin: {
-    group: 'Forms',
+    group: { en: 'Forms', uk: 'Форми' },
     useAsTitle: 'name',
     defaultColumns: ['status', 'type', 'name', 'phone', 'createdAt'],
   },
@@ -46,35 +46,39 @@ export const Leads: CollectionConfig = {
   fields: [
     {
       name: 'status',
-      label: 'Status',
+      label: { en: 'Status', uk: 'Статус' },
       type: 'select',
       required: true,
       defaultValue: 'new',
       options: [
-        { label: 'New', value: 'new' },
-        { label: 'In progress', value: 'in-progress' },
-        { label: 'Won', value: 'won' },
-        { label: 'Lost', value: 'lost' },
+        { label: { en: 'New', uk: 'Нова' }, value: 'new' },
+        { label: { en: 'In progress', uk: 'В роботі' }, value: 'in-progress' },
+        { label: { en: 'Won', uk: 'Успішна' }, value: 'won' },
+        { label: { en: 'Lost', uk: 'Відхилена' }, value: 'lost' },
       ],
       admin: { position: 'sidebar' },
     },
     {
       name: 'type',
-      label: 'Lead type',
+      label: { en: 'Lead type', uk: 'Тип заявки' },
       type: 'select',
       defaultValue: 'general',
       options: [
-        { label: 'Callback', value: 'callback' },
-        { label: 'Test drive', value: 'test-drive' },
-        { label: 'Trade-in', value: 'trade-in' },
-        { label: 'Finance', value: 'finance' },
-        { label: 'General', value: 'general' },
+        { label: { en: 'Consultation', uk: 'Консультація' }, value: 'consultation' },
+        { label: { en: 'Turnkey search', uk: 'Підбір під ключ' }, value: 'turnkey' },
+        { label: { en: 'Inspection', uk: 'Перевірка перед покупкою' }, value: 'inspection' },
+        { label: { en: 'Expert for a day', uk: 'Експерт на день' }, value: 'expert' },
+        { label: { en: 'Callback', uk: 'Зворотний дзвінок' }, value: 'callback' },
+        { label: { en: 'Test drive', uk: 'Тест-драйв' }, value: 'test-drive' },
+        { label: { en: 'Trade-in', uk: 'Trade-in' }, value: 'trade-in' },
+        { label: { en: 'Finance', uk: 'Фінансування' }, value: 'finance' },
+        { label: { en: 'General', uk: 'Загальна' }, value: 'general' },
       ],
       admin: { position: 'sidebar' },
     },
     {
       name: 'readAt',
-      label: 'Opened at',
+      label: { en: 'Opened at', uk: 'Відкрито' },
       type: 'date',
       admin: {
         position: 'sidebar',
@@ -84,7 +88,7 @@ export const Leads: CollectionConfig = {
     },
     {
       name: 'formSubmission',
-      label: 'Form submission',
+      label: { en: 'Form submission', uk: 'Відправлення форми' },
       type: 'relationship',
       relationTo: 'form-submissions',
       required: true,
@@ -92,7 +96,7 @@ export const Leads: CollectionConfig = {
     },
     {
       name: 'form',
-      label: 'Form',
+      label: { en: 'Form', uk: 'Форма' },
       type: 'relationship',
       relationTo: 'forms',
       required: true,
@@ -100,37 +104,93 @@ export const Leads: CollectionConfig = {
     },
     {
       name: 'name',
-      label: 'Name',
+      label: { en: 'Name', uk: "Імʼя" },
       type: 'text',
       admin: { readOnly: true },
     },
     {
       name: 'phone',
-      label: 'Phone',
+      label: { en: 'Phone', uk: 'Телефон' },
       type: 'text',
       admin: { readOnly: true },
     },
     {
       name: 'email',
-      label: 'Email',
+      label: { en: 'Email', uk: 'Email' },
       type: 'text',
       admin: { readOnly: true },
     },
     {
       name: 'message',
-      label: 'Message',
+      label: { en: 'Message', uk: 'Повідомлення' },
       type: 'textarea',
       admin: { readOnly: true },
     },
     {
+      name: 'request',
+      label: { en: 'Request details', uk: 'Деталі запиту' },
+      type: 'group',
+      admin: {
+        readOnly: true,
+        condition: (_data, siblingData) => {
+          const request = siblingData?.request as Record<string, unknown> | undefined;
+          if (!request || typeof request !== 'object') return false;
+          return Object.values(request).some((value) => {
+            if (typeof value === 'boolean') return value;
+            return Boolean(String(value ?? '').trim());
+          });
+        },
+      },
+      fields: [
+        { name: 'budget', type: 'text', label: { en: 'Budget', uk: 'Бюджет' } },
+        {
+          name: 'budgetCurrency',
+          type: 'select',
+          label: { en: 'Budget currency', uk: 'Валюта бюджету' },
+          options: [
+            { label: 'UAH', value: 'uah' },
+            { label: 'USD', value: 'usd' },
+            { label: 'EUR', value: 'eur' },
+          ],
+        },
+        { name: 'origin', type: 'text', label: { en: 'Origin', uk: 'Регіон авто' } },
+        { name: 'carType', type: 'text', label: { en: 'Car type', uk: 'Тип авто' } },
+        { name: 'carBrand', type: 'text', label: { en: 'Car brand', uk: 'Марка' } },
+        {
+          name: 'otherCity',
+          type: 'checkbox',
+          label: {
+            en: 'Delivery to another city',
+            uk: 'Доставка в інше місто',
+          },
+        },
+        {
+          name: 'deliveryCity',
+          type: 'text',
+          label: { en: 'Delivery city', uk: 'Місто доставки' },
+        },
+        {
+          name: 'priceRange',
+          type: 'text',
+          label: { en: 'Price range', uk: 'Ціновий діапазон' },
+        },
+        { name: 'addons', type: 'textarea', label: { en: 'Add-ons', uk: 'Додаткові опції' } },
+        {
+          name: 'expectedPrice',
+          type: 'text',
+          label: { en: 'Expected price', uk: 'Орієнтовна вартість' },
+        },
+      ],
+    },
+    {
       name: 'source',
-      label: 'Source URL',
+      label: { en: 'Source URL', uk: 'URL джерела' },
       type: 'text',
       admin: { readOnly: true },
     },
     {
       name: 'consent',
-      label: 'Consent',
+      label: { en: 'Consent', uk: 'Згода' },
       type: 'checkbox',
       defaultValue: false,
       admin: { readOnly: true },

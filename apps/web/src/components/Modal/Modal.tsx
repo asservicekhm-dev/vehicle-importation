@@ -11,14 +11,33 @@ type Props = {
   title: string;
   children: ReactNode;
   closeLabel?: string;
+  /** Called instead of Radix’s default focus return (which can scroll the page). */
+  onCloseAutoFocus?: (event: Event) => void;
 };
 
-export function Modal({ open, onOpenChange, title, children, closeLabel = 'Close' }: Props) {
+export function Modal({
+  open,
+  onOpenChange,
+  title,
+  children,
+  closeLabel = 'Close',
+  onCloseAutoFocus,
+}: Props) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className={styles.overlay} />
-        <Dialog.Content className={styles.content} aria-describedby={undefined}>
+        <Dialog.Content
+          className={styles.content}
+          aria-describedby={undefined}
+          onCloseAutoFocus={(event) => {
+            if (onCloseAutoFocus) {
+              onCloseAutoFocus(event);
+              return;
+            }
+            event.preventDefault();
+          }}
+        >
           <div className={styles.header}>
             <Dialog.Title className={styles.title}>{title}</Dialog.Title>
             <Dialog.Close className={styles.close} aria-label={closeLabel}>
