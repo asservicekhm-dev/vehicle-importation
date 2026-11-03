@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { CMSLink } from '@/components/CMSLink';
+import { CMSMedia } from '@/components/CMSMedia';
 import { Container } from '@/components/Container';
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { Modal } from '@/components/Modal';
@@ -12,7 +13,13 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { useGlobals } from '@/contexts/GlobalsContext';
 import { Link } from '@/i18n/navigation';
 import { getMediaUrl } from '@/lib/cms/resolveMediaUrl';
-import { defaultPhoneDisplay, type ThemePreference } from '@autosearch/config';
+import type { Contact, Media } from '@autosearch/cms/payload-types';
+import {
+  defaultFacebookUrl,
+  defaultInstagramUrl,
+  defaultPhoneDisplay,
+  type ThemePreference,
+} from '@autosearch/config';
 
 import styles from './Header.module.scss';
 
@@ -24,6 +31,36 @@ const FALLBACK_NAV = [
 ];
 
 const FALLBACK_CTA = { type: 'custom' as const, label: '', url: '#callback' };
+
+type SocialRow = {
+  id: string;
+  label: string;
+  url: string;
+  icon?: (string | null) | Media;
+};
+
+function contactSocials(contact: Contact | null | undefined): SocialRow[] {
+  const rows: SocialRow[] = [];
+
+  contact?.socialLinks?.forEach((item, index) => {
+    const label = item?.label?.trim() ?? '';
+    const url = item?.url?.trim() ?? '';
+    if (!label || !url) return;
+    rows.push({
+      id: item.id ?? `soc-${index}`,
+      label,
+      url,
+      icon: item.icon,
+    });
+  });
+
+  if (rows.length === 0) {
+    rows.push({ id: 'fallback-instagram', label: 'Instagram', url: defaultInstagramUrl });
+    rows.push({ id: 'fallback-facebook', label: 'Facebook', url: defaultFacebookUrl });
+  }
+
+  return rows;
+}
 
 type Props = {
   themePreference: ThemePreference;
@@ -62,7 +99,7 @@ function MenuIcon() {
 
 export function Header({ themePreference, enableThemeToggle = true }: Props) {
   const t = useTranslations('Header');
-  const { header } = useGlobals();
+  const { header, contacts } = useGlobals();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -76,6 +113,7 @@ export function Header({ themePreference, enableThemeToggle = true }: Props) {
   const ctaLink = header?.ctaLink?.label?.trim()
     ? header.ctaLink
     : { ...FALLBACK_CTA, label: t('cta') };
+  const socialList = contactSocials(contacts);
 
   return (
     <>
@@ -192,6 +230,29 @@ export function Header({ themePreference, enableThemeToggle = true }: Props) {
               />
             </li>
           </ul>
+          {socialList.length > 0 ? (
+            <div className={styles.mobileSocials} aria-label={t('socialsAria')}>
+              {socialList.map((social) => (
+                <a
+                  key={social.id}
+                  href={social.url}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className={styles.socialBtn}
+                  aria-label={social.label}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {social.icon && typeof social.icon !== 'string' ? (
+                    <CMSMedia media={social.icon} className={styles.socialIcon} sizes='22px' />
+                  ) : (
+                    <span className={styles.socialFallback} aria-hidden>
+                      {social.label.slice(0, 1).toUpperCase()}
+                    </span>
+                  )}
+                </a>
+              ))}
+            </div>
+          ) : null}
           <div className={styles.mobileControls}>
             <LocaleSwitcher />
             {enableThemeToggle ? <ThemeToggle initialPreference={themePreference} /> : null}

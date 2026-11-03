@@ -21,7 +21,8 @@
     "menuOpen": "Open menu",
     "menuClose": "Close menu",
     "menuTitle": "Menu",
-    "cta": "Leave a request"
+    "cta": "Leave a request",
+    "socialsAria": "Social links"
   },
   "Footer": {
     "brand": "AS Autosearch",

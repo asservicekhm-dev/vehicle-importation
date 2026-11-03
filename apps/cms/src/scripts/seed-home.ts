@@ -73,26 +73,26 @@ async function seedMarketingMedia(payload: Payload): Promise<MarketingMedia> {
   const about1 = await upsertMediaByFilename(payload, {
     filePath: path.join(marketingDir, 'about/stat-1.webp'),
     filename: 'about-stat-1.webp',
-    altUa: 'Робота з авто',
-    altEn: 'Working on a car',
+    altUa: 'Моторний відсік під час перевірки',
+    altEn: 'Engine bay during inspection',
   });
   const about2 = await upsertMediaByFilename(payload, {
     filePath: path.join(marketingDir, 'about/stat-2.webp'),
     filename: 'about-stat-2.webp',
-    altUa: 'Авто на дорозі',
-    altEn: 'Car on the road',
+    altUa: 'Авто в професійному боксі',
+    altEn: 'Car in a professional garage',
   });
   const about3 = await upsertMediaByFilename(payload, {
     filePath: path.join(marketingDir, 'about/stat-3.webp'),
     filename: 'about-stat-3.webp',
-    altUa: 'Водій за кермом',
-    altEn: 'Driver behind the wheel',
+    altUa: 'Підібране авто після етапів під ключ',
+    altEn: 'Sourced car after turnkey stages',
   });
   const about4 = await upsertMediaByFilename(payload, {
     filePath: path.join(marketingDir, 'about/stat-4.webp'),
     filename: 'about-stat-4.webp',
-    altUa: 'Огляд авто',
-    altEn: 'Car inspection',
+    altUa: 'Підібране авто на локації',
+    altEn: 'Sourced car on location',
   });
 
   const svcTurnkey = await upsertMediaByFilename(payload, {
