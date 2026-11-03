@@ -3,7 +3,7 @@
   top: 0;
   z-index: 30;
   border-bottom: 1px solid var(--color-border);
-  background-color: var(--color-bg);
+  background-color: var(--color-surface-1);
 }
 
 .inner {
@@ -35,24 +35,36 @@
 .navList {
   display: flex;
   align-items: center;
-  gap: var(--space-5);
+  gap: var(--space-1);
   margin: 0;
-  padding: 0;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-bg);
+  padding: var(--space-1);
   list-style: none;
 }
 
 .navLink {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-4);
   color: var(--color-text);
   font-weight: 600;
   font-size: var(--text-sm);
   text-decoration: none;
 
   &:hover {
+    background-color: var(--color-surface-1);
     color: var(--color-link);
   }
 }
 
 .phone {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-bg);
+  padding: var(--space-2) var(--space-4);
   color: var(--color-primary);
   font-weight: 700;
   font-size: var(--text-sm);

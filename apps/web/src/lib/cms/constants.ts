@@ -12,4 +12,5 @@ export const CACHE_TAGS = {
   footer: 'global_footer',
   contacts: 'global_contacts',
   siteSettings: 'global_site_settings',
+  priceList: 'global_price_list',
 } as const;

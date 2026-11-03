@@ -1,6 +1,6 @@
-# 07 — Domain mapping (AS Autosearch dealership)
+# 07 — Domain mapping (AS Autosearch)
 
-Maps dealership product needs onto patterns from AS Service.
+Maps product needs onto patterns from AS Service. Product decisions below supersede the earlier “dealership / New·Used·Trade-in·Finance” framing.
 
 **Locales (fixed):** Ukrainian is the default language; English is the second supported language (`ua` / `en`).
 
@@ -8,16 +8,71 @@ Maps dealership product needs onto patterns from AS Service.
 
 | AS Service (source) | AS Autosearch (target) |
 | --- | --- |
-| Auto repair / maintenance site | Car dealership / car search (“Автопідбір”) marketing site |
-| Services catalog + single service pages | Services landings (finance, trade-in, warranty, …) |
+| Auto repair / maintenance site | Car search & import (“Автопідбір”) marketing site |
+| Services catalog + single service pages | Services landings for the five offerings below |
 | Parts Selection wizard | **Drop** — no search wizard in v1 |
-| Booking form | Callback / enquiry / trade-in leads |
+| Booking form | Callback / enquiry leads |
+
+**Where the cars come from:** the USA, Europe and South Korea. This is the hero origin switcher, separate from the service menu.
+
+**Services** (order from their Instagram; Ukrainian names are drafts for the client to confirm):
+
+1. **Перевірка авто перед покупкою** (pre-purchase / one-time vehicle inspection). One vehicle the client has already chosen.
+2. **Підбір авто під ключ** (turnkey car search). The main product. Search from the client's preferences, then full support: trips to other cities, car markets, registration at the MVS service centre, handover.
+3. **Експерт на день** (expert for a day). Inspections for one day, 9:00–18:00. The client picks the cars; they inspect 5–8 of them.
+4. **Комп'ютерна діагностика** (computer diagnostics). Its own service: active ECU error codes and a read of the vehicle data.
+5. **Виїзд в інші міста** (travel to other cities). Domestic travel to inspect and buy, then deliver to the client. Not the same as an overseas origin.
+
+**Audience:** private buyers across Ukraine (office in Khmelnytskyi). They fear hidden costs, a hidden crash history and wound-back mileage.
+
+**Primary job of the site:** turn that worry into a callback request.
+
+## Price list (source of truth for seeds)
+
+Heading on the source sheet: “FAS AUTO SEARCH”. Site name stays **AS Autosearch**. Bands are stored as written, including the overlapping “over $20,000” and “over $40,000” inspection rows. Editable in CMS via the `price-list` global (see [02-cms-model.md](./02-cms-model.md)).
+
+### One-time vehicle inspection (by vehicle price)
+
+| Vehicle price | Price |
+| --- | ---: |
+| Up to $10,000 | 1,500 UAH |
+| Up to $20,000 | 2,000 UAH |
+| Over $20,000 | 3,000 UAH |
+| Over $40,000 | $100 |
+
+**Additional services**
+
+| Service | Price |
+| --- | ---: |
+| Inspection at a service station | +700 UAH |
+| Service history check | +700 UAH |
+| Comprehensive vehicle inspection | From $100 |
+| Expert for a day | From $100 |
+
+- *Comprehensive vehicle inspection* includes a standard vehicle inspection, full diagnostics at a service station, and checking the vehicle against dealer databases for repairs, major accidents, and body repairs.
+- *Expert for a day:* fuel costs are additional for trips outside Khmelnytskyi.
+- Comprehensive inspection and expert-for-a-day stay **add-ons** on this sheet. They do not become extra top-level services.
+
+### Turnkey car search (by vehicle budget)
+
+| Vehicle budget | Price |
+| --- | ---: |
+| Up to $10,000 | $400 |
+| Up to $15,000 | $500 |
+| Up to $20,000 | $600 |
+| Up to $30,000 | $700 |
+
+**Travel to another city:** from 2,000 UAH (on the turnkey sheet, where the source put it).
 
 ## Sitemap (proposed)
 
 ```
 /                         Home
-/services/[slug]          Finance, trade-in, warranty, insurance…
+/services/perevirka       Pre-purchase inspection
+/services/pid-kliuch      Turnkey car search
+/services/ekspert-na-den  Expert for a day
+/services/diagnostyka     Computer diagnostics
+/services/vyizd           Travel to other cities
 /about                    About / team
 /blog                     News
 /blog/[slug]              Post
@@ -31,7 +86,7 @@ Locales: Ukrainian (`ua`) unprefixed by default; English (`en`) under `/en/…`.
 
 | Page | Mechanism | Primary blocks / collections |
 | --- | --- | --- |
-| Home | `Pages` viewType `home` | auto-hero, about-intro, directions, popular/featured, car-brands, testimonials, faq, booking-form, blog-home |
+| Home | `Pages` viewType `home` | auto-hero (origins), directions (five services), price-list section (global), inspection-checklist, turnkey-route, testimonials, faq, booking-form, blog-home |
 | Service landing | `Pages` or `services` collection + blocks | Same stack as AS single-service |
 | About | `Pages` blocks | about-intro, team, video, reviews, faq |
 | Blog | viewType `blog` + collection | Existing Blog views |
@@ -45,7 +100,9 @@ Locales: Ukrainian (`ua`) unprefixed by default; English (`en`) under `/en/…`.
 | Brands marquee | CarBrands | Manual CMS logos on the block (no `brands` collection) |
 | Lead forms | BookingForm + ContactsForm + `sendForm` → `form-submissions` → `leads` | Same primary inbox as AS Service; see [09-booking-and-leads.md](./09-booking-and-leads.md). Lead type, optional date; no GoGym |
 | Callback / enquiry | FeedbackModal / booking-form | Same inbox; calendar/slot optional and informational only |
-| Trade-in / finance | PartsHow (steps) + booking-form + services pages | Dedicated services docs |
+| Price list | — | `price-list` global + home section |
+| Turnkey journey | PartsHow (steps) | `turnkey-route-block`; origin-aware shipping/customs |
+| Inspection contents | — | `inspection-checklist-block` |
 | Team | TeamBlock | Optional `team-members` collection |
 | Reviews | Testimonials / Reviews | Optional `reviews` collection |
 | Map / branches | contacts-info + contacts global | Multi-branch if needed |
@@ -57,11 +114,11 @@ Locales: Ukrainian (`ua`) unprefixed by default; English (`en`) under `/en/…`.
 ### Home (CMS)
 
 ```
-auto-hero-block
-about-intro-block
-directions-block          # New / Used / Trade-in / Finance
-popular-services-block    # features / departments
-car-brands-block          # marketing logo marquee (CMS media)
+auto-hero-block              # origins USA / Europe / Korea switcher
+directions-block             # five services: featured turnkey + four scope rows
+# price list section reads the price-list global (not a duplicated block)
+inspection-checklist-block   # contents of pre-purchase inspection
+turnkey-route-block          # Budget → … → MVS registration → Handover
 testimonials-block
 service-faq-block
 booking-form-block
@@ -86,9 +143,9 @@ booking-form-block
 | --- | --- |
 | Marketing landings | `pages` + blocks |
 | Leads inbox | `leads` (replacing contact-submissions) |
-| After-sales / finance content | `services` or pages |
+| Service landings | `pages` (or later `services` collection) |
 | News | `blog*` |
-| Nav / chrome | globals Header, Footer, Contacts, SiteSettings |
+| Nav / chrome | globals Header, Footer, Contacts, SiteSettings, **PriceList** |
 
 **Drop from greenfield:** Inventory (`cars` / `brands` catalogs), Autosearch search wizard, Explore, subscriptions, gamification blocks, gogym feedback API.
 
@@ -96,13 +153,12 @@ booking-form-block
 
 ## Open questions (content / product)
 
-1. Single showroom or multi-branch?
-2. New only, used only, or both? Certified program? (marketing copy only — no inventory CRUD)
-3. Financing partners (banks) — logos only or deep links?
-4. Default theme: light, dark, or system? _(decided for scaffold: system)_
-5. Keep Toxigenesis/Gilroy licenses for Autosearch? _(cleared for scaffold)_
-6. GTM / analytics IDs for the new property?
-7. Domain and `/cms` path on same host (recommended) vs split?
+1. Confirm Ukrainian service names (drafts above).
+2. Confirm overlapping inspection bands (“over $20,000” vs “over $40,000”) with the client.
+3. Default theme: light, dark, or system? _(decided for scaffold: system)_
+4. Keep Toxigenesis/Gilroy licenses for Autosearch? _(cleared for scaffold)_
+5. GTM / analytics IDs for the new property?
+6. Domain and `/cms` path on same host (recommended) vs split?
 
 *(Languages are decided: Ukrainian default + English. App locale codes stay `ua`/`en`; SEO hreflang uses `uk` for Ukrainian.)*
 
@@ -110,6 +166,6 @@ booking-form-block
 
 - Home + contacts + lead form working end-to-end.
 - Light/dark theme with no flash and WCAG AA on core text pairs.
-- CMS editors can update copy/media without deploys.
+- CMS editors can update copy, media and **prices** without deploys.
 - Full Ukrainian (default) + English parity for chrome, CMS fields, and seeded pages.
 - Deployable via same Docker/Traefik pattern under `autosearch` names.

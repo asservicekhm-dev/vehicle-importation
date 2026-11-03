@@ -1,10 +1,6 @@
 :root {
   /* private primitives — modules must not reference these */
   --_p-ink-900: #0e131e;
-  --_p-ink-800: #161c2b;
-  --_p-ink-700: #1d2538;
-  --_p-ink-600: #7a8299;
-  --_p-ink-300: #a3acc2;
   --_p-ink-100: #eef1f8;
   --_p-gray-700: #525257;
   --_p-gray-500: #767680;
@@ -12,11 +8,18 @@
   --_p-white: #ffffff;
   --_p-blue-900: #2e408a;
   --_p-blue-800: #324596;
-  --_p-blue-600: #4a5fc4;
-  --_p-blue-500: #5468cf;
-  --_p-blue-300: #8fa0ec;
   --_p-sky-600: #2b66a8;
   --_p-sky-400: #54a9e3;
+  --_p-sky-300: #7fbeea;
+  --_p-sky-200: #8ec5ee;
+  --_p-night-900: #0b1122;
+  --_p-night-800: #121a2f;
+  --_p-night-700: #1a2442;
+  --_p-night-600: #25304d;
+  --_p-night-500: #56627f;
+  --_p-night-300: #9aa5be;
+  --_p-night-100: #e8ecf5;
+  --_p-brand-band: #22337a;
   --_p-red-600: #c9261f;
   --_p-red-300: #ff8a85;
   --_p-green-700: #1f7a4d;
@@ -45,11 +48,16 @@
   --text-xs: 0.8125rem;
   --text-sm: 0.875rem;
   --text-md: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 2.5rem;
-  --text-4xl: 3rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5625rem;
+  --text-2xl: 1.9375rem;
+  --text-3xl: 2.4375rem;
+  --text-4xl: 3.0625rem;
+  --text-display: clamp(2.5rem, 1.6rem + 4vw, 4.75rem);
+
+  --leading-tight: 1.05;
+  --leading-body: 1.55;
+  --measure: 68ch;
 
   --header-offset: 96px;
 }
@@ -57,10 +65,12 @@
 :root,
 :root[data-theme='light'] {
   color-scheme: light;
-  --color-bg: var(--_p-white);
-  --color-surface-1: var(--_p-gray-100);
+  --color-bg: var(--_p-gray-100);
+  --color-surface-1: var(--_p-white);
   --color-surface-2: var(--_p-white);
   --color-surface-inverse: var(--_p-blue-900);
+  --color-surface-brand: var(--_p-blue-900);
+  --color-on-brand: var(--_p-white);
   --color-text: var(--_p-ink-900);
   --color-text-muted: var(--_p-gray-700);
   --color-text-inverse: var(--_p-white);
@@ -82,24 +92,26 @@
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --color-bg: var(--_p-ink-900);
-  --color-surface-1: var(--_p-ink-800);
-  --color-surface-2: var(--_p-ink-700);
+  --color-bg: var(--_p-night-900);
+  --color-surface-1: var(--_p-night-800);
+  --color-surface-2: var(--_p-night-700);
   --color-surface-inverse: var(--_p-gray-100);
-  --color-text: var(--_p-ink-100);
-  --color-text-muted: var(--_p-ink-300);
-  --color-text-inverse: var(--_p-ink-900);
-  --color-border: rgb(255 255 255 / 12%);
-  --color-border-strong: var(--_p-ink-600);
-  --color-primary: var(--_p-blue-600);
-  --color-primary-hover: var(--_p-blue-500);
-  --color-on-primary: var(--_p-white);
-  --color-link: var(--_p-blue-300);
+  --color-surface-brand: var(--_p-brand-band);
+  --color-on-brand: var(--_p-night-100);
+  --color-text: var(--_p-night-100);
+  --color-text-muted: var(--_p-night-300);
+  --color-text-inverse: var(--_p-night-900);
+  --color-border: var(--_p-night-600);
+  --color-border-strong: var(--_p-night-500);
+  --color-primary: var(--_p-sky-400);
+  --color-primary-hover: var(--_p-sky-300);
+  --color-on-primary: var(--_p-night-900);
+  --color-link: var(--_p-sky-200);
   --color-accent: var(--_p-sky-400);
-  --color-accent-text: var(--_p-sky-400);
+  --color-accent-text: var(--_p-sky-200);
   --color-error: var(--_p-red-300);
   --color-success: var(--_p-green-300);
-  --color-focus-ring: var(--_p-blue-300);
+  --color-focus-ring: var(--_p-sky-200);
   --color-overlay: rgb(0 0 0 / 55%);
   --shadow-1: 0 1px 2px rgb(0 0 0 / 30%), 0 2px 8px rgb(0 0 0 / 30%);
   --shadow-2: 0 4px 16px rgb(0 0 0 / 40%), 0 16px 48px rgb(0 0 0 / 40%);

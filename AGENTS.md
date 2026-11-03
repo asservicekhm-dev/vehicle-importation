@@ -6,7 +6,7 @@ Current state: **Milestone 3 (CMS core)** of [`specs/08-bootstrap-roadmap.md`](.
 
 ## 1. What this is
 
-Website for **AS Autosearch**, a car dealership / car-search (“Автопідбір”) business. Ukrainian is the default language, English is the second one. Payload CMS 3 + Next.js 15 monorepo with the same architecture as the AS Service site (`wayon/landing`), minus its Wayon/GoGym legacy.
+Website for **AS Autosearch**, a car-search and import business (“Автопідбір”). Cars from the USA, Europe and South Korea. Core services: pre-purchase inspection, turnkey car search (main), expert for a day, computer diagnostics, and travel to other cities. Ukrainian is the default language, English is the second one. Payload CMS 3 + Next.js 15 monorepo with the same architecture as the AS Service site (`wayon/landing`), minus its Wayon/GoGym legacy.
 
 - `apps/cms` — `@autosearch/cms`, Payload admin + REST API (port 3001; `/cms` in prod). Source of truth for all content.
 - `apps/web` — `@autosearch/web`, public Next.js site (port 3000). Renders CMS content; almost no hardcoded copy.
@@ -36,19 +36,20 @@ apps/
   cms/                 @autosearch/cms
     src/payload.config.ts
     src/collections/   Users, Media, Pages (+ dummy-section block)
-    src/globals/       header, footer, contacts, site-settings
+    src/globals/       header, footer, contacts, site-settings, price-list
     src/plugins/       SEO, redirects, hand-rolled form-builder (Forms + FormSubmissions)
     src/scripts/       seed-globals, seed-home
     src/app/(payload)/ Payload admin + API routes (generated files — don't hand-edit)
     src/app/api/media-redirect/  S3/local media redirect
     src/payload-types.ts  generated (CMS); web imports stripped `payload-types-export.ts` via `@autosearch/cms/payload-types`
   web/                 @autosearch/web
-    src/app/[locale]/  App Router locale segment + [slug] CMS pages
+    src/app/[locale]/  App Router locale segment + [slug] CMS pages + design-seed (dev-only)
     src/app/api/revalidate/  CMS→web webhook
     src/api/           Payload SDK client
     src/components/    primitives, Header/Footer, ThemeToggle, LocaleSwitcher, CMS glue, RenderBlocks
     src/contexts/      GlobalsProvider
     src/views/Layout/  Header + main + Footer shell
+    src/views/DesignSeed/  Design seed preview sections (before M4 blocks)
     src/fonts/         Toxigenesis + Gilroy (localFont)
     src/lib/fonts.ts   next/font loaders
     src/lib/theme/     cookie + no-flash script + client apply
@@ -89,10 +90,11 @@ Planned: `pnpm new component|view|block` _(M6)_, unified `pnpm seed <area>` _(po
 
 Spec: [`specs/02-cms-model.md`](./specs/02-cms-model.md).
 
-- **Now:** `users`, `media`, `pages` (localized `layout` + `viewType`: `home | information | contacts | blog`), globals `header` / `footer` / `contacts` / `site-settings`, plugins SEO / redirects / form-builder (Forms + FormSubmissions) / conditional S3. Localization: `ua` + `en`, `fallback: false`.
+- **Now:** `users`, `media`, `pages` (localized `layout` + `viewType`: `home | information | contacts | blog`), globals `header` / `footer` / `contacts` / `site-settings` / `price-list`, plugins SEO / redirects / form-builder (Forms + FormSubmissions) / conditional S3. Localization: `ua` + `en`, `fallback: false`.
 - Revalidate: CMS hooks POST `WEB_URL/api/revalidate` with `REVALIDATE_SECRET` (not CMS-local `revalidatePath`).
+- _(design seed)_ tokens + `/design-seed` preview; price list seeded from Instagram sheet ([`specs/07-domain-and-pages.md`](./specs/07-domain-and-pages.md), [`specs/10-design-direction.md`](./specs/10-design-direction.md)).
 - _(M4)_ marketing blocks; `forms` → `form-submissions` → `leads` inbox ([`specs/09-booking-and-leads.md`](./specs/09-booking-and-leads.md)).
-- _(M5)_ Secondary IA: About, Contacts, Blog, Services landings.
+- _(M5)_ Secondary IA: About, Contacts, Blog, Services landings (`/services/{perevirka,pid-kliuch,ekspert-na-den,diagnostyka,vyizd}`).
 - **Never add:** Inventory (`cars` / `brands` catalogs, `/cars` routes), Autosearch search wizard, Explore, `subscriptions` / `catalog` viewTypes, gamification blocks, GoGym/Smarty APIs.
 - Do not create a Pages slug `cms` (collides with the prod `/cms` base path).
 
@@ -109,7 +111,7 @@ Spec: [`specs/02-cms-model.md`](./specs/02-cms-model.md).
 
 ## 7. Design source
 
-No Autosearch Figma file yet. Until one is provided, the spec is code-derived: follow [`specs/04-design-tokens.md`](./specs/04-design-tokens.md) and [`specs/05-components.md`](./specs/05-components.md). Don't eyeball colors from AS Service screenshots.
+No Autosearch Figma file yet. Design direction: [`specs/10-design-direction.md`](./specs/10-design-direction.md). Tokens: [`specs/04-design-tokens.md`](./specs/04-design-tokens.md). Components: [`specs/05-components.md`](./specs/05-components.md). Identity source is AS Service (fonts, blue, pills, hero radius); structure and dark theme are Autosearch.
 
 ## 8. Styling & tokens
 

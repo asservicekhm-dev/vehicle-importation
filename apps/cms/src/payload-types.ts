@@ -100,12 +100,14 @@ export interface Config {
     footer: Footer;
     contacts: Contact;
     'site-settings': SiteSetting;
+    'price-list': PriceList;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
     contacts: ContactsSelect<false> | ContactsSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'price-list': PriceListSelect<false> | PriceListSelect<true>;
   };
   locale: 'ua' | 'en';
   widgets: {
@@ -824,6 +826,62 @@ export interface SiteSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "price-list".
+ */
+export interface PriceList {
+  id: string;
+  title?: string | null;
+  groups?:
+    | {
+        title: string;
+        /**
+         * e.g. Vehicle price / Vehicle budget
+         */
+        basisLabel?: string | null;
+        rows?:
+          | {
+              label: string;
+              /**
+               * Numeric amount only — not localized.
+               */
+              amount: number;
+              currency: 'uah' | 'usd';
+              /**
+               * Shows “від” / “From” before the amount.
+               */
+              from?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        addons?:
+          | {
+              label: string;
+              /**
+               * Numeric amount only — not localized.
+               */
+              amount: number;
+              currency: 'uah' | 'usd';
+              /**
+               * Shows “від” / “From” before the amount.
+               */
+              from?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        notes?:
+          | {
+              text: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -937,6 +995,47 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   gtmId?: T;
   defaultTheme?: T;
   enableThemeToggle?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "price-list_select".
+ */
+export interface PriceListSelect<T extends boolean = true> {
+  title?: T;
+  groups?:
+    | T
+    | {
+        title?: T;
+        basisLabel?: T;
+        rows?:
+          | T
+          | {
+              label?: T;
+              amount?: T;
+              currency?: T;
+              from?: T;
+              id?: T;
+            };
+        addons?:
+          | T
+          | {
+              label?: T;
+              amount?: T;
+              currency?: T;
+              from?: T;
+              id?: T;
+            };
+        notes?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

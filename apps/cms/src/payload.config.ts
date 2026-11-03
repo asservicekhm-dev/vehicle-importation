@@ -24,6 +24,7 @@ import { Users } from './collections/Users';
 import { Contacts } from './globals/Contacts';
 import { Footer } from './globals/Footer';
 import { Header } from './globals/Header';
+import { PriceList } from './globals/PriceList';
 import { SiteSettings } from './globals/SiteSettings';
 import { ensureS3Bucket } from './lib/ensureS3Bucket';
 import { hasS3Config, requireEnv } from './lib/env';
@@ -55,7 +56,7 @@ export default buildConfig({
         { height: 900, label: 'Desktop', name: 'desktop', width: 1440 },
       ],
       collections: ['pages'],
-      globals: ['header', 'footer', 'contacts', 'site-settings'],
+      globals: ['header', 'footer', 'contacts', 'site-settings', 'price-list'],
       url: buildLivePreviewUrl,
     },
     user: Users.slug,
@@ -77,7 +78,7 @@ export default buildConfig({
       FixedToolbarFeature(),
     ],
   }),
-  globals: [Header, Footer, Contacts, SiteSettings],
+  globals: [Header, Footer, Contacts, SiteSettings, PriceList],
   async onInit(payload) {
     if (s3Configured) {
       await ensureS3Bucket(payload);

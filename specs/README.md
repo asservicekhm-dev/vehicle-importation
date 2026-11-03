@@ -14,7 +14,7 @@ Reusable, code-derived blueprint for a new **AS Autosearch** car-dealership land
 | Locales | **Ukrainian (default)** + **English**. Codes `ua` / `en`; `ua` has no URL prefix, `en` is `/en/…` |
 | Content | CMS blocks + `viewType` routing; almost no hardcoded copy; every UI string in both `translations/ua.json` and `translations/en.json` |
 | Theme | Semantic tokens; `[data-theme=light\|dark]`; cookie + SiteSettings default; no legacy aliases |
-| Domain | Leads, services, blog, about/contacts (no inventory catalog, no search wizard) |
+| Domain | Import/search from USA·EU·KR; five services (inspection, turnkey, expert-for-a-day, diagnostics, travel); CMS price list; leads, blog, about/contacts (no inventory catalog, no search wizard) |
 | Booking / leads | Same as AS Service **primary inbox**: Form Builder → `form-submissions` → Admin `leads` (+ optional email). No GoGym. See [09-booking-and-leads.md](./09-booking-and-leads.md) |
 | Naming | `@autosearch/*`, containers/buckets `autosearch-*` |
 | Drop | Inventory / cars catalog, Autosearch search wizard, Explore, gamification blocks, subscriptions, gogym APIs, Tailwind prettier plugin, dual Wayon/`--as-*` palettes |
@@ -46,6 +46,7 @@ flowchart TB
 | [07-domain-and-pages.md](./07-domain-and-pages.md) | Sitemap, page recipes, feature mapping, open questions |
 | [08-bootstrap-roadmap.md](./08-bootstrap-roadmap.md) | Ordered milestones 0–7 |
 | [09-booking-and-leads.md](./09-booking-and-leads.md) | Booking form + Payload leads inbox (parity with AS Service primary path) |
+| [10-design-direction.md](./10-design-direction.md) | Design seed: palette, type, wireframes, principles, rejected defaults |
 
 ## Cross-cutting Keep / Adapt / Drop
 

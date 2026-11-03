@@ -30,22 +30,22 @@ async function main(): Promise<void> {
       {
         link: {
           type: 'custom',
-          label: 'Про нас',
-          url: '/about',
+          label: 'Послуги',
+          url: '#services',
         },
       },
       {
         link: {
           type: 'custom',
-          label: 'Послуги',
-          url: '/services',
+          label: 'Як ми працюємо',
+          url: '#route',
         },
       },
       {
         link: {
           type: 'custom',
           label: 'Контакти',
-          url: '/contacts',
+          url: '#callback',
         },
       },
     ],
@@ -64,15 +64,15 @@ async function main(): Promise<void> {
     navItems: [
       {
         id: navIds[0],
-        link: { type: 'custom', label: 'About', url: '/about' },
+        link: { type: 'custom', label: 'Services', url: '#services' },
       },
       {
         id: navIds[1],
-        link: { type: 'custom', label: 'Services', url: '/services' },
+        link: { type: 'custom', label: 'How we work', url: '#route' },
       },
       {
         id: navIds[2],
-        link: { type: 'custom', label: 'Contacts', url: '/contacts' },
+        link: { type: 'custom', label: 'Contacts', url: '#callback' },
       },
     ],
     ctaLink: {
@@ -117,6 +117,132 @@ async function main(): Promise<void> {
     email: 'hello@autosearch.example',
     address: 'Kyiv, Ukraine',
     hours: 'Mon–Fri: 09:00–18:00',
+  });
+
+  await updateGlobalLocale(payload, 'price-list', 'ua', {
+    title: 'Ціни',
+    groups: [
+      {
+        title: 'Разова перевірка авто',
+        basisLabel: 'Ціна авто',
+        rows: [
+          { label: 'До $10 000', amount: 1500, currency: 'uah', from: false },
+          { label: 'До $20 000', amount: 2000, currency: 'uah', from: false },
+          { label: 'Понад $20 000', amount: 3000, currency: 'uah', from: false },
+          { label: 'Понад $40 000', amount: 100, currency: 'usd', from: false },
+        ],
+        addons: [
+          { label: 'Огляд на СТО', amount: 700, currency: 'uah', from: false },
+          { label: 'Перевірка історії обслуговування', amount: 700, currency: 'uah', from: false },
+          { label: 'Комплексна перевірка авто', amount: 100, currency: 'usd', from: true },
+          { label: 'Експерт на день', amount: 100, currency: 'usd', from: true },
+        ],
+        notes: [
+          {
+            text: 'Комплексна перевірка включає стандартну перевірку, повну діагностику на СТО та перевірку авто по дилерських базах на ремонти, серйозні ДТП і кузовні роботи.',
+          },
+          {
+            text: 'Експерт на день: витрати на пальне додатково для поїздок за межі Хмельницького.',
+          },
+        ],
+      },
+      {
+        title: 'Підбір авто під ключ',
+        basisLabel: 'Бюджет авто',
+        rows: [
+          { label: 'До $10 000', amount: 400, currency: 'usd', from: false },
+          { label: 'До $15 000', amount: 500, currency: 'usd', from: false },
+          { label: 'До $20 000', amount: 600, currency: 'usd', from: false },
+          { label: 'До $30 000', amount: 700, currency: 'usd', from: false },
+        ],
+        addons: [{ label: 'Виїзд в інше місто', amount: 2000, currency: 'uah', from: true }],
+        notes: [],
+      },
+    ],
+  });
+
+  const priceListUa = await payload.findGlobal({ slug: 'price-list', locale: 'ua', depth: 0 });
+  const groupIds = priceListUa.groups?.map((g) => g.id) ?? [];
+  const rowIds = (gi: number) => priceListUa.groups?.[gi]?.rows?.map((r) => r.id) ?? [];
+  const addonIds = (gi: number) => priceListUa.groups?.[gi]?.addons?.map((a) => a.id) ?? [];
+  const noteIds = (gi: number) => priceListUa.groups?.[gi]?.notes?.map((n) => n.id) ?? [];
+
+  await updateGlobalLocale(payload, 'price-list', 'en', {
+    title: 'Prices',
+    groups: [
+      {
+        id: groupIds[0],
+        title: 'One-time vehicle inspection',
+        basisLabel: 'Vehicle price',
+        rows: [
+          { id: rowIds(0)[0], label: 'Up to $10,000', amount: 1500, currency: 'uah', from: false },
+          { id: rowIds(0)[1], label: 'Up to $20,000', amount: 2000, currency: 'uah', from: false },
+          { id: rowIds(0)[2], label: 'Over $20,000', amount: 3000, currency: 'uah', from: false },
+          { id: rowIds(0)[3], label: 'Over $40,000', amount: 100, currency: 'usd', from: false },
+        ],
+        addons: [
+          {
+            id: addonIds(0)[0],
+            label: 'Inspection at a service station',
+            amount: 700,
+            currency: 'uah',
+            from: false,
+          },
+          {
+            id: addonIds(0)[1],
+            label: 'Service history check',
+            amount: 700,
+            currency: 'uah',
+            from: false,
+          },
+          {
+            id: addonIds(0)[2],
+            label: 'Comprehensive vehicle inspection',
+            amount: 100,
+            currency: 'usd',
+            from: true,
+          },
+          {
+            id: addonIds(0)[3],
+            label: 'Expert for a day',
+            amount: 100,
+            currency: 'usd',
+            from: true,
+          },
+        ],
+        notes: [
+          {
+            id: noteIds(0)[0],
+            text: 'Comprehensive vehicle inspection includes a standard vehicle inspection, full diagnostics at a service station, and checking the vehicle against dealer databases for repairs, major accidents, and body repairs.',
+          },
+          {
+            id: noteIds(0)[1],
+            text: 'Expert for a day: fuel costs are additional for trips outside Khmelnytskyi.',
+          },
+        ],
+      },
+      {
+        id: groupIds[1],
+        title: 'Turnkey car search',
+        basisLabel: 'Vehicle budget',
+        rows: [
+          { id: rowIds(1)[0], label: 'Up to $10,000', amount: 400, currency: 'usd', from: false },
+          { id: rowIds(1)[1], label: 'Up to $15,000', amount: 500, currency: 'usd', from: false },
+          { id: rowIds(1)[2], label: 'Up to $20,000', amount: 600, currency: 'usd', from: false },
+          { id: rowIds(1)[3], label: 'Up to $30,000', amount: 700, currency: 'usd', from: false },
+        ],
+        addons: [
+          {
+            id: addonIds(1)[0],
+            label: 'Travel to another city',
+            amount: 2000,
+            currency: 'uah',
+            from: true,
+          },
+        ],
+        notes: [],
+      },
+    ],
   });
 
   payload.logger.info('Globals seeded.');

@@ -35,7 +35,7 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   setRequestLocale(locale);
 
-  const [{ header, footer, contacts, siteSettings }, translations] = await Promise.all([
+  const [{ header, footer, contacts, siteSettings, priceList }, translations] = await Promise.all([
     getGlobals(locale),
     getMessages(),
   ]);
@@ -73,6 +73,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             footer={footer}
             contacts={contacts}
             siteSettings={siteSettings}
+            priceList={priceList}
           >
             <Layout themePreference={preference} enableThemeToggle={enableThemeToggle}>
               {children}

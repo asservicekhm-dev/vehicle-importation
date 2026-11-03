@@ -21,6 +21,8 @@ Code-only audit of `apps/web/src/scss` and modules. Autosearch needs a **light/d
 | `--color-surface-1` | Soft sections / inset cards |
 | `--color-surface-2` | Elevated cards / inputs |
 | `--color-surface-inverse` | Footer / dark bands |
+| `--color-surface-brand` | Turnkey route full-bleed band |
+| `--color-on-brand` | Text / icons on the brand band (always light) |
 | `--color-text` | Primary text |
 | `--color-text-muted` | Secondary text |
 | `--color-text-inverse` | On inverse surfaces |
@@ -37,16 +39,17 @@ Code-only audit of `apps/web/src/scss` and modules. Autosearch needs a **light/d
 | `--color-overlay` | Modal scrim |
 | `--shadow-1` / `--shadow-2` | Elevation |
 
-Theme-independent: `--radius-{sm,md,lg,pill}`, `--space-1…24` (4px base), `--font-heading` / `--font-body`, `--text-xs…4xl`, `--header-offset`.
+Theme-independent: `--radius-{sm,md,lg,pill}`, `--space-1…24` (4px base), `--font-heading` / `--font-body`, `--text-xs…4xl` + `--text-display`, `--leading-tight` / `--leading-body`, `--measure`, `--header-offset`.
 
-## Light theme (from `--as-*`)
+## Light theme (paper)
 
 | Token | Value |
 | --- | --- |
-| `--color-bg` | `#ffffff` |
-| `--color-surface-1` | `#f6f6f6` |
+| `--color-bg` | `#f6f6f6` (paper) |
+| `--color-surface-1` | `#ffffff` |
 | `--color-surface-2` | `#ffffff` |
 | `--color-surface-inverse` | `#2e408a` |
+| `--color-surface-brand` | `#2e408a` |
 | `--color-text` | `#0e131e` |
 | `--color-text-muted` | `#525257` |
 | `--color-primary` | `#324596` |
@@ -55,42 +58,46 @@ Theme-independent: `--radius-{sm,md,lg,pill}`, `--space-1…24` (4px base), `--f
 | `--color-link` | `#324596` |
 | `--color-accent` | `#54a9e3` |
 | `--color-accent-text` | `#2b66a8` |
-| `--color-error` | `#c9261f` (adjusted from `#d7312d` for soft-bg AA) |
+| `--color-error` | `#c9261f` |
 | `--color-border` | `rgb(14 19 30 / 12%)` |
 | `--color-border-strong` | `#767680` |
 
 **Drop** orange `#ff6a00` and all violet leftovers (`#7f58ff`, `#130520`, `#372d57`).
 
-## Dark theme (derived — needs design sign-off)
+## Dark theme (“blue night” — signed off in design seed)
 
-Same blue family; elevation steps lighter than page bg.
+Deep blue-black surfaces; sky as primary CTA (AS identity colours). Direction: [10-design-direction.md](./10-design-direction.md).
 
 | Token | Value |
 | --- | --- |
-| `--color-bg` | `#0e131e` |
-| `--color-surface-1` | `#161c2b` |
-| `--color-surface-2` | `#1d2538` |
+| `--color-bg` | `#0b1122` |
+| `--color-surface-1` | `#121a2f` |
+| `--color-surface-2` | `#1a2442` |
 | `--color-surface-inverse` | `#f6f6f6` |
-| `--color-text` | `#eef1f8` |
-| `--color-text-muted` | `#a3acc2` |
-| `--color-primary` | `#4a5fc4` |
-| `--color-primary-hover` | `#5468cf` |
-| `--color-link` | `#8fa0ec` |
-| `--color-accent` / `--color-accent-text` | `#54a9e3` |
+| `--color-surface-brand` | `#22337a` |
+| `--color-text` | `#e8ecf5` |
+| `--color-text-muted` | `#9aa5be` (~7.5:1 on bg) |
+| `--color-primary` | `#54a9e3` |
+| `--color-primary-hover` | `#7fbeea` |
+| `--color-on-primary` | `#0b1122` (~7.3:1) |
+| `--color-link` / `--color-accent-text` | `#8ec5ee` (~10:1) |
+| `--color-accent` | `#54a9e3` |
 | `--color-error` | `#ff8a85` |
-| `--color-border` | `rgb(255 255 255 / 12%)` |
-| `--color-border-strong` | `#7a8299` |
+| `--color-border` | `#25304d` |
+| `--color-border-strong` | `#56627f` (~3:1) |
 
-Do **not** reuse `#324596` as dark-mode body text (≈2.15:1 on `#0e131e`).
+Do **not** reuse `#324596` as dark-mode body text or primary fill (fails on night bg). Dropped periwinkle `#8fa0ec` and mid blues `#4a5fc4` / `#5468cf`.
 
 ## WCAG AA notes
 
 | Pair | Result |
 | --- | --- |
-| Light text / muted / primary-as-text on white or soft | Pass |
+| Light text / muted / primary-as-text on paper or white | Pass |
 | White on `#324596` / `#2e408a` | Pass |
-| Accent `#54a9e3` as text on white | **Fail** — use `--color-accent-text` |
-| White on accent | **Fail** — use dark ink on accent fills |
+| Accent `#54a9e3` as text on paper | **Fail** — use `--color-accent-text` (`#2b66a8`) |
+| White on sky accent | **Fail** — use `--color-on-primary` (night ink) in dark; dark ink on accent fills in light |
+| Dark muted `#9aa5be` on `#0b1122` | Pass (~7.5:1) |
+| Dark primary sky + night ink | Pass (~7.3:1) |
 | Border `#c1c1c1` as control outline | **Fail** (≥3:1) — use `--color-border-strong` |
 | Legacy error `#f53f4d` on white | **Fail** — replace |
 
@@ -242,7 +249,7 @@ Confirm **Cyrillic coverage** for Toxigenesis/Gilroy (Ukrainian-first). Drop unu
 
 ### No-flash script (inline `<head>`)
 
-Resolve `system` via `matchMedia('(prefers-color-scheme: dark)')` and set `data-theme` before paint. Update `theme-color` meta (`#ffffff` / `#0e131e`).
+Resolve `system` via `matchMedia('(prefers-color-scheme: dark)')` and set `data-theme` before paint. Update `theme-color` meta (`#f6f6f6` / `#0b1122`).
 
 ### Toggle
 
@@ -285,7 +292,7 @@ enableThemeToggle: boolean // default true
 
 ## Open questions
 
-- Dark palette is **derived**, not designed — needs designer review.
+- Dark palette signed off in the design-seed pass ([10-design-direction.md](./10-design-direction.md)); revisit if brand assets change.
 - `#fff` usages are ambiguous (surface vs on-primary) — no blind find-replace.
 - Third-party: sonner, Radix, Swiper need themed props/CSS.
 - CMS rich text may embed fixed colors.

@@ -55,7 +55,28 @@ Source: `apps/cms` (Payload 3.83.0, MongoDB, Lexical, S3/MinIO). Decisions are f
 | `contacts` | **Adapt** | `phones[]`, hours, `branches` relationship |
 | `banner` | **Adapt** | Announcement / promo |
 | `site-settings` | **Adapt** | Add `siteName`, default meta, analytics IDs, **`defaultTheme`**, `enableThemeToggle` |
+| `price-list` | **Add** | Company price sheets (inspection + turnkey). One global so prices edit in one place. See below. |
 | `top-banner` | **Adapt or Drop** | Register as strip, or omit |
+
+### `price-list` global
+
+One company list (not a block copied per page). Revalidate tag: `global_price_list`.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `title` | text, localized | Section heading |
+| `groups[]` | array | Sheets (inspection, turnkey, …) |
+| `groups[].title` | text, localized | e.g. “One-time vehicle inspection” |
+| `groups[].basisLabel` | text, localized | e.g. “Vehicle price” / “Vehicle budget” |
+| `groups[].rows[]` | array | Band → price |
+| `groups[].addons[]` | array | Optional add-on rows |
+| `groups[].notes[]` | array of localized text | Footnotes under the sheet |
+| row / addon: `label` | text, localized | Band or add-on name |
+| row / addon: `amount` | number | Not localized |
+| row / addon: `currency` | `uah` \| `usd` | Not localized; display “грн”/“UAH”/“$” in the component |
+| row / addon: `from` | checkbox | Prefix “від” / “From” |
+
+Seed values and product tables: [07-domain-and-pages.md](./07-domain-and-pages.md) § Price list.
 
 ## Block inventory (registered in `unifiedPageBlocks.ts`)
 
@@ -102,7 +123,9 @@ Article content (rename from Explore; keep for blog/legal):
 | Slug | Repurpose |
 | --- | --- |
 | `popular-services-block` | Features / departments; prefer relation to `services` |
-| `directions-block` | “What we offer” (new / used / trade-in / finance) |
+| `directions-block` | Five Autosearch services (featured turnkey + four scope rows) |
+| `inspection-checklist-block` | Contents of pre-purchase inspection |
+| `turnkey-route-block` | Turnkey journey; ends with MVS registration + handover |
 | `services-catalog-block` | Service/department tiles with CMS filters (no inventory) |
 | `related-services-block` | Relationship-driven related services |
 | `car-brands-block` | Marketing logo marquee — manual CMS logos (no `brands` collection) |

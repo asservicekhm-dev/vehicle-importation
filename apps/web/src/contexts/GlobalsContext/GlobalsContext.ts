@@ -2,13 +2,20 @@
 
 import { createContext, useContext } from 'react';
 
-import type { Contact, Footer, Header, SiteSetting } from '@autosearch/cms/payload-types';
+import type {
+  Contact,
+  Footer,
+  Header,
+  PriceList,
+  SiteSetting,
+} from '@autosearch/cms/payload-types';
 
 export type GlobalsValue = {
   contacts: Contact | null;
   footer: Footer | null;
   header: Header | null;
   siteSettings: SiteSetting | null;
+  priceList: PriceList | null;
 };
 
 export const GlobalsContext = createContext<GlobalsValue | null>(null);

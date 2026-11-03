@@ -23,7 +23,7 @@ Paths relative to `apps/web/src/`. Tokens: “Legacy” = dark/orange Wayon; “
 | Component | Verdict | Notes |
 | --- | --- | --- |
 | Container / ChromeContainer | **Keep** | Max 1440; AS Home often uses `.pageContainer` instead — unify. |
-| SectionEyebrow | **Keep** | Canonical eyebrow (dot + uppercase). |
+| SectionEyebrow | **Drop** | Tracked uppercase eyebrow + dot is a generic tell; headings stand alone (see [10-design-direction.md](./10-design-direction.md)). |
 | BreadCrumbs | **Keep** | Use `asService` only; add BreadcrumbList JSON-LD. |
 | Responsive / ViewportSplit / ResponsiveBlocksSlot | **Keep** | SSR dual-branch strategy. |
 | SmoothScroll (Lenis) | **Keep** | `data-lenis-prevent` on nested scrollers. |
@@ -64,7 +64,10 @@ Paths relative to `apps/web/src/`. Tokens: “Legacy” = dark/orange Wayon; “
 | `about-intro-block` | AboutIntro | **Keep** | About dealership + stats |
 | `popular-services-block` | PopularServices | **Adapt** | Featured departments / services; i18n “Детальніше” |
 | `services-catalog-block` | ServicesCatalog | **Adapt** | Client filter for service tiles (no inventory) |
-| `directions-block` | Directions | **Keep** | New / used / trade-in / finance |
+| `directions-block` | Directions | **Adapt** | Five services: featured turnkey panel + four scope rows (inspection, expert-for-a-day, diagnostics, travel) |
+| `inspection-checklist-block` | InspectionChecklist | **Add** | Contents of pre-purchase inspection (mileage, crash, paint, chassis, documents) |
+| `turnkey-route-block` | TurnkeyRoute | **Add** | Signature sequence: Budget → Search → Check → Buy → Shipping → Customs → MVS registration → Handover; origin-aware mid steps |
+| `price-list` (global-driven section) | PriceList | **Add** | Two sheets from the `price-list` global; not a duplicated block |
 | `testimonials-block` | Testimonials | **Keep** | Customer stories |
 | `reviews-block` | Reviews | **Keep** | Ratings |
 | `service-faq-block` | ServiceFaq | **Keep** | FAQ |
@@ -96,10 +99,11 @@ Paths relative to `apps/web/src/`. Tokens: “Legacy” = dark/orange Wayon; “
 
 ### Section rhythm
 
-1. `SectionEyebrow` → heading (`title` / `titleAccent` / optional `titleAfter`) → description → content → optional CTA.
-2. Soft page bg; white cards with 12–20px radius and light shadow; panels at `--radius-lg` (~26px).
+1. Heading (Toxigenesis uppercase H1/H2; no colour accent on a single word) → description → content → optional CTA. No eyebrow.
+2. Paper page bg; white / surface cards with radius hierarchy (12 controls / 16 panels / 26 media); brand band for the turnkey route.
 3. Section padding ~48px mobile / 64–96px desktop; max width 1440.
 4. Block wrappers get stable `id` + `scroll-margin-top: 96px`.
+5. Prices and service scopes use hairline sheet rows with tabular figures — not identical card grids.
 
 ### Cards
 
@@ -114,7 +118,7 @@ Paths relative to `apps/web/src/`. Tokens: “Legacy” = dark/orange Wayon; “
 | Primary | Brand fill, white text, ~46–48px, radius-sm, hover darken + lift |
 | Outline | Transparent, ink border |
 | White | On dark hero |
-| Ghost | Transparent + arrow nudge |
+| Ghost / link | Transparent text link; no arrow glyph |
 
 ### Motion
 
@@ -133,6 +137,6 @@ Paths relative to `apps/web/src/`. Tokens: “Legacy” = dark/orange Wayon; “
 ## Priority for starter scaffold
 
 1. Tokens + ThemeToggle + Header/Footer restyle.
-2. Shared `Button`, `Input`, `SectionEyebrow`, `Container`, CMS glue.
-3. AutoHero, AboutIntro, CarBrands, ServiceFaq, BookingForm, Testimonials.
+2. Shared `Button`, `Input`, `Container`, CMS glue.
+3. AutoHero (origins), Directions (five services), PriceList, InspectionChecklist, TurnkeyRoute, ServiceFaq, BookingForm, Testimonials.
 4. Drop all legacy/gamification components at scaffold time.

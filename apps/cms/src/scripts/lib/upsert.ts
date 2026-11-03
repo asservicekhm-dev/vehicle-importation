@@ -59,7 +59,7 @@ export async function upsertPageBySlug(
 
 export function updateGlobalLocale(
   payload: Payload,
-  slug: 'header' | 'footer' | 'contacts' | 'site-settings',
+  slug: 'header' | 'footer' | 'contacts' | 'site-settings' | 'price-list',
   locale: Locale,
   data: Record<string, unknown>,
 ) {
