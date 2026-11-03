@@ -1,11 +1,13 @@
-.main {
+.section {
+  padding-block: var(--space-12);
+  scroll-margin-top: var(--header-offset);
+}
+
+.inner {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
-  background-color: var(--color-bg);
-  padding: var(--space-8);
-  min-height: 100vh;
-  color: var(--color-text);
+  gap: var(--space-4);
+  max-width: 40rem;
 }
 
 .title {
@@ -17,8 +19,12 @@
   font-family: var(--font-heading);
 }
 
-.muted {
+.description {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: var(--text-md);
+  font-size: var(--text-lg);
+}
+
+.actions {
+  margin-top: var(--space-2);
 }

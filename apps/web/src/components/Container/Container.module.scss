@@ -1,0 +1,14 @@
+.root {
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+  width: 100%;
+  max-width: 1440px;
+
+  @include tablet {
+    padding-inline: var(--space-8);
+  }
+
+  @include laptop {
+    padding-inline: var(--space-12);
+  }
+}

@@ -13,24 +13,27 @@ import {
 
 import styles from './ThemeToggle.module.scss';
 
-function readPreference(): ThemePreference {
+function readPreference(fallback: ThemePreference): ThemePreference {
   const value = document.documentElement.dataset.themePref;
 
-  return isThemePreference(value) ? value : defaultThemePreference;
+  return isThemePreference(value) ? value : fallback;
 }
 
-export function ThemeToggle() {
+type Props = {
+  /** Cookie/SSR preference so the first client render matches the server HTML. */
+  initialPreference?: ThemePreference;
+};
+
+export function ThemeToggle({ initialPreference = defaultThemePreference }: Props) {
   const t = useTranslations('ThemeToggle');
-  const [preference, setPreference] = useState<ThemePreference>(defaultThemePreference);
-  const [ready, setReady] = useState(false);
+  const [preference, setPreference] = useState<ThemePreference>(initialPreference);
 
   useEffect(() => {
-    setPreference(readPreference());
-    setReady(true);
-  }, []);
+    setPreference(readPreference(initialPreference));
+  }, [initialPreference]);
 
   useEffect(() => {
-    if (!ready || preference !== 'system') return;
+    if (preference !== 'system') return;
 
     const media = window.matchMedia('(prefers-color-scheme: dark)');
     const onChange = () => {
@@ -40,7 +43,7 @@ export function ThemeToggle() {
     media.addEventListener('change', onChange);
 
     return () => media.removeEventListener('change', onChange);
-  }, [preference, ready]);
+  }, [preference]);
 
   const onSelect = (next: ThemePreference) => {
     applyThemePreference(next);

@@ -2,7 +2,7 @@
 
 Read this before making changes. The product spec lives in [`specs/`](./specs/README.md); this file is the operational summary. When this file and the spec disagree, the spec wins — then update this file.
 
-Current state: **Milestone 1 (tokens & theme)** of [`specs/08-bootstrap-roadmap.md`](./specs/08-bootstrap-roadmap.md). Items marked _(M<n>)_ are planned, not built yet.
+Current state: **Milestone 2 (primitives & chrome)** of [`specs/08-bootstrap-roadmap.md`](./specs/08-bootstrap-roadmap.md). Items marked _(M<n>)_ are planned, not built yet.
 
 ## 1. What this is
 
@@ -15,17 +15,18 @@ Website for **AS Autosearch**, a car dealership / car-search (“Автопід�
 
 Pinned baseline: [`specs/01-architecture.md`](./specs/01-architecture.md) § Stack.
 
-| Area            | Version / choice                                                                     |
-| --------------- | ------------------------------------------------------------------------------------ |
-| Package manager | `pnpm@10.11.0` (`packageManager` field), Turborepo 2                                 |
-| Node            | 20 (`.nvmrc`)                                                                        |
-| TypeScript      | `5.7.3` everywhere                                                                   |
-| Next.js / React | `15.4.11` / `19.2.1` in both apps                                                    |
-| Payload         | `3.83.0` — pin **all** `@payloadcms/*` to the same version                           |
-| DB / storage    | MongoDB 7, S3 / MinIO _(M3)_                                                         |
-| i18n            | `next-intl 4.0.2` (translations + provider now; `[locale]` routing _(M2)_)           |
-| Styling         | **SCSS Modules only.** No Tailwind, no `prettier-plugin-tailwindcss`                 |
-| Later (pinned)  | `@payload-enchants/sdk 1.2.2`, `react-hook-form ^7.54`, framer-motion, lenis, swiper |
+| Area            | Version / choice                                                              |
+| --------------- | ----------------------------------------------------------------------------- |
+| Package manager | `pnpm@10.11.0` (`packageManager` field), Turborepo 2                          |
+| Node            | 20 (`.nvmrc`)                                                                 |
+| TypeScript      | `5.7.3` everywhere                                                            |
+| Next.js / React | `15.4.11` / `19.2.1` in both apps                                             |
+| Payload         | `3.83.0` — pin **all** `@payloadcms/*` to the same version                    |
+| DB / storage    | MongoDB 7, S3 / MinIO _(M3)_                                                  |
+| i18n            | `next-intl 4.0.2` — `ua` unprefixed, `en` under `/en`, middleware `as-needed` |
+| Styling         | **SCSS Modules only.** No Tailwind, no `prettier-plugin-tailwindcss`          |
+| Forms / UI      | `react-hook-form ^7.54`, Radix (accordion, checkbox, dialog, slot), `clsx`    |
+| Later (pinned)  | `@payload-enchants/sdk 1.2.2`, framer-motion, lenis, swiper                   |
 
 ## 3. Repo map
 
@@ -37,12 +38,15 @@ apps/
     src/app/(payload)/ Payload admin + API routes (generated files — don't hand-edit)
     src/payload-types.ts  generated; web imports it type-only
   web/                 @autosearch/web
-    src/app/           App Router (root layout now; [locale]/ in M2)
-    src/components/    ThemeToggle (temp on home; Header in M2)
+    src/app/[locale]/  App Router locale segment (html shell + pages)
+    src/components/    primitives, Header/Footer, ThemeToggle, LocaleSwitcher, CMS glue, RenderBlocks
+    src/views/Layout/  Header + main + Footer shell
     src/fonts/         Toxigenesis + Gilroy (localFont)
     src/lib/fonts.ts   next/font loaders
     src/lib/theme/     cookie + no-flash script + client apply
-    src/i18n/          next-intl request config (no locale routing yet)
+    src/i18n/          routing, navigation, request config
+    src/middleware.ts  next-intl only (CMS redirects in M3)
+    src/types/cms.ts   stub CMS types until M3 payload-types
     src/scss/          mixins.scss (auto-injected), globals.scss, tokens.scss
     translations/      ua.json + en.json
 packages/
@@ -105,7 +109,7 @@ No Autosearch Figma file yet. Until one is provided, the spec is code-derived: f
 - Semantic tokens live in `apps/web/src/scss/tokens.scss` (`--color-*`, radius, space, fonts, type scale). Themes: `:root` / `[data-theme=light]` and `[data-theme=dark]`.
 - Theme preference: cookie `theme` → `defaultThemePreference` from `@autosearch/config` (`system` today) → OS. SiteSettings `defaultTheme` / `enableThemeToggle` arrive in _(M3)_.
 - SSR sets `data-theme-pref` and, when preference is explicit light/dark, `data-theme`. An inline head script resolves `system` via `matchMedia` before paint. Client helper: `apps/web/src/lib/theme/`.
-- `ThemeToggle` is temporary on the home page; _(M2)_ moves it into Header (desktop + mobile).
+- `ThemeToggle` and `LocaleSwitcher` live in Header (desktop + mobile menu).
 - Stylelint on `*.module.scss` (web `lint`): no hex/named/rgb(a)/hsl(a), no `--_p-*`, no `var(--token, fallback)`. `tokens.scss` / `globals.scss` are exempt.
 - Hard rules (review blockers): no alias tokens (`--old: var(--new)`), no `--as-*` / legacy Wayon palette, modules never use `--_p-*` primitives, no hex/rgb literals in `*.module.scss`, no `var(--token, #fallback)`.
 
@@ -113,7 +117,7 @@ No Autosearch Figma file yet. Until one is provided, the spec is code-derived: f
 
 - Exactly two locales from `@autosearch/config`: `ua` (default, **no URL prefix**) and `en` (`/en/…`). Never redefine locale lists in an app.
 - SEO / `<html lang>` map `ua` → `uk` via `localeToHreflang`; the app/CMS code stays `ua`.
-- `next-intl` is wired with a request config + `NextIntlClientProvider` and `translations/{ua,en}.json`. Every new key must exist in **both** files. Locale routing / middleware / Header switcher arrive in _(M2)_ (`localePrefix: 'as-needed'`, `localeDetection: false`).
+- `next-intl` uses `localePrefix: 'as-needed'`, `localeDetection: false`, middleware, `createNavigation`, and `translations/{ua,en}.json`. Every new key must exist in **both** files. Locale switcher is in Header.
 - Payload `fallback: false`: editors fill both locales; seeds write both.
 
 ## 10. Environment & infra

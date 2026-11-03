@@ -4,5 +4,34 @@
     "light": "Світла",
     "dark": "Темна",
     "system": "Системна"
+  },
+  "LocaleSwitcher": {
+    "label": "Мова",
+    "ua": "UA",
+    "en": "EN"
+  },
+  "Header": {
+    "brand": "AS Autosearch",
+    "navAbout": "Про нас",
+    "navServices": "Послуги",
+    "navContacts": "Контакти",
+    "phone": "+380 00 000 00 00",
+    "phoneAria": "Зателефонувати",
+    "menuOpen": "Відкрити меню",
+    "menuClose": "Закрити меню",
+    "menuTitle": "Меню"
+  },
+  "Footer": {
+    "navAbout": "Про нас",
+    "navServices": "Послуги",
+    "navContacts": "Контакти",
+    "copyright": "© AS Autosearch. Усі права захищено.",
+    "backToTop": "Вгору"
+  },
+  "Home": {
+    "eyebrow": "Автопідбір",
+    "title": "Знайдемо авто під ваш запит",
+    "description": "Статичний превʼю секції Milestone 2 — контент зʼявиться з CMS у наступних етапах.",
+    "cta": "Залишити заявку"
   }
 }

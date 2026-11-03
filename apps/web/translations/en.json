@@ -4,5 +4,34 @@
     "light": "Light",
     "dark": "Dark",
     "system": "System"
+  },
+  "LocaleSwitcher": {
+    "label": "Language",
+    "ua": "UA",
+    "en": "EN"
+  },
+  "Header": {
+    "brand": "AS Autosearch",
+    "navAbout": "About",
+    "navServices": "Services",
+    "navContacts": "Contacts",
+    "phone": "+380 00 000 00 00",
+    "phoneAria": "Call us",
+    "menuOpen": "Open menu",
+    "menuClose": "Close menu",
+    "menuTitle": "Menu"
+  },
+  "Footer": {
+    "navAbout": "About",
+    "navServices": "Services",
+    "navContacts": "Contacts",
+    "copyright": "© AS Autosearch. All rights reserved.",
+    "backToTop": "Back to top"
+  },
+  "Home": {
+    "eyebrow": "Car search",
+    "title": "We’ll find a car that fits your request",
+    "description": "Milestone 2 static preview section — CMS content arrives in later milestones.",
+    "cta": "Leave a request"
   }
 }

@@ -33,10 +33,11 @@ pnpm dev:web      # web only
 pnpm dev:cms      # CMS only
 ```
 
-| App | URL                         |
-| --- | --------------------------- |
-| Web | http://localhost:3000       |
-| CMS | http://localhost:3001/admin |
+| App               | URL                         |
+| ----------------- | --------------------------- |
+| Web (UA, default) | http://localhost:3000       |
+| Web (EN)          | http://localhost:3000/en    |
+| CMS               | http://localhost:3001/admin |
 
 On first visit the CMS admin asks you to create the first user.
 
