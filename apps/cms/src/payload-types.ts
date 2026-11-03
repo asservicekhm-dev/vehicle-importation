@@ -591,7 +591,15 @@ export interface ServiceFaqBlockFields {
  * via the `definition` "BookingFormBlockFields".
  */
 export interface BookingFormBlockFields {
+  /**
+   * Pitch: shorter copy + name/phone emphasis. Callback: fuller two-column request form.
+   */
+  variant?: ('pitch' | 'callback') | null;
   eyebrow?: string | null;
+  /**
+   * Optional supporting line (e.g. response time). Useful for pitch layout.
+   */
+  note?: string | null;
   title: string;
   titleAccent?: string | null;
   description?: string | null;
@@ -1261,7 +1269,9 @@ export interface ServiceFaqBlockFieldsSelect<T extends boolean = true> {
  * via the `definition` "BookingFormBlockFields_select".
  */
 export interface BookingFormBlockFieldsSelect<T extends boolean = true> {
+  variant?: T;
   eyebrow?: T;
+  note?: T;
   title?: T;
   titleAccent?: T;
   description?: T;

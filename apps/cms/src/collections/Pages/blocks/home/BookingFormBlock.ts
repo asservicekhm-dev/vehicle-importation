@@ -6,10 +6,33 @@ export const BookingFormBlock: Block = {
   interfaceName: 'BookingFormBlockFields',
   fields: [
     {
+      name: 'variant',
+      type: 'select',
+      label: 'Layout variant',
+      defaultValue: 'callback',
+      options: [
+        { label: 'Pitch (compact consult)', value: 'pitch' },
+        { label: 'Callback (full request)', value: 'callback' },
+      ],
+      admin: {
+        description:
+          'Pitch: shorter copy + name/phone emphasis. Callback: fuller two-column request form.',
+      },
+    },
+    {
       name: 'eyebrow',
       type: 'text',
       localized: true,
       label: 'Eyebrow',
+    },
+    {
+      name: 'note',
+      type: 'text',
+      localized: true,
+      label: 'Note under description',
+      admin: {
+        description: 'Optional supporting line (e.g. response time). Useful for pitch layout.',
+      },
     },
     {
       name: 'title',

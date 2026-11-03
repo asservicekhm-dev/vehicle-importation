@@ -28,6 +28,8 @@ type MarketingMedia = {
   svcExpert: string;
   svcDiagnostics: string;
   svcTravel: string;
+  bookingPitch: string;
+  bookingCallback: string;
   review1: string;
   review2: string;
   review3: string;
@@ -124,6 +126,19 @@ async function seedMarketingMedia(payload: Payload): Promise<MarketingMedia> {
     altEn: 'Travel to other cities',
   });
 
+  const bookingPitch = await upsertMediaByFilename(payload, {
+    filePath: path.join(marketingDir, 'booking/pitch.webp'),
+    filename: 'booking-pitch.webp',
+    altUa: 'За кермом на консультації з підбору',
+    altEn: 'Driving during a car-search consult',
+  });
+  const bookingCallback = await upsertMediaByFilename(payload, {
+    filePath: path.join(marketingDir, 'booking/callback.webp'),
+    filename: 'booking-callback.webp',
+    altUa: 'Авто під ключ',
+    altEn: 'Turnkey car',
+  });
+
   const reviewAvatars = await Promise.all(
     ([1, 2, 3, 4, 5, 6, 7, 8] as const).map((n) =>
       upsertMediaByFilename(payload, {
@@ -148,6 +163,8 @@ async function seedMarketingMedia(payload: Payload): Promise<MarketingMedia> {
     svcExpert,
     svcDiagnostics,
     svcTravel,
+    bookingPitch,
+    bookingCallback,
     review1: reviewAvatars[0]!,
     review2: reviewAvatars[1]!,
     review3: reviewAvatars[2]!,
@@ -282,12 +299,7 @@ function buildHomeLayoutUa(formId: string, media: MarketingMedia) {
         { style: 'primary' as const, link: customLink('Отримати консультацію', '#callback') },
         { style: 'outline' as const, link: customLink('Як ми працюємо', '#route') },
       ],
-      highlights: [
-        { label: '[[Прозора історія]] авто до покупки' },
-        { label: '[[Фіксація вартості]] в договорі' },
-        { label: 'Ринки [[США · Європа · Корея]]' },
-        { label: 'Супровід [[під ключ]] до реєстрації МВС' },
-      ],
+      highlights: [],
       origins: [
         {
           originId: 'usa' as const,
@@ -315,11 +327,12 @@ function buildHomeLayoutUa(formId: string, media: MarketingMedia) {
     {
       blockType: 'booking-form-block' as const,
       blockName: 'pitch',
-      eyebrow: 'Консультація',
-      title: 'Підберемо авто',
-      titleAccent: 'під ваш бюджет',
+      variant: 'pitch' as const,
+      title: 'Підберемо авто під ваш бюджет',
       description:
-        'Залиште заявку — підкажемо варіанти з США, Європи чи Кореї, зорієнтуємо щодо вартості під ключ і пояснимо етапи без зобовʼязань.',
+        'Залиште телефон — підкажемо варіанти з США, Європи чи Кореї і зорієнтуємо щодо вартості під ключ.',
+      note: 'Відповімо протягом години в робочий час.',
+      image: media.bookingPitch,
       form: formId,
       layout: {
         nameField: 'name',
@@ -601,11 +614,12 @@ function buildHomeLayoutUa(formId: string, media: MarketingMedia) {
     {
       blockType: 'booking-form-block' as const,
       blockName: 'callback',
-      eyebrow: 'Заявка',
-      title: 'Залишити',
-      titleAccent: 'заявку',
+      variant: 'callback' as const,
+      title: 'Залишити заявку',
       description:
         'Напишіть, яке авто шукаєте або яка послуга потрібна — відповімо протягом години в робочий час.',
+      note: 'Можна додати бюджет, модель або посилання на оголошення.',
+      image: media.bookingCallback,
       form: formId,
       layout: {
         nameField: 'name',
@@ -636,12 +650,7 @@ function buildHomeLayoutEn(
         { style: 'primary' as const, link: customLink('Get a consultation', '#callback') },
         { style: 'outline' as const, link: customLink('How we work', '#route') },
       ],
-      highlights: [
-        { label: '[[Transparent history]] before you buy' },
-        { label: '[[Price fixed]] in the contract' },
-        { label: 'Markets: [[USA · Europe · Korea]]' },
-        { label: '[[Turnkey]] support through MVS registration' },
-      ],
+      highlights: [],
       origins: [
         {
           originId: 'usa' as const,
@@ -670,11 +679,12 @@ function buildHomeLayoutEn(
       id: idAt(1),
       blockType: 'booking-form-block' as const,
       blockName: 'pitch',
-      eyebrow: 'Consultation',
-      title: 'We’ll find a car',
-      titleAccent: 'for your budget',
+      variant: 'pitch' as const,
+      title: 'We’ll find a car for your budget',
       description:
-        'Leave a request — we’ll suggest options from the USA, Europe or Korea, outline turnkey cost and explain the steps with no obligation.',
+        'Leave your phone — we’ll suggest options from the USA, Europe or Korea and outline turnkey cost.',
+      note: 'We reply within an hour during business hours.',
+      image: media.bookingPitch,
       form: formId,
       layout: {
         nameField: 'name',
@@ -974,11 +984,12 @@ function buildHomeLayoutEn(
       id: idAt(12),
       blockType: 'booking-form-block' as const,
       blockName: 'callback',
-      eyebrow: 'Request',
-      title: 'Leave a',
-      titleAccent: 'request',
+      variant: 'callback' as const,
+      title: 'Leave a request',
       description:
         'Tell us what car you are looking for or which service you need — we reply within an hour during business hours.',
+      note: 'You can add a budget, model, or listing link.',
+      image: media.bookingCallback,
       form: formId,
       layout: {
         nameField: 'name',

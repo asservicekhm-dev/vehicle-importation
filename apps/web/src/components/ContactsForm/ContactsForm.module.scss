@@ -11,6 +11,15 @@
   gap: var(--space-4);
 }
 
+.fieldsCompact {
+  /* Side-by-side only when the pitch column is wide enough (desktop). */
+  @include laptop {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+}
+
 .status {
   margin: 0;
   border-radius: var(--radius-sm);

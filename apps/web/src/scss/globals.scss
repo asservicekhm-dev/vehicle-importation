@@ -15,11 +15,13 @@ body {
 html {
   background-color: var(--color-bg);
   color: var(--color-text);
+  overflow-x: clip;
 }
 
 body {
   background-color: var(--color-bg);
   min-height: 100vh;
+  overflow-x: clip;
   color: var(--color-text);
   font-size: var(--text-md);
   line-height: var(--leading-body);

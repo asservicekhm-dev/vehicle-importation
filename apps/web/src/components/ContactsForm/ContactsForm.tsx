@@ -100,9 +100,19 @@ type Props = {
   className?: string;
   form: Form;
   layout?: FormLayout;
+  /** Hide message/textarea fields (compact pitch forms). */
+  hideMessage?: boolean;
+  /** Side-by-side name/phone on tablet+ (pitch). */
+  compact?: boolean;
 };
 
-export function ContactsForm({ className, form, layout = null }: Props) {
+export function ContactsForm({
+  className,
+  form,
+  layout = null,
+  hideMessage = false,
+  compact = false,
+}: Props) {
   const t = useTranslations('Form');
   const [status, setStatus] = useState<{ kind: 'success' | 'error'; text: string } | null>(null);
 
@@ -132,13 +142,15 @@ export function ContactsForm({ className, form, layout = null }: Props) {
       return;
     }
 
-    const submissionData = Object.entries(data).map(([fieldName, value]) => {
-      const slot = slotFor(fieldName, layout);
-      const raw = valueToSubmissionString(value);
-      const normalized =
-        slot === 'phone' ? normalizeUaPhoneDigits(raw) || phoneDigits(raw) : raw;
-      return { field: fieldName, value: normalized };
-    });
+    const submissionData = Object.entries(data)
+      .filter(([fieldName]) => !(hideMessage && slotFor(fieldName, layout) === 'message'))
+      .map(([fieldName, value]) => {
+        const slot = slotFor(fieldName, layout);
+        const raw = valueToSubmissionString(value);
+        const normalized =
+          slot === 'phone' ? normalizeUaPhoneDigits(raw) || phoneDigits(raw) : raw;
+        return { field: fieldName, value: normalized };
+      });
 
     const result = await sendForm({ form: formId, submissionData });
 
@@ -161,7 +173,7 @@ export function ContactsForm({ className, form, layout = null }: Props) {
 
   return (
     <form className={clsx(styles.root, className)} noValidate onSubmit={onSubmit}>
-      <div className={styles.fields}>
+      <div className={clsx(styles.fields, compact && styles.fieldsCompact)}>
         {fields.map((field) => {
           if (!('name' in field) || typeof field.name !== 'string') return null;
 
@@ -172,6 +184,7 @@ export function ContactsForm({ className, form, layout = null }: Props) {
           const isPhone = field.blockType === 'phone-number' || slot === 'phone';
 
           if (field.blockType === 'message') {
+            if (hideMessage) return null;
             return (
               <Controller
                 key={key}

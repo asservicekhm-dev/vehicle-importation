@@ -221,7 +221,7 @@ export function CountUp({
   const startedRef = useRef(false);
   const runningRef = useRef(false);
   const [play, setPlay] = useState<PlayState | null>(null);
-  const isInView = useInView(ref, { once: true, margin: '0px' });
+  const isInView = useInView(ref, { once: true, margin: '0px 0px -12% 0px' });
   const active = trigger === 'load' || isInView;
   const compact = format === 'compact';
   const places = decimals ?? Math.max(getDecimalPlaces(from), getDecimalPlaces(to));
@@ -243,7 +243,8 @@ export function CountUp({
     return buildRoll(a, b, !!play?.spin, { compact, decimals, places, separator });
   }, [mode, play, startValue, endValue, compact, decimals, places, separator]);
 
-  const [initialText] = useState(() => formatValue(startValue));
+  // Show the final value until the count starts so cards never look empty.
+  const [initialText] = useState(() => formatValue(endValue));
   const latestRef = useRef({
     formatValue,
     onStart,
@@ -269,11 +270,18 @@ export function CountUp({
   });
 
   useIsoLayoutEffect(() => {
-    if (!startedRef.current) valueRef.current = startValue;
+    if (!startedRef.current) {
+      valueRef.current = startValue;
+      // Keep the final-value fallback until the in-view tween starts.
+      if (mode === 'count' && textRef.current) {
+        textRef.current.textContent = formatValue(endValue);
+      }
+      return;
+    }
     if (mode === 'count' && !runningRef.current && textRef.current) {
       textRef.current.textContent = formatValue(valueRef.current);
     }
-  }, [mode, startValue, formatValue]);
+  }, [mode, startValue, endValue, formatValue]);
 
   useEffect(() => {
     if (!active || !startWhen) return;
@@ -422,6 +430,12 @@ export function CountUp({
       return undefined;
     }
 
+    // Keep the final-value fallback until the delayed tween starts, then snap to `from`.
+    const startDelayMs = (play.wait ? live.delay : 0) * 1000;
+    const kickoff = window.setTimeout(() => {
+      render(0);
+    }, startDelayMs);
+
     const controls = animate(0, total, {
       duration: total,
       delay: play.wait ? live.delay : 0,
@@ -431,6 +445,7 @@ export function CountUp({
     });
 
     return () => {
+      window.clearTimeout(kickoff);
       controls.stop();
       runningRef.current = false;
     };
