@@ -1,0 +1,114 @@
+.section {
+  background-color: var(--color-surface-brand);
+  padding-block: var(--space-16);
+  scroll-margin-top: var(--header-offset);
+  color: var(--color-on-brand);
+}
+
+.eyebrow {
+  margin: 0 0 var(--space-3);
+  color: var(--color-accent);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.heading {
+  margin: 0 0 var(--space-10);
+  color: var(--color-on-brand);
+  font-weight: 800;
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  font-family: var(--font-heading);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.trackWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+
+  @include laptop {
+    gap: var(--space-6);
+  }
+}
+
+.row {
+  position: relative;
+}
+
+.line {
+  display: none;
+
+  @include laptop {
+    display: block;
+    position: absolute;
+    top: 1.15rem;
+    right: 4%;
+    left: 4%;
+    transform: scaleX(0);
+    transform-origin: left center;
+    background-color: var(--color-accent);
+    height: 2px;
+  }
+}
+
+.track {
+  display: grid;
+  position: relative;
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @include laptop {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-6) var(--space-4);
+  }
+}
+
+.step {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  gap: var(--space-3);
+  z-index: 1;
+}
+
+.number {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-accent);
+  width: 2.25rem;
+  height: 2.25rem;
+  color: var(--color-on-brand);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-on-brand);
+  font-weight: 700;
+  font-size: var(--text-lg);
+}
+
+.body {
+  opacity: 0.85;
+  margin: 0;
+  max-width: 28ch;
+  color: var(--color-on-brand);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line {
+    transform: scaleX(1);
+  }
+}

@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload';
 
+import { onFormSubmissionCreate } from '../hooks/onFormSubmissionCreate';
 import { preventDuplicateFormEmail } from '../hooks/preventDuplicateFormEmail';
 
 export const FormSubmissions: CollectionConfig = {
@@ -32,6 +33,7 @@ export const FormSubmissions: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [preventDuplicateFormEmail],
+    afterChange: [onFormSubmissionCreate],
   },
   labels: {
     singular: 'Form submission',

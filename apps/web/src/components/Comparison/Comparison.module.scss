@@ -1,0 +1,116 @@
+.section {
+  padding-block: var(--space-12) var(--space-16);
+  scroll-margin-top: var(--header-offset);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-8);
+  max-width: 42rem;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-text);
+  font-weight: 800;
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+}
+
+.intro {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-md);
+  line-height: var(--leading-body);
+}
+
+.columns {
+  display: grid;
+  gap: var(--space-5);
+
+  @include laptop {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+}
+
+.columnMuted,
+.columnAccent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+
+  @include tablet {
+    padding: var(--space-8);
+  }
+}
+
+.columnMuted {
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-2);
+}
+
+.columnAccent {
+  border: 1px solid color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent) 12%, var(--color-surface-1)) 0%,
+    var(--color-surface-1) 8rem
+  );
+  box-shadow: var(--shadow-1);
+}
+
+.columnTitle {
+  margin: 0;
+  color: var(--color-text);
+  font-weight: 800;
+  font-size: var(--text-xl);
+  line-height: var(--leading-tight);
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.itemMuted,
+.itemAccent {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+  color: var(--color-text);
+  font-size: var(--text-md);
+  line-height: var(--leading-body);
+}
+
+.markMuted {
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.markAccent {
+  color: var(--color-accent);
+  font-weight: 700;
+}

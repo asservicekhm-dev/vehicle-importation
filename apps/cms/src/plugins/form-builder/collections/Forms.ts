@@ -117,11 +117,11 @@ export const Forms: CollectionConfig = {
       defaultValue: 'none',
       admin: {
         position: 'sidebar',
-        description: 'Lead inbox fan-out lands in Milestone 4. Keep “none” for now.',
+        description: 'When “Lead”, each submission also creates a Leads inbox row.',
       },
       options: [
         { label: 'None (Form submissions only)', value: 'none' },
-        { label: 'Lead (Milestone 4)', value: 'lead' },
+        { label: 'Lead (create Leads inbox row)', value: 'lead' },
       ],
     },
     {

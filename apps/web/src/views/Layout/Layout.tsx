@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import { BackToTop } from '@/components/BackToTop';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
 import type { ThemePreference } from '@autosearch/config';
@@ -18,6 +19,7 @@ export function Layout({ children, themePreference, enableThemeToggle = true }: 
       <Header themePreference={themePreference} enableThemeToggle={enableThemeToggle} />
       <main className={styles.main}>{children}</main>
       <Footer />
+      <BackToTop />
     </div>
   );
 }

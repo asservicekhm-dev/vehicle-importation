@@ -48,7 +48,9 @@ export function Accordion({ items, type = 'single', defaultValue }: Props) {
               </span>
             </RadixAccordion.Trigger>
           </RadixAccordion.Header>
-          <RadixAccordion.Content className={styles.content}>{item.content}</RadixAccordion.Content>
+          <RadixAccordion.Content className={styles.content}>
+            <div className={styles.contentInner}>{item.content}</div>
+          </RadixAccordion.Content>
         </RadixAccordion.Item>
       ))}
     </RadixAccordion.Root>

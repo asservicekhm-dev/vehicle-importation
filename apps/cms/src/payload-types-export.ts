@@ -71,6 +71,7 @@ export interface Config {
     users: User;
     media: Media;
     pages: Page;
+    leads: Lead;
     forms: Form;
     'form-submissions': FormSubmission;
     redirects: Redirect;
@@ -84,12 +85,12 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    leads: LeadsSelect<false> | LeadsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
-    'payload-locked-documents':
-      PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
+    'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
@@ -213,15 +214,31 @@ export interface Page {
   title: string;
   viewType: 'home' | 'information' | 'contacts' | 'blog';
   layout?:
-    | {
-        eyebrow?: string | null;
-        title: string;
-        description?: string | null;
-        ctaLabel?: string | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'dummy-section';
-      }[]
+    | (
+        | {
+            eyebrow?: string | null;
+            title: string;
+            description?: string | null;
+            ctaLabel?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'dummy-section';
+          }
+        | AutoHeroBlockFields
+        | DirectionsBlockFields
+        | PriceListBlockFields
+        | InspectionChecklistBlockFields
+        | TurnkeyRouteBlockFields
+        | TestimonialsBlockFields
+        | ServiceFaqBlockFields
+        | BookingFormBlockFields
+        | AboutIntroBlockFields
+        | WhyChooseUsBlockFields
+        | ComparisonBlockFields
+        | UkraineCoverageBlockFields
+        | CarBrandsBlockFields
+        | PageBreadcrumbsBlockFields
+      )[]
     | null;
   meta?: {
     title?: string | null;
@@ -243,13 +260,77 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AutoHeroBlockFields".
+ */
+export interface AutoHeroBlockFields {
+  /**
+   * Used when an origin has no image. Prefer setting an image on each origin for the switcher crossfade.
+   */
+  backgroundImage?: (string | null) | Media;
+  /**
+   * Wrap highlighted phrases in [[double brackets]], e.g. Авто [[під ключ]] зі [[США]].
+   */
+  title: string;
+  /**
+   * Same [[accent]] markers as the title.
+   */
+  subtitle?: string | null;
+  buttons?:
+    | {
+        link: {
+          type?: ('reference' | 'custom' | 'anchor' | 'form') | null;
+          newTab?: boolean | null;
+          label: string;
+          reference?: {
+            relationTo: 'pages';
+            value: string | Page;
+          } | null;
+          url?: string | null;
+          form?: (string | null) | Form;
+          /**
+           * HTML id without #. Appended as URL hash for internal/custom links; required for anchor type when label is set.
+           */
+          hash?: string | null;
+        };
+        style: 'primary' | 'outline' | 'ghost';
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Trust / why-us strip under the hero (Yastreb-style value props).
+   */
+  highlights?:
+    | {
+        /**
+         * Supports [[accent]] markers.
+         */
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  origins?:
+    | {
+        originId: 'usa' | 'europe' | 'korea';
+        label: string;
+        term?: string | null;
+        check?: string | null;
+        image?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'auto-hero-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "forms".
  */
 export interface Form {
   id: string;
   title: string;
   /**
-   * Lead inbox fan-out lands in Milestone 4. Keep “none” for now.
+   * When “Lead”, each submission also creates a Leads inbox row.
    */
   submissionKind?: ('none' | 'lead') | null;
   fields: (
@@ -335,6 +416,424 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DirectionsBlockFields".
+ */
+export interface DirectionsBlockFields {
+  eyebrow?: string | null;
+  title: string;
+  /**
+   * Second heading line in primary blue (AS Service pattern).
+   */
+  titleAccent?: string | null;
+  featured: {
+    title: string;
+    body?: string | null;
+    cta?: {
+      type?: ('reference' | 'custom' | 'anchor' | 'form') | null;
+      newTab?: boolean | null;
+      label?: string | null;
+      reference?: {
+        relationTo: 'pages';
+        value: string | Page;
+      } | null;
+      url?: string | null;
+      form?: (string | null) | Form;
+      /**
+       * HTML id without #. Appended as URL hash for internal/custom links; required for anchor type when label is set.
+       */
+      hash?: string | null;
+    };
+    image?: (string | null) | Media;
+  };
+  items?:
+    | {
+        title: string;
+        scope?: string | null;
+        link?: {
+          type?: ('reference' | 'custom' | 'anchor' | 'form') | null;
+          newTab?: boolean | null;
+          label?: string | null;
+          reference?: {
+            relationTo: 'pages';
+            value: string | Page;
+          } | null;
+          url?: string | null;
+          form?: (string | null) | Form;
+          /**
+           * HTML id without #. Appended as URL hash for internal/custom links; required for anchor type when label is set.
+           */
+          hash?: string | null;
+        };
+        image?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'directions-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PriceListBlockFields".
+ */
+export interface PriceListBlockFields {
+  /**
+   * Optional. Falls back to the price-list global title. Rows always come from the global.
+   */
+  titleOverride?: string | null;
+  /**
+   * Heading above add-on rows (e.g. “Additional services”).
+   */
+  addonsHeading?: string | null;
+  /**
+   * Shown before amounts marked as “from” (e.g. “від” / “From”).
+   */
+  fromPrefix?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'price-list-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "InspectionChecklistBlockFields".
+ */
+export interface InspectionChecklistBlockFields {
+  eyebrow?: string | null;
+  title: string;
+  intro?: string | null;
+  items?:
+    | {
+        title: string;
+        detail?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'inspection-checklist-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TurnkeyRouteBlockFields".
+ */
+export interface TurnkeyRouteBlockFields {
+  eyebrow?: string | null;
+  title: string;
+  steps?:
+    | {
+        title: string;
+        body?: string | null;
+        bodyUsa?: string | null;
+        bodyEurope?: string | null;
+        bodyKorea?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'turnkey-route-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialsBlockFields".
+ */
+export interface TestimonialsBlockFields {
+  /**
+   * Small uppercase label, e.g. "Відгуки клієнтів".
+   */
+  eyebrow?: string | null;
+  /**
+   * First (accent) line rendered in accent color. E.g. "Нам довіряють".
+   */
+  titleAccent?: string | null;
+  /**
+   * Second line in on-brand white. E.g. "свої авто".
+   */
+  title: string;
+  items?:
+    | {
+        quote: string;
+        authorName: string;
+        authorRole?: string | null;
+        avatar?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'testimonials-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceFaqBlockFields".
+ */
+export interface ServiceFaqBlockFields {
+  eyebrow?: string | null;
+  title: string;
+  items?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  contactTitle?: string | null;
+  contactText?: string | null;
+  /**
+   * Optional override. Falls back to Header / Contacts global on the web.
+   */
+  contactPhone?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'service-faq-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BookingFormBlockFields".
+ */
+export interface BookingFormBlockFields {
+  eyebrow?: string | null;
+  title: string;
+  titleAccent?: string | null;
+  description?: string | null;
+  image?: (string | null) | Media;
+  form: string | Form;
+  layout?: {
+    nameField?: string | null;
+    phoneField?: string | null;
+    messageField?: string | null;
+    emailField?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'booking-form-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AboutIntroBlockFields".
+ */
+export interface AboutIntroBlockFields {
+  eyebrow?: string | null;
+  title: string;
+  titleAccent?: string | null;
+  description?: string | null;
+  cta?: {
+    type?: ('reference' | 'custom' | 'anchor' | 'form') | null;
+    newTab?: boolean | null;
+    label?: string | null;
+    reference?: {
+      relationTo: 'pages';
+      value: string | Page;
+    } | null;
+    url?: string | null;
+    form?: (string | null) | Form;
+    /**
+     * HTML id without #. Appended as URL hash for internal/custom links; required for anchor type when label is set.
+     */
+    hash?: string | null;
+  };
+  images?:
+    | {
+        image: string | Media;
+        id?: string | null;
+      }[]
+    | null;
+  stats?:
+    | {
+        value: string;
+        label: string;
+        /**
+         * Optional. With image the card renders dark; without it stays light.
+         */
+        image?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'about-intro-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "WhyChooseUsBlockFields".
+ */
+export interface WhyChooseUsBlockFields {
+  eyebrow?: string | null;
+  title: string;
+  titleAccent?: string | null;
+  intro?: string | null;
+  background?: (string | null) | Media;
+  items?:
+    | {
+        iconKey?: ('check' | 'contract' | 'search' | 'globe' | 'route' | 'shield') | null;
+        title: string;
+        body: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'why-choose-us-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ComparisonBlockFields".
+ */
+export interface ComparisonBlockFields {
+  eyebrow?: string | null;
+  title: string;
+  intro?: string | null;
+  leftColumn: {
+    heading: string;
+    items?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  rightColumn: {
+    heading: string;
+    items?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'comparison-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "UkraineCoverageBlockFields".
+ */
+export interface UkraineCoverageBlockFields {
+  eyebrow?: string | null;
+  title: string;
+  titleAccent?: string | null;
+  body?: string | null;
+  /**
+   * e.g. “Офіс” / “Office”
+   */
+  officeLabel?: string | null;
+  /**
+   * e.g. Хмельницький
+   */
+  officeCity?: string | null;
+  /**
+   * Office map pin latitude.
+   */
+  latitude: number;
+  /**
+   * Office map pin longitude.
+   */
+  longitude: number;
+  /**
+   * Google Maps link for the Route button (opens in a new tab).
+   */
+  routeUrl: string;
+  /**
+   * e.g. “Маршрут” / “Route”
+   */
+  routeLabel?: string | null;
+  /**
+   * Optional city chips (coverage list). Address comes from Contacts.
+   */
+  cities?:
+    | {
+        name: string;
+        id?: string | null;
+      }[]
+    | null;
+  cta?: {
+    type?: ('reference' | 'custom' | 'anchor' | 'form') | null;
+    newTab?: boolean | null;
+    label?: string | null;
+    reference?: {
+      relationTo: 'pages';
+      value: string | Page;
+    } | null;
+    url?: string | null;
+    form?: (string | null) | Form;
+    /**
+     * HTML id without #. Appended as URL hash for internal/custom links; required for anchor type when label is set.
+     */
+    hash?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'ukraine-coverage-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CarBrandsBlockFields".
+ */
+export interface CarBrandsBlockFields {
+  eyebrow?: string | null;
+  title: string;
+  titleAccent?: string | null;
+  rows?:
+    | {
+        logos?:
+          | {
+              logo: string | Media;
+              name?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'car-brands-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PageBreadcrumbsBlockFields".
+ */
+export interface PageBreadcrumbsBlockFields {
+  currentLabel: string;
+  ancestors?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'page-breadcrumbs-block';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads".
+ */
+export interface Lead {
+  id: string;
+  status: 'new' | 'in-progress' | 'won' | 'lost';
+  type?: ('callback' | 'test-drive' | 'trade-in' | 'finance' | 'general') | null;
+  readAt?: string | null;
+  formSubmission: string | FormSubmission;
+  form: string | Form;
+  name?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  message?: string | null;
+  source?: string | null;
+  consent?: boolean | null;
+  utm?: {
+    source?: string | null;
+    medium?: string | null;
+    campaign?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions".
  */
 export interface FormSubmission {
@@ -402,6 +901,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: string | Page;
+      } | null)
+    | ({
+        relationTo: 'leads';
+        value: string | Lead;
       } | null)
     | ({
         relationTo: 'forms';
@@ -544,6 +1047,20 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        'auto-hero-block'?: T | AutoHeroBlockFieldsSelect<T>;
+        'directions-block'?: T | DirectionsBlockFieldsSelect<T>;
+        'price-list-block'?: T | PriceListBlockFieldsSelect<T>;
+        'inspection-checklist-block'?: T | InspectionChecklistBlockFieldsSelect<T>;
+        'turnkey-route-block'?: T | TurnkeyRouteBlockFieldsSelect<T>;
+        'testimonials-block'?: T | TestimonialsBlockFieldsSelect<T>;
+        'service-faq-block'?: T | ServiceFaqBlockFieldsSelect<T>;
+        'booking-form-block'?: T | BookingFormBlockFieldsSelect<T>;
+        'about-intro-block'?: T | AboutIntroBlockFieldsSelect<T>;
+        'why-choose-us-block'?: T | WhyChooseUsBlockFieldsSelect<T>;
+        'comparison-block'?: T | ComparisonBlockFieldsSelect<T>;
+        'ukraine-coverage-block'?: T | UkraineCoverageBlockFieldsSelect<T>;
+        'car-brands-block'?: T | CarBrandsBlockFieldsSelect<T>;
+        'page-breadcrumbs-block'?: T | PageBreadcrumbsBlockFieldsSelect<T>;
       };
   meta?:
     | T
@@ -558,6 +1075,400 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AutoHeroBlockFields_select".
+ */
+export interface AutoHeroBlockFieldsSelect<T extends boolean = true> {
+  backgroundImage?: T;
+  title?: T;
+  subtitle?: T;
+  buttons?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              label?: T;
+              reference?: T;
+              url?: T;
+              form?: T;
+              hash?: T;
+            };
+        style?: T;
+        id?: T;
+      };
+  highlights?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  origins?:
+    | T
+    | {
+        originId?: T;
+        label?: T;
+        term?: T;
+        check?: T;
+        image?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DirectionsBlockFields_select".
+ */
+export interface DirectionsBlockFieldsSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  titleAccent?: T;
+  featured?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        cta?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              label?: T;
+              reference?: T;
+              url?: T;
+              form?: T;
+              hash?: T;
+            };
+        image?: T;
+      };
+  items?:
+    | T
+    | {
+        title?: T;
+        scope?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              label?: T;
+              reference?: T;
+              url?: T;
+              form?: T;
+              hash?: T;
+            };
+        image?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PriceListBlockFields_select".
+ */
+export interface PriceListBlockFieldsSelect<T extends boolean = true> {
+  titleOverride?: T;
+  addonsHeading?: T;
+  fromPrefix?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "InspectionChecklistBlockFields_select".
+ */
+export interface InspectionChecklistBlockFieldsSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  intro?: T;
+  items?:
+    | T
+    | {
+        title?: T;
+        detail?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TurnkeyRouteBlockFields_select".
+ */
+export interface TurnkeyRouteBlockFieldsSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  steps?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        bodyUsa?: T;
+        bodyEurope?: T;
+        bodyKorea?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialsBlockFields_select".
+ */
+export interface TestimonialsBlockFieldsSelect<T extends boolean = true> {
+  eyebrow?: T;
+  titleAccent?: T;
+  title?: T;
+  items?:
+    | T
+    | {
+        quote?: T;
+        authorName?: T;
+        authorRole?: T;
+        avatar?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceFaqBlockFields_select".
+ */
+export interface ServiceFaqBlockFieldsSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  items?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  contactTitle?: T;
+  contactText?: T;
+  contactPhone?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BookingFormBlockFields_select".
+ */
+export interface BookingFormBlockFieldsSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  titleAccent?: T;
+  description?: T;
+  image?: T;
+  form?: T;
+  layout?:
+    | T
+    | {
+        nameField?: T;
+        phoneField?: T;
+        messageField?: T;
+        emailField?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AboutIntroBlockFields_select".
+ */
+export interface AboutIntroBlockFieldsSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  titleAccent?: T;
+  description?: T;
+  cta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        label?: T;
+        reference?: T;
+        url?: T;
+        form?: T;
+        hash?: T;
+      };
+  images?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  stats?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        image?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "WhyChooseUsBlockFields_select".
+ */
+export interface WhyChooseUsBlockFieldsSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  titleAccent?: T;
+  intro?: T;
+  background?: T;
+  items?:
+    | T
+    | {
+        iconKey?: T;
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ComparisonBlockFields_select".
+ */
+export interface ComparisonBlockFieldsSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  intro?: T;
+  leftColumn?:
+    | T
+    | {
+        heading?: T;
+        items?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  rightColumn?:
+    | T
+    | {
+        heading?: T;
+        items?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "UkraineCoverageBlockFields_select".
+ */
+export interface UkraineCoverageBlockFieldsSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  titleAccent?: T;
+  body?: T;
+  officeLabel?: T;
+  officeCity?: T;
+  latitude?: T;
+  longitude?: T;
+  routeUrl?: T;
+  routeLabel?: T;
+  cities?:
+    | T
+    | {
+        name?: T;
+        id?: T;
+      };
+  cta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        label?: T;
+        reference?: T;
+        url?: T;
+        form?: T;
+        hash?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CarBrandsBlockFields_select".
+ */
+export interface CarBrandsBlockFieldsSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  titleAccent?: T;
+  rows?:
+    | T
+    | {
+        logos?:
+          | T
+          | {
+              logo?: T;
+              name?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PageBreadcrumbsBlockFields_select".
+ */
+export interface PageBreadcrumbsBlockFieldsSelect<T extends boolean = true> {
+  currentLabel?: T;
+  ancestors?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads_select".
+ */
+export interface LeadsSelect<T extends boolean = true> {
+  status?: T;
+  type?: T;
+  readAt?: T;
+  formSubmission?: T;
+  form?: T;
+  name?: T;
+  phone?: T;
+  email?: T;
+  message?: T;
+  source?: T;
+  consent?: T;
+  utm?:
+    | T
+    | {
+        source?: T;
+        medium?: T;
+        campaign?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -864,6 +1775,20 @@ export interface Contact {
   address?: string | null;
   hours?: string | null;
   gMapLink?: string | null;
+  /**
+   * Optional. Shown in the footer contact cluster when present.
+   */
+  socialLinks?:
+    | {
+        label: string;
+        url: string;
+        /**
+         * Optional. Prefer a simple light glyph on transparent WebP.
+         */
+        icon?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1062,6 +1987,14 @@ export interface ContactsSelect<T extends boolean = true> {
   address?: T;
   hours?: T;
   gMapLink?: T;
+  socialLinks?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        icon?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

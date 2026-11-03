@@ -15,7 +15,7 @@
     "navAbout": "About",
     "navServices": "Services",
     "navContacts": "Contacts",
-    "phone": "+380 00 000 00 00",
+    "phone": "+380 (98) 525 52 11",
     "phoneAria": "Call us",
     "menuOpen": "Open menu",
     "menuClose": "Close menu",
@@ -26,13 +26,49 @@
     "navAbout": "About",
     "navServices": "Services",
     "navContacts": "Contacts",
-    "copyright": "© AS Autosearch. All rights reserved.",
-    "backToTop": "Back to top"
+    "copyright": "Car search “AS Autosearch” (c) 2026. All rights reserved.",
+    "backToTop": "Back to top",
+    "backToTopAria": "Back to top of page",
+    "navAria": "Footer navigation"
   },
   "Home": {
     "eyebrow": "Car search",
     "title": "We’ll find a car that fits your request",
     "description": "Milestone 2 static preview section — CMS content arrives in later milestones.",
     "cta": "Leave a request"
+  },
+  "Directions": {
+    "more": "Learn more"
+  },
+  "Testimonials": {
+    "prev": "Previous review",
+    "next": "Next review"
+  },
+  "UkraineCoverage": {
+    "route": "Route",
+    "mapTitle": "Office on the map"
+  },
+  "Form": {
+    "required": "This field is required",
+    "nameMin": "At least {min} characters",
+    "nameMax": "At most {max} characters",
+    "phoneInvalid": "Enter a number like +380 (XX) XXX XX XX",
+    "emailInvalid": "Invalid email",
+    "submitting": "Sending…",
+    "submitFallback": "Send",
+    "successFallback": "Thank you! We’ll get back to you shortly.",
+    "errorGeneric": "Could not submit the form. Please try again.",
+    "notConfigured": "Form is not configured.",
+    "labelName": "Name",
+    "labelPhone": "Phone",
+    "labelMessage": "Request",
+    "labelEmail": "Email",
+    "placeholderName": "How should we address you?",
+    "placeholderPhone": "+380 (__) ___ __ __",
+    "placeholderMessage": "Budget, model, or listing link",
+    "placeholderEmail": "name@email.com"
+  },
+  "common": {
+    "home": "Home"
   }
 }

@@ -2,11 +2,24 @@ import path from 'path';
 import { getPayload } from 'payload';
 import { fileURLToPath } from 'url';
 
+import {
+  defaultAddressEn,
+  defaultAddressUa,
+  defaultEmail,
+  defaultHoursEn,
+  defaultHoursUa,
+  defaultFacebookUrl,
+  defaultInstagramUrl,
+  defaultPhoneDisplay,
+} from '@autosearch/config';
+
 import config from '../payload.config';
 import { updateGlobalLocale } from './lib/upsert';
 import { upsertMediaByFilename } from './lib/upsertMedia';
 
-const brandDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../seed-assets/brand');
+const seedAssetsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../seed-assets');
+const brandDir = path.join(seedAssetsDir, 'brand');
+const socialDir = path.join(seedAssetsDir, 'social');
 
 async function main(): Promise<void> {
   const payload = await getPayload({ config });
@@ -50,6 +63,20 @@ async function main(): Promise<void> {
     altEn: 'AS Autosearch',
   });
 
+  payload.logger.info('Seeding social icons (WebP)…');
+  const instagramIconId = await upsertMediaByFilename(payload, {
+    filePath: path.join(socialDir, 'instagram.webp'),
+    filename: 'instagram.webp',
+    altUa: 'Instagram',
+    altEn: 'Instagram',
+  });
+  const facebookIconId = await upsertMediaByFilename(payload, {
+    filePath: path.join(socialDir, 'facebook.webp'),
+    filename: 'facebook.webp',
+    altUa: 'Facebook',
+    altEn: 'Facebook',
+  });
+
   payload.logger.info('Seeding globals (ua + en)…');
 
   await updateGlobalLocale(payload, 'site-settings', 'ua', {
@@ -80,7 +107,7 @@ async function main(): Promise<void> {
     logoLight: logoLightId,
     logoDark: logoDarkId,
     logoText: 'Autosearch',
-    phone: '+380 (00) 000 00 00',
+    phone: defaultPhoneDisplay,
     navItems: [
       {
         link: {
@@ -118,7 +145,7 @@ async function main(): Promise<void> {
     logoLight: logoLightId,
     logoDark: logoDarkId,
     logoText: 'Autosearch',
-    phone: '+380 (00) 000 00 00',
+    phone: defaultPhoneDisplay,
     navItems: [
       {
         id: navIds[0],
@@ -143,12 +170,14 @@ async function main(): Promise<void> {
   await updateGlobalLocale(payload, 'footer', 'ua', {
     logoLight: logoLightId,
     logoDark: logoDarkId,
-    logoText: 'Autosearch',
+    logoText: 'AS Autosearch',
     description: 'Автопідбір під ваш запит.',
-    copyrightText: '© AS Autosearch. Усі права захищено.',
+    copyrightText: 'Автопідбір «AS Autosearch» (c) 2026. Усі права захищено.',
     navItems: [
-      { link: { type: 'custom', label: 'Про нас', url: '/about' } },
+      { link: { type: 'custom', label: 'Автопідбір', url: '/' } },
       { link: { type: 'custom', label: 'Послуги', url: '/services' } },
+      { link: { type: 'custom', label: 'Про нас', url: '/about' } },
+      { link: { type: 'custom', label: 'Блог', url: '/blog' } },
       { link: { type: 'custom', label: 'Контакти', url: '/contacts' } },
     ],
   });
@@ -159,28 +188,52 @@ async function main(): Promise<void> {
   await updateGlobalLocale(payload, 'footer', 'en', {
     logoLight: logoLightId,
     logoDark: logoDarkId,
-    logoText: 'Autosearch',
+    logoText: 'AS Autosearch',
     description: 'Car search tailored to your request.',
-    copyrightText: '© AS Autosearch. All rights reserved.',
+    copyrightText: 'Car search “AS Autosearch” (c) 2026. All rights reserved.',
     navItems: [
-      { id: footerNavIds[0], link: { type: 'custom', label: 'About', url: '/about' } },
+      { id: footerNavIds[0], link: { type: 'custom', label: 'Car search', url: '/' } },
       { id: footerNavIds[1], link: { type: 'custom', label: 'Services', url: '/services' } },
-      { id: footerNavIds[2], link: { type: 'custom', label: 'Contacts', url: '/contacts' } },
+      { id: footerNavIds[2], link: { type: 'custom', label: 'About', url: '/about' } },
+      { id: footerNavIds[3], link: { type: 'custom', label: 'Blog', url: '/blog' } },
+      { id: footerNavIds[4], link: { type: 'custom', label: 'Contacts', url: '/contacts' } },
     ],
   });
 
   await updateGlobalLocale(payload, 'contacts', 'ua', {
-    phones: [{ label: 'Основний', number: '+380 (00) 000 00 00' }],
-    email: 'hello@autosearch.example',
-    address: 'Київ, Україна',
-    hours: 'Пн–Пт: 09:00–18:00',
+    phones: [{ label: 'Основний', number: defaultPhoneDisplay }],
+    email: defaultEmail,
+    address: defaultAddressUa,
+    hours: defaultHoursUa,
+    socialLinks: [
+      { label: 'Instagram', url: defaultInstagramUrl, icon: instagramIconId },
+      { label: 'Facebook', url: defaultFacebookUrl, icon: facebookIconId },
+    ],
   });
 
+  const contactsUa = await payload.findGlobal({ slug: 'contacts', locale: 'ua', depth: 0 });
+  const socialIds = contactsUa.socialLinks?.map((item) => item.id) ?? [];
+  const phoneIds = contactsUa.phones?.map((item) => item.id) ?? [];
+
   await updateGlobalLocale(payload, 'contacts', 'en', {
-    phones: [{ label: 'Main', number: '+380 (00) 000 00 00' }],
-    email: 'hello@autosearch.example',
-    address: 'Kyiv, Ukraine',
-    hours: 'Mon–Fri: 09:00–18:00',
+    phones: [{ id: phoneIds[0], label: 'Main', number: defaultPhoneDisplay }],
+    email: defaultEmail,
+    address: defaultAddressEn,
+    hours: defaultHoursEn,
+    socialLinks: [
+      {
+        id: socialIds[0],
+        label: 'Instagram',
+        url: defaultInstagramUrl,
+        icon: instagramIconId,
+      },
+      {
+        id: socialIds[1],
+        label: 'Facebook',
+        url: defaultFacebookUrl,
+        icon: facebookIconId,
+      },
+    ],
   });
 
   await updateGlobalLocale(payload, 'price-list', 'ua', {

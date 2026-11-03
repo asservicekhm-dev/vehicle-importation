@@ -101,7 +101,7 @@ Header names the section, not all five services. Service rows carry a scope fact
 | Default | Decision |
 | --- | --- |
 | Gold dark accent (Yastreb) | Rejected — other brand + “dark + one hot accent” cliché. Sky CTA in dark keeps AS colours. |
-| Two-colour headline accent | Dropped — hierarchy from scale/weight. |
+| Two-colour headline accent | **Keep (AS Service)** — CMS `[[phrase]]` markers render sky accents in hero (and reusable via `renderAccentText`). |
 | Uppercase tracked eyebrow + dot (`SectionEyebrow`) | Removed. |
 | Five identical service cards | Featured turnkey + four scope rows + inspection sheet. |
 | Three pricing cards + highlighted middle | Two sheets; “from” is a field, not a badge. |

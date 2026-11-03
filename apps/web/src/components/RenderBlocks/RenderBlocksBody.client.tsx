@@ -2,6 +2,8 @@
 
 import type { ReactNode } from 'react';
 
+import { OriginProvider } from '@/components/OriginProvider';
+
 import { BLOCK_MAPPERS, type MapperKey } from './blockMappersRegistry';
 import type { UnifiedBlock } from './blockTypes';
 
@@ -18,20 +20,22 @@ export function RenderBlocksBody({ blocks, mapperKey }: Props) {
   if (!blocks.length) return null;
 
   return (
-    <div className={styles.list}>
-      {blocks.map((block, index) => {
-        const render = mapper[block.blockType] as ((b: UnifiedBlock) => ReactNode) | undefined;
+    <OriginProvider>
+      <div className={styles.list}>
+        {blocks.map((block, index) => {
+          const render = mapper[block.blockType] as ((b: UnifiedBlock) => ReactNode) | undefined;
 
-        if (!render) return null;
+          if (!render) return null;
 
-        const key = block.id ?? `${block.blockType}-${index}`;
+          const key = block.id ?? `${block.blockType}-${index}`;
 
-        return (
-          <div key={key} className={styles.item}>
-            {render(block)}
-          </div>
-        );
-      })}
-    </div>
+          return (
+            <div key={key} className={styles.item}>
+              {render(block)}
+            </div>
+          );
+        })}
+      </div>
+    </OriginProvider>
   );
 }

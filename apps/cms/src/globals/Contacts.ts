@@ -52,6 +52,41 @@ export const Contacts: GlobalConfig = {
       type: 'text',
       label: 'Google Map link',
     },
+    {
+      name: 'socialLinks',
+      label: 'Social links',
+      labels: {
+        singular: 'Social link',
+        plural: 'Social links',
+      },
+      type: 'array',
+      admin: {
+        description: 'Optional. Shown in the footer contact cluster when present.',
+      },
+      fields: [
+        {
+          name: 'label',
+          type: 'text',
+          required: true,
+          label: 'Label',
+        },
+        {
+          name: 'url',
+          type: 'text',
+          required: true,
+          label: 'URL',
+        },
+        {
+          name: 'icon',
+          type: 'upload',
+          relationTo: 'media',
+          label: 'Icon',
+          admin: {
+            description: 'Optional. Prefer a simple light glyph on transparent WebP.',
+          },
+        },
+      ],
+    },
   ],
   hooks: {
     afterChange: [makeRevalidateGlobal('global_contacts')],

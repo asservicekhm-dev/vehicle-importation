@@ -2,7 +2,7 @@
 
 Read this before making changes. The product spec lives in [`specs/`](./specs/README.md); this file is the operational summary. When this file and the spec disagree, the spec wins — then update this file.
 
-Current state: **Milestone 3 (CMS core)** of [`specs/08-bootstrap-roadmap.md`](./specs/08-bootstrap-roadmap.md). Items marked _(M<n>)_ are planned, not built yet.
+Current state: **Milestone 4 (first marketing pages / home-first)** of [`specs/08-bootstrap-roadmap.md`](./specs/08-bootstrap-roadmap.md). Items marked _(M<n>)_ are planned, not built yet.
 
 ## 1. What this is
 
@@ -35,9 +35,9 @@ Pinned baseline: [`specs/01-architecture.md`](./specs/01-architecture.md) § Sta
 apps/
   cms/                 @autosearch/cms
     src/payload.config.ts
-    src/collections/   Users, Media, Pages (+ dummy-section block)
+    src/collections/   Users, Media, Pages (marketing blocks), Leads
     src/globals/       header, footer, contacts, site-settings, price-list
-    src/plugins/       SEO, redirects, hand-rolled form-builder (Forms + FormSubmissions)
+    src/plugins/       SEO, redirects, form-builder (Forms + FormSubmissions → Leads)
     src/scripts/       seed-globals, seed-home
     src/app/(payload)/ Payload admin + API routes (generated files — don't hand-edit)
     src/app/api/media-redirect/  S3/local media redirect
@@ -90,11 +90,12 @@ Planned: `pnpm new component|view|block` _(M6)_, unified `pnpm seed <area>` _(po
 
 Spec: [`specs/02-cms-model.md`](./specs/02-cms-model.md).
 
-- **Now:** `users`, `media` (WebP `formatOptions` + `favicon`/`icon` sizes), `pages` (localized `layout` + `viewType`: `home | information | contacts | blog`), globals `header` / `footer` (`logoLight`/`logoDark`/`logoText`) / `contacts` / `site-settings` (`favicon*` + `appleTouchIcon*`) / `price-list`, plugins SEO / redirects / form-builder (Forms + FormSubmissions) / conditional S3. Localization: `ua` + `en`, `fallback: false`. Brand WebPs live in `apps/cms/src/seed-assets/brand/` and are upserted by `seed:globals`.
+- **Now:** `users`, `media` (WebP `formatOptions` + `favicon`/`icon` sizes), `pages` (localized `layout` + `viewType`: `home | information | contacts | blog`), `leads` inbox, globals `header` / `footer` (`logoLight`/`logoDark`/`logoText`) / `contacts` / `site-settings` (`favicon*` + `appleTouchIcon*`) / `price-list`, plugins SEO / redirects / form-builder (Forms + FormSubmissions → leads when `submissionKind: lead`) / conditional S3. Localization: `ua` + `en`, `fallback: false`. Brand WebPs live in `apps/cms/src/seed-assets/brand/` and are upserted by `seed:globals`.
+- Home marketing blocks (seed order): `auto-hero`, early `booking-form` (pitch), `about-intro`, `why-choose-us`, `directions`, `comparison`, `price-list` (reads global), `inspection-checklist`, `turnkey-route`, `ukraine-coverage`, `testimonials`, `service-faq`, bottom `booking-form` (callback); also registered `car-brands`, `page-breadcrumbs`. Web `sendForm` is the only write path (no GoGym).
 - Revalidate: CMS hooks POST `WEB_URL/api/revalidate` with `REVALIDATE_SECRET` (not CMS-local `revalidatePath`).
-- _(design seed)_ tokens + `/design-seed` preview; price list seeded from Instagram sheet ([`specs/07-domain-and-pages.md`](./specs/07-domain-and-pages.md), [`specs/10-design-direction.md`](./specs/10-design-direction.md)).
-- _(M4)_ marketing blocks; `forms` → `form-submissions` → `leads` inbox ([`specs/09-booking-and-leads.md`](./specs/09-booking-and-leads.md)).
+- _(design seed)_ `/design-seed` remains a noindex visual reference; production Home is CMS-driven.
 - _(M5)_ Secondary IA: About, Contacts, Blog, Services landings (`/services/{perevirka,pid-kliuch,ekspert-na-den,diagnostyka,vyizd}`).
+- Booking / leads: [`specs/09-booking-and-leads.md`](./specs/09-booking-and-leads.md).
 - **Never add:** Inventory (`cars` / `brands` catalogs, `/cars` routes), Autosearch search wizard, Explore, `subscriptions` / `catalog` viewTypes, gamification blocks, GoGym/Smarty APIs.
 - Do not create a Pages slug `cms` (collides with the prod `/cms` base path).
 

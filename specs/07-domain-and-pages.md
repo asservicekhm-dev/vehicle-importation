@@ -86,7 +86,7 @@ Locales: Ukrainian (`ua`) unprefixed by default; English (`en`) under `/en/…`.
 
 | Page | Mechanism | Primary blocks / collections |
 | --- | --- | --- |
-| Home | `Pages` viewType `home` | auto-hero (origins), directions (five services), price-list section (global), inspection-checklist, turnkey-route, testimonials, faq, booking-form, blog-home |
+| Home | `Pages` viewType `home` | auto-hero, early booking-form (pitch), about-intro, why-choose-us, directions, comparison, price-list, inspection-checklist, turnkey-route, ukraine-coverage, testimonials, faq, booking-form (callback) |
 | Service landing | `Pages` or `services` collection + blocks | Same stack as AS single-service |
 | About | `Pages` blocks | about-intro, team, video, reviews, faq |
 | Blog | viewType `blog` + collection | Existing Blog views |
@@ -106,6 +106,9 @@ Locales: Ukrainian (`ua`) unprefixed by default; English (`en`) under `/en/…`.
 | Team | TeamBlock | Optional `team-members` collection |
 | Reviews | Testimonials / Reviews | Optional `reviews` collection |
 | Map / branches | contacts-info + contacts global | Multi-branch if needed |
+| Why choose us | — | `why-choose-us-block` on Home |
+| Comparison | — | `comparison-block` (without partner / with Autosearch) |
+| Ukraine coverage | — | `ukraine-coverage-block` (Google Maps office pin + route; not inventory) |
 | Theme | — | See [04-design-tokens.md](./04-design-tokens.md) |
 | SEO | seoUtils, sitemap | AutoDealer JSON-LD; no vehicle/inventory sitemap |
 
@@ -115,14 +118,18 @@ Locales: Ukrainian (`ua`) unprefixed by default; English (`en`) under `/en/…`.
 
 ```
 auto-hero-block              # origins USA / Europe / Korea switcher
+booking-form-block           # early pitch (selling copy) — same Form as bottom
+about-intro-block
+why-choose-us-block          # trust reasons
 directions-block             # five services: featured turnkey + four scope rows
-# price list section reads the price-list global (not a duplicated block)
+comparison-block             # without partner vs with AS Autosearch
+price-list-block             # reads the price-list global
 inspection-checklist-block   # contents of pre-purchase inspection
 turnkey-route-block          # Budget → … → MVS registration → Handover
+ukraine-coverage-block       # Google Maps office pin + route / cities list
 testimonials-block
 service-faq-block
-booking-form-block
-blog-home-block
+booking-form-block           # bottom callback
 ```
 
 ### Service landing (CMS)

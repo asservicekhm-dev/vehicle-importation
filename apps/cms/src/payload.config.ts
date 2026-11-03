@@ -18,6 +18,7 @@ import { s3Storage } from '@payloadcms/storage-s3';
 
 import { defaultLocale, localeLabels, locales } from '@autosearch/config';
 
+import { Leads } from './collections/Leads';
 import { Media } from './collections/Media';
 import { Pages } from './collections/Pages';
 import { Users } from './collections/Users';
@@ -61,7 +62,7 @@ export default buildConfig({
     },
     user: Users.slug,
   },
-  collections: [Users, Media, Pages],
+  collections: [Users, Media, Pages, Leads],
   db: mongooseAdapter({
     url: requireEnv('DATABASE_URI'),
   }),

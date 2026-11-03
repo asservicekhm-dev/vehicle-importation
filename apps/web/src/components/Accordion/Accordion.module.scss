@@ -28,11 +28,16 @@
   font-weight: 600;
   font-size: var(--text-md);
   text-align: left;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--color-text) 4%, transparent);
+  }
 }
 
 .chevron {
   flex-shrink: 0;
-  transition: transform 0.15s ease;
+  transition: transform 0.25s ease;
   color: var(--color-text-muted);
 
   [data-state='open'] & {
@@ -46,12 +51,51 @@
   font-size: var(--text-md);
 
   &[data-state='open'] {
-    padding: 0 var(--space-5) var(--space-4);
+    animation: accordion-down 0.28s ease;
+  }
+
+  &[data-state='closed'] {
+    animation: accordion-up 0.22s ease;
+  }
+}
+
+.contentInner {
+  padding: 0 var(--space-5) var(--space-4);
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+
+  to {
+    height: 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .chevron {
+    transition: none;
+  }
+
+  .content {
+    &[data-state='open'],
+    &[data-state='closed'] {
+      animation: none;
+    }
+  }
+
+  .trigger {
     transition: none;
   }
 }

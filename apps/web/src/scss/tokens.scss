@@ -88,6 +88,14 @@
   --color-overlay: rgb(14 19 30 / 35%);
   --shadow-1: 0 1px 2px rgb(14 19 30 / 4%), 0 2px 8px rgb(14 19 30 / 6%);
   --shadow-2: 0 4px 16px rgb(14 19 30 / 10%), 0 16px 48px rgb(14 19 30 / 10%);
+  /* Footer card stays dark in both themes (AS Service plate) */
+  --color-footer-bg: var(--_p-night-900);
+  --color-footer-text: var(--_p-white);
+  --color-footer-muted: rgb(255 255 255 / 50%);
+  --color-footer-border: rgb(255 255 255 / 10%);
+  --color-footer-social-border: rgb(255 255 255 / 20%);
+  --color-footer-social-hover-from: var(--_p-blue-800);
+  --color-footer-social-hover-to: var(--_p-sky-400);
 }
 
 :root[data-theme='dark'] {
@@ -115,4 +123,11 @@
   --color-overlay: rgb(0 0 0 / 55%);
   --shadow-1: 0 1px 2px rgb(0 0 0 / 30%), 0 2px 8px rgb(0 0 0 / 30%);
   --shadow-2: 0 4px 16px rgb(0 0 0 / 40%), 0 16px 48px rgb(0 0 0 / 40%);
+  --color-footer-bg: var(--_p-night-900);
+  --color-footer-text: var(--_p-white);
+  --color-footer-muted: rgb(255 255 255 / 50%);
+  --color-footer-border: rgb(255 255 255 / 10%);
+  --color-footer-social-border: rgb(255 255 255 / 20%);
+  --color-footer-social-hover-from: var(--_p-blue-800);
+  --color-footer-social-hover-to: var(--_p-sky-400);
 }

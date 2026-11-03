@@ -15,7 +15,7 @@
     "navAbout": "Про нас",
     "navServices": "Послуги",
     "navContacts": "Контакти",
-    "phone": "+380 00 000 00 00",
+    "phone": "+380 (98) 525 52 11",
     "phoneAria": "Зателефонувати",
     "menuOpen": "Відкрити меню",
     "menuClose": "Закрити меню",
@@ -26,13 +26,49 @@
     "navAbout": "Про нас",
     "navServices": "Послуги",
     "navContacts": "Контакти",
-    "copyright": "© AS Autosearch. Усі права захищено.",
-    "backToTop": "Вгору"
+    "copyright": "Автопідбір «AS Autosearch» (c) 2026. Усі права захищено.",
+    "backToTop": "Вгору",
+    "backToTopAria": "На початок сторінки",
+    "navAria": "Навігація в підвалі"
   },
   "Home": {
     "eyebrow": "Автопідбір",
     "title": "Знайдемо авто під ваш запит",
     "description": "Статичний превʼю секції Milestone 2 — контент зʼявиться з CMS у наступних етапах.",
     "cta": "Залишити заявку"
+  },
+  "Directions": {
+    "more": "Детальніше"
+  },
+  "Testimonials": {
+    "prev": "Попередній відгук",
+    "next": "Наступний відгук"
+  },
+  "UkraineCoverage": {
+    "route": "Маршрут",
+    "mapTitle": "Офіс на карті"
+  },
+  "Form": {
+    "required": "Обовʼязкове поле",
+    "nameMin": "Мінімум {min} символи",
+    "nameMax": "Максимум {max} символів",
+    "phoneInvalid": "Введіть номер у форматі +380 (XX) XXX XX XX",
+    "emailInvalid": "Некоректний email",
+    "submitting": "Надсилаємо…",
+    "submitFallback": "Надіслати",
+    "successFallback": "Дякуємо! Ми звʼяжемося з вами найближчим часом.",
+    "errorGeneric": "Не вдалося надіслати форму. Спробуйте ще раз.",
+    "notConfigured": "Форма не налаштована.",
+    "labelName": "Імʼя",
+    "labelPhone": "Телефон",
+    "labelMessage": "Запит",
+    "labelEmail": "Email",
+    "placeholderName": "Як до вас звертатися?",
+    "placeholderPhone": "+380 (__) ___ __ __",
+    "placeholderMessage": "Бюджет, модель або посилання на оголошення",
+    "placeholderEmail": "name@email.com"
+  },
+  "common": {
+    "home": "Головна"
   }
 }

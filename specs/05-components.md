@@ -69,9 +69,12 @@ Paths relative to `apps/web/src/`. Tokens: “Legacy” = dark/orange Wayon; “
 | `turnkey-route-block` | TurnkeyRoute | **Add** | Signature sequence: Budget → Search → Check → Buy → Shipping → Customs → MVS registration → Handover; origin-aware mid steps |
 | `price-list` (global-driven section) | PriceList | **Add** | Two sheets from the `price-list` global; not a duplicated block |
 | `testimonials-block` | Testimonials | **Keep** | Customer stories |
+| `why-choose-us-block` | WhyChooseUs | **Add** | Why clients choose AS Autosearch |
+| `comparison-block` | Comparison | **Add** | Without turnkey partner vs with AS Autosearch |
+| `ukraine-coverage-block` | UkraineCoverage | **Add** | Google Maps office embed + Route button; address from Contacts |
 | `reviews-block` | Reviews | **Keep** | Ratings |
 | `service-faq-block` | ServiceFaq | **Keep** | FAQ |
-| `booking-form-block` | BookingForm | **Keep** | Lead form → Payload inbox ([09-booking-and-leads.md](./09-booking-and-leads.md)); callback / enquiry / trade-in |
+| `booking-form-block` | BookingForm | **Keep** | Lead form → Payload inbox ([09-booking-and-leads.md](./09-booking-and-leads.md)); early pitch + bottom callback on Home |
 | `service-hero-block` | ServiceHero | **Adapt** | Service landing hero |
 | `service-info-block` | ServiceInfo | **Adapt** | Service summary + CTAs |
 | `service-feature-cards-block` | ServiceFeatureCards | **Adapt** | Service features |

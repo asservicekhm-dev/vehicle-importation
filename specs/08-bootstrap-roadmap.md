@@ -39,11 +39,13 @@ Ordered milestones to stand up the Autosearch repo from this spec. Each mileston
 
 ## Milestone 4 — First marketing pages
 
-- Port blocks: AutoHero, AboutIntro, Directions, CarBrands, Testimonials, ServiceFaq, BookingForm, PageBreadcrumbs.
-- Merge form component; implement booking → Payload inbox per [09-booking-and-leads.md](./09-booking-and-leads.md) (`sendForm` only; no GoGym).
+**Home-first (Autosearch domain recipe):** promote design-seed sections into CMS blocks, not only the AS Service port list.
+
+- Home seed order: AutoHero (origins) → Directions → PriceList marker (reads `price-list` global) → InspectionChecklist → TurnkeyRoute → Testimonials → ServiceFaq → BookingForm.
+- Also register (thin UI, not required on Home seed): AboutIntro, CarBrands, PageBreadcrumbs.
+- Merge form component; booking → Payload inbox per [09-booking-and-leads.md](./09-booking-and-leads.md) (`sendForm` only; no GoGym).
 - Seed booking Form (`submissionKind: lead`) + `booking-form-block` on Home; verify Admin `leads` row on submit.
-- Home seed content (placeholder media).
-- **Exit:** Home matches AS Service rhythm on light theme; dark theme readable; booking creates inbox lead.
+- **Exit:** Home matches Autosearch rhythm on light + dark; booking creates inbox lead.
 
 ## Milestone 5 — Secondary IA
 

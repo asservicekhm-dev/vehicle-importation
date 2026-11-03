@@ -3,6 +3,14 @@
   z-index: 40;
   inset: 0;
   background-color: var(--color-overlay);
+
+  &[data-state='open'] {
+    animation: modal-overlay-in 0.2s ease forwards;
+  }
+
+  &[data-state='closed'] {
+    animation: modal-overlay-out 0.2s ease forwards;
+  }
 }
 
 .content {
@@ -17,6 +25,14 @@
   overflow: auto;
   color: var(--color-text);
 
+  &[data-state='open'] {
+    animation: modal-sheet-in 0.28s ease forwards;
+  }
+
+  &[data-state='closed'] {
+    animation: modal-sheet-out 0.22s ease forwards;
+  }
+
   @include tablet {
     inset: auto;
     top: 50%;
@@ -26,6 +42,14 @@
     border-radius: var(--radius-lg);
     width: min(480px, calc(100vw - var(--space-8)));
     max-height: min(80vh, 720px);
+
+    &[data-state='open'] {
+      animation: modal-dialog-in 0.24s ease forwards;
+    }
+
+    &[data-state='closed'] {
+      animation: modal-dialog-out 0.2s ease forwards;
+    }
   }
 }
 
@@ -63,4 +87,82 @@
   flex: 1;
   flex-direction: column;
   gap: var(--space-4);
+}
+
+@keyframes modal-overlay-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-overlay-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateX(1.25rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes modal-sheet-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(1.25rem);
+  }
+}
+
+@keyframes modal-dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes modal-dialog-out {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .content {
+    &[data-state='open'],
+    &[data-state='closed'] {
+      animation: none;
+    }
+  }
 }

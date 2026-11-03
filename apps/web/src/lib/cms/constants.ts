@@ -1,5 +1,5 @@
-/** Populate depth for page fetches. Nested marketing blocks arrive in M4. */
-export const PAGE_DEPTH = 3;
+/** Populate depth for page fetches (blocks + form fields + media). */
+export const PAGE_DEPTH = 4;
 
 export const HOME_SLUG = 'home';
 

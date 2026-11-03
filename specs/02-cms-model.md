@@ -86,11 +86,14 @@ Seed values and product tables: [07-domain-and-pages.md](./07-domain-and-pages.m
 | --- | --- |
 | `auto-hero-block` | Hero: image, title, CTAs |
 | `about-intro-block` | Eyebrow, title, stats, images |
+| `why-choose-us-block` | Trust reasons (heading + item rows) |
+| `comparison-block` | Two-column without-us / with-us comparison |
+| `ukraine-coverage-block` | Ukraine coverage + Google Maps office pin / route |
 | `page-breadcrumbs-block` | Breadcrumb trail |
 | `testimonials-block` | Quote / video slider |
 | `reviews-block` | Review cards |
 | `service-faq-block` | FAQ + contact panel |
-| `booking-form-block` | Lead form + image |
+| `booking-form-block` | Lead form + image (Home may use twice: early pitch + bottom callback) |
 | `service-hero-block` | Full-width image banner |
 | `service-info-block` | Intro + buttons |
 | `service-feature-cards-block` | Stacked feature cards |

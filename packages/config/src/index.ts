@@ -27,3 +27,24 @@ export const defaultThemePreference: ThemePreference = 'system';
 
 export const isThemePreference = (value: unknown): value is ThemePreference =>
   typeof value === 'string' && (themePreferences as readonly string[]).includes(value);
+
+/** Default public contacts — CMS Contacts/Header override; UI falls back here when unset. */
+export const defaultPhoneDisplay = '+380 (98) 525 52 11';
+
+export const defaultPhoneTelHref = `tel:${defaultPhoneDisplay.replace(/[^\d+]/g, '')}`;
+
+export const defaultEmail = 'asservicekhm@gmail.com';
+
+export const defaultAddressUa =
+  'Україна, м. Хмельницький, вул. Героя України Володимира Дудченко (Гарнізонна), буд. 28';
+
+export const defaultAddressEn =
+  'Ukraine, Khmelnytskyi, Hero of Ukraine Volodymyr Dudchenko St. (Garnizonna), bldg. 28';
+
+export const defaultHoursUa = 'Пн–Пт: 09:30–18:00\nСб–Нд: вихідний';
+
+export const defaultHoursEn = 'Mon–Fri: 09:30–18:00\nSat–Sun: closed';
+
+/** Known public social profiles — CMS Contacts.socialLinks override; UI may fall back. */
+export const defaultInstagramUrl = 'https://www.instagram.com/autosearch.khm/';
+export const defaultFacebookUrl = 'https://www.facebook.com/autosearch.khm/';

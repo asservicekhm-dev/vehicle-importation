@@ -1,0 +1,296 @@
+.section {
+  padding-block: var(--space-6) var(--space-12);
+  scroll-margin-top: var(--header-offset);
+}
+
+.frame {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  gap: var(--space-8);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface-brand);
+  padding: var(--space-8) var(--space-6);
+  min-height: 28rem;
+  overflow: hidden;
+  color: var(--color-on-brand);
+
+  @include tablet {
+    gap: var(--space-10);
+    padding: var(--space-12) var(--space-10);
+    min-height: 32rem;
+  }
+
+  @include laptop {
+    gap: var(--space-12);
+    padding: var(--space-16) var(--space-12);
+  }
+
+  /* Copy starts hidden; photo stays visible so the frame isn’t a blank band */
+  &:not([data-hero-entered]) {
+    .title,
+    .subtitle,
+    .actions,
+    .originPanel,
+    .highlights {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+  }
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background-color: var(--color-surface-brand);
+  pointer-events: none;
+  overflow: hidden;
+  animation: hero-photo-in 0.9s ease forwards;
+}
+
+@keyframes hero-photo-in {
+  to {
+    opacity: 1;
+  }
+}
+
+.photoLayer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: scale(1.05);
+  transition:
+    opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1.15s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.photoLayerActive {
+  opacity: 1;
+  transform: scale(1);
+  z-index: 1;
+}
+
+.photoImg {
+  object-fit: cover;
+}
+
+.photoScrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(
+      105deg,
+      color-mix(in srgb, var(--color-surface-brand) 92%, transparent) 0%,
+      color-mix(in srgb, var(--color-surface-brand) 62%, transparent) 45%,
+      color-mix(in srgb, var(--color-surface-brand) 32%, transparent) 100%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-surface-brand) 40%, transparent) 0%,
+      transparent 40%,
+      color-mix(in srgb, var(--color-surface-brand) 58%, transparent) 100%
+    );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame:not([data-hero-entered]) {
+    .title,
+    .subtitle,
+    .actions,
+    .originPanel,
+    .highlights {
+      opacity: 1;
+      transform: none;
+    }
+
+    .subtitle {
+      opacity: 0.92;
+    }
+  }
+
+  .photo {
+    opacity: 1;
+    animation: none;
+  }
+
+  .photoLayer {
+    transition: opacity 0.2s ease;
+    transform: none;
+  }
+
+  .photoLayerActive {
+    transform: none;
+  }
+}
+
+.top {
+  display: grid;
+  position: relative;
+  gap: var(--space-8);
+  z-index: 2;
+
+  @include laptop {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: end;
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: var(--measure);
+}
+
+.title {
+  margin: 0;
+  color: var(--color-on-brand);
+  font-weight: 800;
+  font-size: var(--text-display);
+  line-height: var(--leading-tight);
+  font-family: var(--font-heading);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  opacity: 0.92;
+  margin: 0;
+  max-width: 60ch;
+  color: var(--color-on-brand);
+  font-size: var(--text-lg);
+  line-height: var(--leading-body);
+}
+
+.accent {
+  color: var(--color-accent);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+
+  .primaryCta {
+    background-color: var(--color-accent);
+    color: var(--color-on-brand);
+
+    &:hover:not(:disabled) {
+      background-color: color-mix(in srgb, var(--color-accent) 88%, var(--color-on-brand));
+      color: var(--color-on-brand);
+    }
+  }
+
+  .secondaryCta {
+    border-color: color-mix(in srgb, var(--color-on-brand) 55%, transparent);
+    background-color: transparent;
+    color: var(--color-on-brand);
+
+    &:hover:not(:disabled) {
+      border-color: var(--color-on-brand);
+      background-color: color-mix(in srgb, var(--color-on-brand) 12%, transparent);
+      color: var(--color-on-brand);
+    }
+  }
+}
+
+.originPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--color-on-brand) 16%, transparent);
+  border-radius: var(--radius-md);
+  background-color: color-mix(in srgb, var(--color-bg) 18%, transparent);
+  padding: var(--space-5);
+}
+
+.switcher {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  border-radius: var(--radius-pill);
+  background-color: color-mix(in srgb, var(--color-bg) 35%, transparent);
+  padding: var(--space-1);
+}
+
+.originBtn {
+  opacity: 0.85;
+  cursor: pointer;
+  margin: 0;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  padding: var(--space-2) var(--space-4);
+  color: var(--color-on-brand);
+  font: inherit;
+  font-weight: 600;
+  font-size: var(--text-sm);
+
+  &[aria-pressed='true'] {
+    opacity: 1;
+    background-color: var(--color-accent);
+    color: var(--color-surface-brand);
+  }
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  opacity: 0.9;
+  margin: 0;
+  color: var(--color-on-brand);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.metaTerm {
+  opacity: 1;
+  font-weight: 700;
+}
+
+.highlights {
+  display: grid;
+  position: relative;
+  gap: var(--space-4);
+  z-index: 2;
+  margin: 0;
+  border-top: 1px solid color-mix(in srgb, var(--color-on-brand) 14%, transparent);
+  padding: var(--space-6) 0 0;
+  list-style: none;
+
+  @include tablet {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5) var(--space-6);
+  }
+
+  @include laptop {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.highlight {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.highlightMark {
+  flex-shrink: 0;
+  margin-top: 0.45em;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-accent);
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.highlightLabel {
+  color: var(--color-on-brand);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
