@@ -3,15 +3,19 @@ import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 
+import { GlobalsProvider } from '@/contexts/GlobalsContext';
 import { routing } from '@/i18n/routing';
+import { getGlobals } from '@/lib/cms/getGlobals';
 import { fontClassNames } from '@/lib/fonts';
 import { THEME_COLOR } from '@/lib/theme/constants';
 import { themeInitScript } from '@/lib/theme/script';
 import { getThemePreference } from '@/lib/theme/server';
 import { Layout } from '@/views/Layout';
-import { isLocale, type Locale, localeToHreflang } from '@autosearch/config';
+import { isLocale, isThemePreference, type Locale, localeToHreflang } from '@autosearch/config';
 
 import '@/scss/globals.scss';
+
+export const dynamic = 'force-dynamic';
 
 type Props = {
   children: ReactNode;
@@ -31,9 +35,17 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   setRequestLocale(locale);
 
-  const [preference, translations] = await Promise.all([getThemePreference(), getMessages()]);
-  // Explicit prefs are SSR-safe. `system` is resolved by the inline script before paint —
-  // omit `data-theme` here so React doesn't fight the script during hydration.
+  const [{ header, footer, contacts, siteSettings }, translations] = await Promise.all([
+    getGlobals(locale),
+    getMessages(),
+  ]);
+
+  const siteDefault = isThemePreference(siteSettings?.defaultTheme)
+    ? siteSettings.defaultTheme
+    : null;
+  const preference = await getThemePreference(siteDefault);
+  const enableThemeToggle = siteSettings?.enableThemeToggle !== false;
+
   const resolvedTheme = preference === 'system' ? undefined : preference;
   const themeColor =
     preference === 'dark'
@@ -56,7 +68,16 @@ export default async function LocaleLayout({ children, params }: Props) {
       </head>
       <body suppressHydrationWarning>
         <NextIntlClientProvider locale={locale} messages={translations}>
-          <Layout themePreference={preference}>{children}</Layout>
+          <GlobalsProvider
+            header={header}
+            footer={footer}
+            contacts={contacts}
+            siteSettings={siteSettings}
+          >
+            <Layout themePreference={preference} enableThemeToggle={enableThemeToggle}>
+              {children}
+            </Layout>
+          </GlobalsProvider>
         </NextIntlClientProvider>
       </body>
     </html>

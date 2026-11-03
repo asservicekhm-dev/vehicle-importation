@@ -9,12 +9,13 @@ import styles from './Layout.module.scss';
 type Props = {
   children: ReactNode;
   themePreference: ThemePreference;
+  enableThemeToggle?: boolean;
 };
 
-export function Layout({ children, themePreference }: Props) {
+export function Layout({ children, themePreference, enableThemeToggle = true }: Props) {
   return (
     <div className={styles.shell}>
-      <Header themePreference={themePreference} />
+      <Header themePreference={themePreference} enableThemeToggle={enableThemeToggle} />
       <main className={styles.main}>{children}</main>
       <Footer />
     </div>

@@ -1,5 +1,5 @@
-import type { BlockMapper, UnifiedBlockStub } from '@/types/cms';
+import type { BlockMapper, UnifiedBlock } from '@/types/cms';
 
-export type { UnifiedBlockStub };
+export type { UnifiedBlock };
 
-export type UnifiedBlockMapper = BlockMapper<UnifiedBlockStub>;
+export type UnifiedBlockMapper = BlockMapper<UnifiedBlock>;

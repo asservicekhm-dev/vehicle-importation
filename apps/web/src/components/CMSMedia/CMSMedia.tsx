@@ -1,24 +1,38 @@
 import Image from 'next/image';
 
-import type { CmsMedia } from '@/types/cms';
+import { getCmsBaseUrl } from '@/lib/cmsBaseUrl';
+import type { Media } from '@autosearch/cms/payload-types';
 
 type Props = {
-  media?: CmsMedia | null;
+  media?: Media | string | null;
   className?: string;
   fill?: boolean;
   sizes?: string;
   priority?: boolean;
 };
 
+function resolveMediaUrl(url: string): string {
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//')) {
+    return url;
+  }
+
+  try {
+    const base = getCmsBaseUrl();
+    return `${base}${url.startsWith('/') ? url : `/${url}`}`;
+  } catch {
+    return url;
+  }
+}
+
 export function CMSMedia({ media, className, fill, sizes, priority }: Props) {
-  if (!media) return null;
+  if (!media || typeof media === 'string') return null;
 
-  const url = media.url?.trim();
+  const rawUrl = media.url?.trim();
+  if (!rawUrl) return null;
 
-  if (!url) return null;
-
+  const url = resolveMediaUrl(rawUrl);
   const mime = media.mimeType ?? '';
-  const alt = media.alt?.trim() || '';
+  const alt = (typeof media.alt === 'string' ? media.alt : '')?.trim() || '';
 
   if (mime.startsWith('video/')) {
     return <video className={className} src={url} controls playsInline />;

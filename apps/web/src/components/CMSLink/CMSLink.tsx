@@ -1,7 +1,10 @@
 import type { ReactNode } from 'react';
 
 import { Link } from '@/i18n/navigation';
-import type { CmsLink } from '@/types/cms';
+import { resolveLinkHref } from '@/lib/cms/resolveLinkHref';
+import type { Header } from '@autosearch/cms/payload-types';
+
+type CmsLink = NonNullable<NonNullable<Header['navItems']>[number]>['link'];
 
 type Props = {
   link?: CmsLink | null;
@@ -17,33 +20,36 @@ export function CMSLink({ link, className, children }: Props) {
   if (!link) return null;
 
   const label = children ?? link.label?.trim();
-
   if (!label) return null;
 
-  if (link.type === 'custom') {
-    const url = link.url?.trim();
+  if (link.type === 'form') return null;
 
-    if (!url) return null;
+  const href = resolveLinkHref(link);
+  if (!href) return null;
 
-    if (isInternalPath(url)) {
-      return (
-        <Link className={className} href={url}>
-          {label}
-        </Link>
-      );
-    }
-
+  if (href.startsWith('#')) {
     return (
-      <a
-        className={className}
-        href={url}
-        {...(link.newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-      >
+      <a className={className} href={href}>
         {label}
       </a>
     );
   }
 
-  // reference / form / anchor — wired in Milestone 3+
-  return null;
+  if (isInternalPath(href)) {
+    return (
+      <Link className={className} href={href}>
+        {label}
+      </Link>
+    );
+  }
+
+  return (
+    <a
+      className={className}
+      href={href}
+      {...(link.newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+    >
+      {label}
+    </a>
+  );
 }

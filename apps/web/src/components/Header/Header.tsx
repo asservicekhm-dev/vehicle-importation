@@ -3,16 +3,18 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 
+import { CMSLink } from '@/components/CMSLink';
 import { Container } from '@/components/Container';
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { Modal } from '@/components/Modal';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useGlobals } from '@/contexts/GlobalsContext';
 import { Link } from '@/i18n/navigation';
 import type { ThemePreference } from '@autosearch/config';
 
 import styles from './Header.module.scss';
 
-const NAV_ITEMS = [
+const FALLBACK_NAV = [
   { href: '/about', labelKey: 'navAbout' as const },
   { href: '/services', labelKey: 'navServices' as const },
   { href: '/contacts', labelKey: 'navContacts' as const },
@@ -20,13 +22,17 @@ const NAV_ITEMS = [
 
 type Props = {
   themePreference: ThemePreference;
+  enableThemeToggle?: boolean;
 };
 
-export function Header({ themePreference }: Props) {
+export function Header({ themePreference, enableThemeToggle = true }: Props) {
   const t = useTranslations('Header');
+  const { header } = useGlobals();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const phoneHref = `tel:${t('phone').replace(/\s+/g, '')}`;
+  const cmsNav = header?.navItems?.filter((item) => item.link?.label) ?? [];
+  const phone = header?.phone?.trim() || t('phone');
+  const phoneHref = `tel:${phone.replace(/\s+/g, '')}`;
 
   return (
     <header className={styles.header}>
@@ -38,22 +44,28 @@ export function Header({ themePreference }: Props) {
 
           <nav className={styles.desktopNav} aria-label={t('menuTitle')}>
             <ul className={styles.navList}>
-              {NAV_ITEMS.map((item) => (
-                <li key={item.href}>
-                  <Link className={styles.navLink} href={item.href}>
-                    {t(item.labelKey)}
-                  </Link>
-                </li>
-              ))}
+              {cmsNav.length > 0
+                ? cmsNav.map((item, index) => (
+                    <li key={item.id ?? index}>
+                      <CMSLink className={styles.navLink} link={item.link} />
+                    </li>
+                  ))
+                : FALLBACK_NAV.map((item) => (
+                    <li key={item.href}>
+                      <Link className={styles.navLink} href={item.href}>
+                        {t(item.labelKey)}
+                      </Link>
+                    </li>
+                  ))}
             </ul>
             <a className={styles.phone} href={phoneHref} aria-label={t('phoneAria')}>
-              {t('phone')}
+              {phone}
             </a>
           </nav>
 
           <div className={styles.controls}>
             <LocaleSwitcher />
-            <ThemeToggle initialPreference={themePreference} />
+            {enableThemeToggle ? <ThemeToggle initialPreference={themePreference} /> : null}
           </div>
 
           <button
@@ -75,26 +87,32 @@ export function Header({ themePreference }: Props) {
       >
         <nav className={styles.mobileNav} aria-label={t('menuTitle')}>
           <ul className={styles.mobileLinks}>
-            {NAV_ITEMS.map((item) => (
-              <li key={item.href}>
-                <Link
-                  className={styles.navLink}
-                  href={item.href}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {t(item.labelKey)}
-                </Link>
-              </li>
-            ))}
+            {cmsNav.length > 0
+              ? cmsNav.map((item, index) => (
+                  <li key={item.id ?? index}>
+                    <CMSLink className={styles.navLink} link={item.link} />
+                  </li>
+                ))
+              : FALLBACK_NAV.map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      className={styles.navLink}
+                      href={item.href}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {t(item.labelKey)}
+                    </Link>
+                  </li>
+                ))}
             <li>
               <a className={styles.phone} href={phoneHref} aria-label={t('phoneAria')}>
-                {t('phone')}
+                {phone}
               </a>
             </li>
           </ul>
           <div className={styles.mobileControls}>
             <LocaleSwitcher />
-            <ThemeToggle initialPreference={themePreference} />
+            {enableThemeToggle ? <ThemeToggle initialPreference={themePreference} /> : null}
           </div>
         </nav>
       </Modal>

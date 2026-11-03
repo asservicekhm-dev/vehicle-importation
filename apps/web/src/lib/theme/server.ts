@@ -8,9 +8,15 @@ import {
 
 import { THEME_COOKIE } from './constants';
 
-export async function getThemePreference(): Promise<ThemePreference> {
+export async function getThemePreference(
+  siteDefault?: ThemePreference | null,
+): Promise<ThemePreference> {
   const store = await cookies();
   const value = store.get(THEME_COOKIE)?.value;
 
-  return isThemePreference(value) ? value : defaultThemePreference;
+  if (isThemePreference(value)) return value;
+
+  if (isThemePreference(siteDefault)) return siteDefault;
+
+  return defaultThemePreference;
 }

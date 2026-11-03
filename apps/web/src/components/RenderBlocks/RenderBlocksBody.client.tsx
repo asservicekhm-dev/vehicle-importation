@@ -3,12 +3,12 @@
 import type { ReactNode } from 'react';
 
 import { BLOCK_MAPPERS, type MapperKey } from './blockMappersRegistry';
-import type { UnifiedBlockStub } from './blockTypes';
+import type { UnifiedBlock } from './blockTypes';
 
 import styles from './RenderBlocks.module.scss';
 
 type Props = {
-  blocks: UnifiedBlockStub[];
+  blocks: UnifiedBlock[];
   mapperKey: MapperKey;
 };
 
@@ -20,7 +20,7 @@ export function RenderBlocksBody({ blocks, mapperKey }: Props) {
   return (
     <div className={styles.list}>
       {blocks.map((block, index) => {
-        const render = mapper[block.blockType] as ((b: UnifiedBlockStub) => ReactNode) | undefined;
+        const render = mapper[block.blockType] as ((b: UnifiedBlock) => ReactNode) | undefined;
 
         if (!render) return null;
 

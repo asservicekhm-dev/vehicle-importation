@@ -1,9 +1,9 @@
 import type { MapperKey } from './blockMappersRegistry';
-import type { UnifiedBlockStub } from './blockTypes';
+import type { UnifiedBlock } from './blockTypes';
 import { RenderBlocksBody } from './RenderBlocksBody.client';
 
 type Props = {
-  blocks?: UnifiedBlockStub[] | null;
+  blocks?: UnifiedBlock[] | null;
   mapperKey?: MapperKey;
 };
 

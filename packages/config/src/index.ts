@@ -22,7 +22,7 @@ export const themePreferences = ['light', 'dark', 'system'] as const;
 
 export type ThemePreference = (typeof themePreferences)[number];
 
-/** Until SiteSettings.defaultTheme lands in Milestone 3. */
+/** Fallback when SiteSettings.defaultTheme is unset. */
 export const defaultThemePreference: ThemePreference = 'system';
 
 export const isThemePreference = (value: unknown): value is ThemePreference =>

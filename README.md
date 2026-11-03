@@ -39,17 +39,30 @@ pnpm dev:cms      # CMS only
 | Web (EN)          | http://localhost:3000/en    |
 | CMS               | http://localhost:3001/admin |
 
-On first visit the CMS admin asks you to create the first user.
+In development the CMS auto-creates `dev@payloadcms.com` / `test` if no users exist.
+
+### Seed (Milestone 3)
+
+With Mongo running and CMS env set:
+
+```sh
+pnpm seed:globals
+pnpm seed:home
+# or without MinIO/S3:
+pnpm seed:globals:local-media
+pnpm seed:home:local-media
+```
 
 ### Other commands
 
-| Command               | What it does                                |
-| --------------------- | ------------------------------------------- |
-| `pnpm build`          | Production build of all apps                |
-| `pnpm generate:types` | Regenerate `apps/cms/src/payload-types.ts`  |
-| `pnpm lint`           | ESLint in every package (`lint:fix` to fix) |
-| `pnpm typecheck`      | TypeScript check in every package           |
-| `pnpm format`         | Prettier check (`format:fix` to write)      |
+| Command                           | What it does                                |
+| --------------------------------- | ------------------------------------------- |
+| `pnpm build`                      | Production build of all apps                |
+| `pnpm generate:types`             | Regenerate `apps/cms/src/payload-types.ts`  |
+| `pnpm seed:globals` / `seed:home` | Dual-locale CMS seeds                       |
+| `pnpm lint`                       | ESLint in every package (`lint:fix` to fix) |
+| `pnpm typecheck`                  | TypeScript check in every package           |
+| `pnpm format`                     | Prettier check (`format:fix` to write)      |
 
 ## Project architecture
 
@@ -85,4 +98,4 @@ flowchart TB
 - **Leads:** the booking form writes to Payload only, along the path form → `form-submissions` → `leads` inbox.
 - **Tooling:** pnpm workspaces + Turborepo; ESLint and Prettier; no Tailwind.
 
-The project is being built in milestones (`specs/08-bootstrap-roadmap.md`). Currently only the scaffold (Milestone 0) exists. Contributor conventions are in [`AGENTS.md`](./AGENTS.md), and the full spec is in [`specs/`](./specs/README.md).
+The project is being built in milestones (`specs/08-bootstrap-roadmap.md`). **Milestone 3 (CMS core)** is current: Admin pages + globals render on the web via `[slug]`. Contributor conventions are in [`AGENTS.md`](./AGENTS.md), and the full spec is in [`specs/`](./specs/README.md).

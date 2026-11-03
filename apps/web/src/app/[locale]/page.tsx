@@ -1,31 +1,26 @@
-import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { notFound } from 'next/navigation';
+import { setRequestLocale } from 'next-intl/server';
 
-import { RenderBlocks } from '@/components/RenderBlocks';
-import type { UnifiedBlockStub } from '@/types/cms';
-import { isLocale } from '@autosearch/config';
+import { renderHome } from '@/appViewHandlers/pageBySlugViewHandlers';
+import { HOME_SLUG } from '@/lib/cms/constants';
+import { getPageBySlug } from '@/lib/cms/getPageBySlug';
+import { isLocale, type Locale } from '@autosearch/config';
+
+export const dynamic = 'force-dynamic';
 
 type Props = {
   params: Promise<{ locale: string }>;
 };
 
 export default async function HomePage({ params }: Props) {
-  const { locale } = await params;
+  const { locale: localeParam } = await params;
 
-  if (isLocale(locale)) setRequestLocale(locale);
+  if (!isLocale(localeParam)) notFound();
 
-  const t = await getTranslations('Home');
+  const locale = localeParam as Locale;
+  setRequestLocale(locale);
 
-  const blocks: UnifiedBlockStub[] = [
-    {
-      blockType: 'dummy-section',
-      id: 'home-dummy',
-      blockName: 'intro',
-      eyebrow: t('eyebrow'),
-      title: t('title'),
-      description: t('description'),
-      ctaLabel: t('cta'),
-    },
-  ];
+  const page = await getPageBySlug(HOME_SLUG, locale);
 
-  return <RenderBlocks blocks={blocks} mapperKey='unified' />;
+  return renderHome({ page });
 }

@@ -2,7 +2,7 @@
 
 Read this before making changes. The product spec lives in [`specs/`](./specs/README.md); this file is the operational summary. When this file and the spec disagree, the spec wins — then update this file.
 
-Current state: **Milestone 2 (primitives & chrome)** of [`specs/08-bootstrap-roadmap.md`](./specs/08-bootstrap-roadmap.md). Items marked _(M<n>)_ are planned, not built yet.
+Current state: **Milestone 3 (CMS core)** of [`specs/08-bootstrap-roadmap.md`](./specs/08-bootstrap-roadmap.md). Items marked _(M<n>)_ are planned, not built yet.
 
 ## 1. What this is
 
@@ -22,11 +22,12 @@ Pinned baseline: [`specs/01-architecture.md`](./specs/01-architecture.md) § Sta
 | TypeScript      | `5.7.3` everywhere                                                            |
 | Next.js / React | `15.4.11` / `19.2.1` in both apps                                             |
 | Payload         | `3.83.0` — pin **all** `@payloadcms/*` to the same version                    |
-| DB / storage    | MongoDB 7, S3 / MinIO _(M3)_                                                  |
+| DB / storage    | MongoDB 7, S3 / MinIO (local disk when `S3_*` unset)                          |
 | i18n            | `next-intl 4.0.2` — `ua` unprefixed, `en` under `/en`, middleware `as-needed` |
 | Styling         | **SCSS Modules only.** No Tailwind, no `prettier-plugin-tailwindcss`          |
 | Forms / UI      | `react-hook-form ^7.54`, Radix (accordion, checkbox, dialog, slot), `clsx`    |
-| Later (pinned)  | `@payload-enchants/sdk 1.2.2`, framer-motion, lenis, swiper                   |
+| CMS client      | `@payload-enchants/sdk 1.2.2`; types via `@autosearch/cms/payload-types`      |
+| Later (pinned)  | framer-motion, lenis, swiper                                                  |
 
 ## 3. Repo map
 
@@ -34,19 +35,26 @@ Pinned baseline: [`specs/01-architecture.md`](./specs/01-architecture.md) § Sta
 apps/
   cms/                 @autosearch/cms
     src/payload.config.ts
-    src/collections/   Users (M0); Media, Pages, … (M3)
+    src/collections/   Users, Media, Pages (+ dummy-section block)
+    src/globals/       header, footer, contacts, site-settings
+    src/plugins/       SEO, redirects, hand-rolled form-builder (Forms + FormSubmissions)
+    src/scripts/       seed-globals, seed-home
     src/app/(payload)/ Payload admin + API routes (generated files — don't hand-edit)
-    src/payload-types.ts  generated; web imports it type-only
+    src/app/api/media-redirect/  S3/local media redirect
+    src/payload-types.ts  generated (CMS); web imports stripped `payload-types-export.ts` via `@autosearch/cms/payload-types`
   web/                 @autosearch/web
-    src/app/[locale]/  App Router locale segment (html shell + pages)
+    src/app/[locale]/  App Router locale segment + [slug] CMS pages
+    src/app/api/revalidate/  CMS→web webhook
+    src/api/           Payload SDK client
     src/components/    primitives, Header/Footer, ThemeToggle, LocaleSwitcher, CMS glue, RenderBlocks
+    src/contexts/      GlobalsProvider
     src/views/Layout/  Header + main + Footer shell
     src/fonts/         Toxigenesis + Gilroy (localFont)
     src/lib/fonts.ts   next/font loaders
     src/lib/theme/     cookie + no-flash script + client apply
+    src/lib/cms/       PAGE_DEPTH, getPageBySlug, getGlobals
     src/i18n/          routing, navigation, request config
-    src/middleware.ts  next-intl only (CMS redirects in M3)
-    src/types/cms.ts   stub CMS types until M3 payload-types
+    src/middleware.ts  next-intl + CMS redirects
     src/scss/          mixins.scss (auto-injected), globals.scss, tokens.scss
     translations/      ua.json + en.json
 packages/
@@ -63,26 +71,27 @@ Shared packages ship TypeScript source (no build step). Apps list them in `trans
 
 Run from the repo root:
 
-| Command                                            | What it does                               |
-| -------------------------------------------------- | ------------------------------------------ |
-| `pnpm install`                                     | Install workspace                          |
-| `pnpm dev` / `pnpm dev:cms` / `pnpm dev:web`       | Turbo dev (web :3000, cms :3001)           |
-| `pnpm build` / `build:cms` / `build:web`           | Production builds                          |
-| `pnpm generate:types`                              | Regenerate `apps/cms/src/payload-types.ts` |
-| `pnpm lint` / `pnpm lint:fix`                      | ESLint in every package                    |
-| `pnpm typecheck`                                   | `tsc --noEmit` in every package            |
-| `pnpm format` / `pnpm format:fix`                  | Prettier check / write                     |
-| `pnpm --filter @autosearch/cms generate:importmap` | Regenerate Payload admin import map        |
+| Command                                            | What it does                                             |
+| -------------------------------------------------- | -------------------------------------------------------- |
+| `pnpm install`                                     | Install workspace                                        |
+| `pnpm dev` / `pnpm dev:cms` / `pnpm dev:web`       | Turbo dev (web :3000, cms :3001)                         |
+| `pnpm build` / `build:cms` / `build:web`           | Production builds                                        |
+| `pnpm generate:types`                              | Regenerate `apps/cms/src/payload-types.ts`               |
+| `pnpm seed:globals` / `seed:home`                  | Idempotent dual-locale seeds (`*:local-media` blanks S3) |
+| `pnpm lint` / `pnpm lint:fix`                      | ESLint in every package                                  |
+| `pnpm typecheck`                                   | `tsc --noEmit` in every package                          |
+| `pnpm format` / `pnpm format:fix`                  | Prettier check / write                                   |
+| `pnpm --filter @autosearch/cms generate:importmap` | Regenerate Payload admin import map                      |
 
-Planned: `pnpm new component|view|block` _(M6)_, `pnpm seed <area> [--local-media]` _(M3+)_, `seed:backup` / `seed:restore` _(M6)_.
+Planned: `pnpm new component|view|block` _(M6)_, unified `pnpm seed <area>` _(polish)_, `seed:backup` / `seed:restore` _(M6)_.
 
 ## 5. Content model
 
 Spec: [`specs/02-cms-model.md`](./specs/02-cms-model.md).
 
-- **Now:** `users` (auth) only. Localization is on: `ua` (default) + `en`, `fallback: false`.
-- _(M3)_ `pages` with one localized `layout` blocks field + `viewType` (`home | information | contacts | blog`), `media`, globals `header`, `footer`, `contacts`, `site-settings` (incl. `defaultTheme`, `enableThemeToggle`), plugins SEO / redirects / form-builder / S3.
-- _(M4)_ `forms` → `form-submissions` → `leads` inbox ([`specs/09-booking-and-leads.md`](./specs/09-booking-and-leads.md)).
+- **Now:** `users`, `media`, `pages` (localized `layout` + `viewType`: `home | information | contacts | blog`), globals `header` / `footer` / `contacts` / `site-settings`, plugins SEO / redirects / form-builder (Forms + FormSubmissions) / conditional S3. Localization: `ua` + `en`, `fallback: false`.
+- Revalidate: CMS hooks POST `WEB_URL/api/revalidate` with `REVALIDATE_SECRET` (not CMS-local `revalidatePath`).
+- _(M4)_ marketing blocks; `forms` → `form-submissions` → `leads` inbox ([`specs/09-booking-and-leads.md`](./specs/09-booking-and-leads.md)).
 - _(M5)_ Secondary IA: About, Contacts, Blog, Services landings.
 - **Never add:** Inventory (`cars` / `brands` catalogs, `/cars` routes), Autosearch search wizard, Explore, `subscriptions` / `catalog` viewTypes, gamification blocks, GoGym/Smarty APIs.
 - Do not create a Pages slug `cms` (collides with the prod `/cms` base path).
@@ -107,7 +116,7 @@ No Autosearch Figma file yet. Until one is provided, the spec is code-derived: f
 - SCSS Modules co-located with components (`Name.module.scss`).
 - Breakpoint mixins in `apps/web/src/scss/mixins.scss` are auto-injected (`sassOptions.additionalData`); do not `@use` them manually. Only `tablet` (≥768), `laptop` (≥1200), `desktop` (≥1750), `maxTablet` (≤767).
 - Semantic tokens live in `apps/web/src/scss/tokens.scss` (`--color-*`, radius, space, fonts, type scale). Themes: `:root` / `[data-theme=light]` and `[data-theme=dark]`.
-- Theme preference: cookie `theme` → `defaultThemePreference` from `@autosearch/config` (`system` today) → OS. SiteSettings `defaultTheme` / `enableThemeToggle` arrive in _(M3)_.
+- Theme preference: cookie `theme` → SiteSettings `defaultTheme` → `@autosearch/config` `defaultThemePreference` (`system`) → OS. `enableThemeToggle` hides Header toggle when false.
 - SSR sets `data-theme-pref` and, when preference is explicit light/dark, `data-theme`. An inline head script resolves `system` via `matchMedia` before paint. Client helper: `apps/web/src/lib/theme/`.
 - `ThemeToggle` and `LocaleSwitcher` live in Header (desktop + mobile menu).
 - Stylelint on `*.module.scss` (web `lint`): no hex/named/rgb(a)/hsl(a), no `--_p-*`, no `var(--token, fallback)`. `tokens.scss` / `globals.scss` are exempt.
