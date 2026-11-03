@@ -63,6 +63,8 @@ Ordered milestones to stand up the Autosearch repo from this spec. Each mileston
 - `pnpm new block` scaffolder; seed-all runner.
 - Docs: README, DEPLOYMENT, SERVER_SETUP.
 
+**Shipped:** `Dockerfile.cms` / `Dockerfile.web`; `.deploy` compose + Traefik v3.6 + MinIO; `seed.mjs` backup/restore + `seed:all` / `pnpm seed <area>`; `ci.yml` + `deploy.yml` (health gates, SSH harden); `pnpm new component|view|block`; DEPLOYMENT + SERVER_SETUP + README/AGENTS sync.
+
 ## Milestone 7 — Soft launch checklist
 
 - [ ] Theme default + toggle signed off

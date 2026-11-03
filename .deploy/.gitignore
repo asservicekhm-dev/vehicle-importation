@@ -1,0 +1,5 @@
+env.traefik.prod
+env.web.prod
+media
+seed-data/mongo.archive.gz
+seed-data/minio/

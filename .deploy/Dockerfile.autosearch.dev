@@ -1,0 +1,21 @@
+# Dev image: Debian (glibc) — sharp prebuilds are reliable; Alpine (musl) often breaks on arm64.
+FROM node:20-bookworm-slim
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates wget \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN corepack enable && corepack prepare pnpm@10.11.0 --activate
+
+WORKDIR /app
+
+EXPOSE 3000
+
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV AUTOSEARCH_DEV_RUNTIME_TAG=bookworm-slim-v1
+
+COPY .deploy/autosearch-dev-entrypoint.sh /usr/local/bin/autosearch-dev-entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/autosearch-dev-entrypoint.sh && chmod +x /usr/local/bin/autosearch-dev-entrypoint.sh
+
+ENTRYPOINT ["sh", "/usr/local/bin/autosearch-dev-entrypoint.sh"]
+CMD ["sh", "-lc", "pnpm --filter @autosearch/web dev:docker"]

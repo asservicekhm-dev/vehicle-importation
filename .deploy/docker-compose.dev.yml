@@ -1,0 +1,136 @@
+name: autosearch-dev
+
+services:
+  cms:
+    build:
+      context: ../
+      dockerfile: .deploy/Dockerfile.autosearch.dev
+    image: autosearch-dev:latest
+    container_name: autosearch-cms-dev
+    working_dir: /app
+    env_file:
+      - env.dev
+    environment:
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:-dev-secret-change-me}
+      WEB_URL: ${NEXT_PUBLIC_URL:-http://localhost:3200}
+      DATABASE_URI: ${DATABASE_URI:-mongodb://mongo:27017/autosearch}
+      URL: ${CMS_URL:-http://localhost:3201}
+      S3_BUCKET: ${S3_BUCKET:-autosearch-media}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-minioadmin}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-minioadmin}
+      S3_ENDPOINT: ${S3_ENDPOINT:-http://minio:9000}
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_PUBLIC_URL: ${S3_PUBLIC_URL:-http://localhost:9200/autosearch-media}
+      S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE:-true}
+      S3_ACL: ${S3_ACL:-public-read}
+      PNPM_STORE_DIR: /pnpm-store
+      AUTOSEARCH_DEPS_STATE_DIR: /deps
+      WATCHPACK_POLLING: 'true'
+    depends_on:
+      mongo:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    volumes:
+      - type: bind
+        source: ../
+        target: /app
+      - type: volume
+        source: autosearch_node_modules
+        target: /app/node_modules
+      - type: volume
+        source: pnpm_store
+        target: /pnpm-store
+      - type: volume
+        source: autosearch_deps_state
+        target: /deps
+    ports:
+      - '3201:3001'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'wget',
+          '-qO-',
+          'http://127.0.0.1:3001/api/health',
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+    command: ['sh', '-lc', 'pnpm --filter @autosearch/cms dev']
+
+  web:
+    build:
+      context: ../
+      dockerfile: .deploy/Dockerfile.autosearch.dev
+    image: autosearch-dev:latest
+    container_name: autosearch-web-dev
+    working_dir: /app
+    env_file:
+      - env.dev
+    environment:
+      NEXT_PUBLIC_CMS_URL: ${NEXT_PUBLIC_CMS_URL:-http://localhost:3201}
+      CMS_INTERNAL_URL: ${CMS_INTERNAL_URL:-http://cms:3001}
+      NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL:-http://localhost:3200}
+      PAYLOAD_FETCH_ALLOW_INSECURE_TLS: ${PAYLOAD_FETCH_ALLOW_INSECURE_TLS:-0}
+      NEXT_IMAGE_UNOPTIMIZED: ${NEXT_IMAGE_UNOPTIMIZED:-true}
+      PNPM_STORE_DIR: /pnpm-store
+      AUTOSEARCH_DEPS_STATE_DIR: /deps
+      WATCHPACK_POLLING: 'true'
+    depends_on:
+      cms:
+        condition: service_healthy
+    volumes:
+      - type: bind
+        source: ../
+        target: /app
+      - type: volume
+        source: autosearch_node_modules
+        target: /app/node_modules
+      - type: volume
+        source: pnpm_store
+        target: /pnpm-store
+      - type: volume
+        source: autosearch_deps_state
+        target: /deps
+    ports:
+      - '3200:3000'
+    command: ['sh', '-lc', 'pnpm --filter @autosearch/web dev:docker']
+
+  mongo:
+    image: mongo:7
+    container_name: autosearch-mongo-dev
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: autosearch
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - '27019:27017'
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    container_name: autosearch-minio-dev
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    command: ['server', '/data', '--console-address', ':9001']
+    volumes:
+      - minio_data:/data
+    ports:
+      - '9200:9000'
+      - '9201:9001'
+volumes:
+  autosearch_node_modules:
+  mongo_data:
+  minio_data:
+  pnpm_store:
+  autosearch_deps_state:

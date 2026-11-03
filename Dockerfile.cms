@@ -1,5 +1,59 @@
 # syntax=docker/dockerfile:1
-# Stub — implemented in Milestone 7 (specs/06-infra-devex.md § Docker).
-# Pattern: turbo prune --scope=@autosearch/cms --docker → pnpm install from pruned json + lockfile
-# → `pnpm --filter @autosearch/cms build` (not `turbo run build`) → Next standalone runner.
-# Assert .next/routes-manifest.json basePath === CMS_BASE_PATH; HEALTHCHECK /cms/api/health.
+# Production CMS image (Milestone 6). Spec: specs/06-infra-devex.md § Docker.
+FROM node:20-alpine AS base
+
+FROM base AS builder
+RUN apk add --no-cache libc6-compat
+RUN apk update
+WORKDIR /app
+RUN npm install -g turbo
+COPY . .
+RUN turbo prune --scope=@autosearch/cms --docker
+
+FROM base AS installer
+RUN apk add --no-cache libc6-compat
+RUN apk update
+WORKDIR /app
+
+COPY --from=builder /app/out/json/ .
+COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+RUN corepack enable
+RUN pnpm install --frozen-lockfile
+
+COPY --from=builder /app/out/full/ .
+
+# Next.js inlines `basePath` at build time. Prod Traefik serves the CMS at /cms.
+# Do not use `turbo run build` here: Turbo 2 strict envMode strips undeclared vars.
+ARG CMS_BASE_PATH=/cms
+ENV CMS_BASE_PATH=$CMS_BASE_PATH
+ENV NEXT_BASE_PATH=$CMS_BASE_PATH
+
+RUN pnpm --filter @autosearch/cms build
+
+# Fail the image if Next did not bake basePath (avoids a silent 404 at /cms).
+RUN node -e "const m=require('./apps/cms/.next/routes-manifest.json'); if (m.basePath !== process.env.CMS_BASE_PATH) { console.error('FATAL: CMS built with basePath', JSON.stringify(m.basePath), 'expected', process.env.CMS_BASE_PATH); process.exit(1); } console.log('CMS basePath OK:', m.basePath);"
+
+FROM base AS runner
+WORKDIR /app
+
+RUN apk add --no-cache wget
+
+ARG CMS_BASE_PATH=/cms
+ENV CMS_BASE_PATH=$CMS_BASE_PATH
+ENV NEXT_BASE_PATH=$CMS_BASE_PATH
+
+COPY --from=installer /app/apps/cms/next.config.mjs .
+COPY --from=installer /app/apps/cms/package.json .
+
+COPY --from=installer /app/apps/cms/.next/standalone ./
+COPY --from=installer /app/apps/cms/.next/static ./apps/cms/.next/static
+COPY --from=installer /app/apps/cms/public ./apps/cms/public
+
+ENV PORT=3001
+ENV HOST=0.0.0.0
+EXPOSE 3001
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
+  CMD wget -qO- "http://127.0.0.1:3001${CMS_BASE_PATH}/api/health" >/dev/null || exit 1
+
+CMD node apps/cms/server.js

@@ -1,0 +1,182 @@
+name: autosearch
+
+services:
+  traefik:
+    # v3.1 Docker client used API 1.24 — fails on modern Engine. Fixed in v3.6+.
+    image: traefik:v3.6
+    container_name: autosearch-traefik
+    restart: unless-stopped
+    networks:
+      - autosearch-network
+    ports:
+      - '80:80'
+      - '443:443'
+      - '127.0.0.1:8081:8080'
+    command:
+      - '--api.dashboard=true'
+      - '--api.insecure=false'
+      - '--log.level=INFO'
+      - '--providers.docker=true'
+      - '--providers.docker.exposedbydefault=false'
+      - '--providers.docker.network=autosearch-network'
+      - '--providers.file.directory=/etc/traefik/dynamic'
+      - '--providers.file.watch=true'
+      - '--entrypoints.web.address=:80'
+      - '--entrypoints.web.http.redirections.entrypoint.to=websecure'
+      - '--entrypoints.web.http.redirections.entrypoint.scheme=https'
+      - '--entrypoints.web.http.redirections.entrypoint.permanent=true'
+      - '--entrypoints.web.http.encodedcharacters.allowencodedslash=false'
+      - '--entrypoints.web.http.encodedcharacters.allowencodedbackslash=false'
+      - '--entrypoints.web.http.encodedcharacters.allowencodednullcharacter=false'
+      - '--entrypoints.web.http.encodedcharacters.allowencodedsemicolon=false'
+      - '--entrypoints.web.http.encodedcharacters.allowencodedpercent=false'
+      - '--entrypoints.web.http.encodedcharacters.allowencodedquestionmark=false'
+      - '--entrypoints.web.http.encodedcharacters.allowencodedhash=false'
+      - '--entrypoints.websecure.address=:443'
+      - '--entrypoints.websecure.http.encodedcharacters.allowencodedslash=false'
+      - '--entrypoints.websecure.http.encodedcharacters.allowencodedbackslash=false'
+      - '--entrypoints.websecure.http.encodedcharacters.allowencodednullcharacter=false'
+      - '--entrypoints.websecure.http.encodedcharacters.allowencodedsemicolon=false'
+      - '--entrypoints.websecure.http.encodedcharacters.allowencodedpercent=false'
+      - '--entrypoints.websecure.http.encodedcharacters.allowencodedquestionmark=false'
+      - '--entrypoints.websecure.http.encodedcharacters.allowencodedhash=false'
+      - '--certificatesresolvers.letsencrypt.acme.httpchallenge=true'
+      - '--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web'
+      - '--certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_ACME_EMAIL}'
+      - '--certificatesresolvers.letsencrypt.acme.storage=/acme/acme.json'
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+      - type: bind
+        source: ./traefik
+        target: /etc/traefik/dynamic
+        read_only: true
+      - type: volume
+        source: traefik_acme
+        target: /acme
+    env_file:
+      - env.traefik.prod
+
+  cms:
+    build:
+      context: ../
+      dockerfile: Dockerfile.cms
+      args:
+        CMS_BASE_PATH: ${CMS_BASE_PATH:-/cms}
+    image: autosearch-cms:latest
+    container_name: autosearch-cms
+    restart: unless-stopped
+    networks:
+      - autosearch-network
+    env_file:
+      - env.traefik.prod
+      - env.web.prod
+    environment:
+      NODE_ENV: production
+      CMS_BASE_PATH: ${CMS_BASE_PATH:-/cms}
+      NEXT_BASE_PATH: ${CMS_BASE_PATH:-/cms}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:-change-me}
+      DATABASE_URI: ${DATABASE_URI:-mongodb://mongo:27017/autosearch}
+      NEXT_PUBLIC_CMS_URL: https://${WEB_DOMAIN}${CMS_BASE_PATH:-/cms}
+      URL: https://${WEB_DOMAIN}${CMS_BASE_PATH:-/cms}
+      WEB_URL: ${NEXT_PUBLIC_URL:-http://web:3000}
+    depends_on:
+      mongo:
+        condition: service_started
+      minio:
+        condition: service_started
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.services.autosearch-cms.loadbalancer.server.port=3001'
+      - 'traefik.http.routers.autosearch-cms.rule=Host(`${WEB_DOMAIN}`) && PathPrefix(`${CMS_BASE_PATH:-/cms}`)'
+      - 'traefik.http.routers.autosearch-cms.priority=100'
+      - 'traefik.http.routers.autosearch-cms.entrypoints=websecure'
+      - 'traefik.http.routers.autosearch-cms.tls=true'
+      - 'traefik.http.routers.autosearch-cms.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.autosearch-cms.middlewares=security@file,rate-limit@file'
+
+  web:
+    build:
+      context: ../
+      dockerfile: Dockerfile.web
+      args:
+        NEXT_PUBLIC_CMS_URL: https://${WEB_DOMAIN}${CMS_BASE_PATH:-/cms}
+        NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
+        NEXT_PUBLIC_S3_PUBLIC_URL: ${S3_PUBLIC_URL}
+        NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-}
+        PAYLOAD_FETCH_ALLOW_INSECURE_TLS: ${PAYLOAD_FETCH_ALLOW_INSECURE_TLS:-0}
+    image: autosearch-web:latest
+    container_name: autosearch-web
+    restart: unless-stopped
+    networks:
+      - autosearch-network
+    env_file:
+      - env.traefik.prod
+      - env.web.prod
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_CMS_URL: https://${WEB_DOMAIN}${CMS_BASE_PATH:-/cms}
+      NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
+      NEXT_PUBLIC_S3_PUBLIC_URL: ${S3_PUBLIC_URL}
+      NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-}
+      CMS_INTERNAL_URL: http://cms:3001${CMS_BASE_PATH:-/cms}
+      NEXT_IMAGE_CMS_INTERNAL_ORIGIN: http://cms:3001${CMS_BASE_PATH:-/cms}
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.services.autosearch-web.loadbalancer.server.port=3000'
+      - 'traefik.http.routers.autosearch-web.rule=Host(`${WEB_DOMAIN}`) && !PathPrefix(`${CMS_BASE_PATH:-/cms}`)'
+      - 'traefik.http.routers.autosearch-web.priority=10'
+      - 'traefik.http.routers.autosearch-web.entrypoints=websecure'
+      - 'traefik.http.routers.autosearch-web.tls=true'
+      - 'traefik.http.routers.autosearch-web.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.autosearch-web.middlewares=security@file,rate-limit@file'
+
+  mongo:
+    image: mongo:7
+    container_name: autosearch-mongo
+    restart: unless-stopped
+    networks:
+      - autosearch-network
+    environment:
+      MONGO_INITDB_DATABASE: autosearch
+    volumes:
+      - mongo_data:/data/db
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    container_name: autosearch-minio
+    restart: unless-stopped
+    networks:
+      - autosearch-network
+    env_file:
+      - env.web.prod
+    command: ['server', '/data', '--console-address', ':9001']
+    volumes:
+      - minio_data:/data
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.services.autosearch-minio-api.loadbalancer.server.port=9000'
+      - 'traefik.http.routers.autosearch-minio-api.rule=Host(`${WEB_MINIO_S3_DOMAIN}`)'
+      - 'traefik.http.routers.autosearch-minio-api.entrypoints=websecure'
+      - 'traefik.http.routers.autosearch-minio-api.tls=true'
+      - 'traefik.http.routers.autosearch-minio-api.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.autosearch-minio-api.service=autosearch-minio-api'
+      - 'traefik.http.routers.autosearch-minio-api.middlewares=security@file,rate-limit@file'
+      - 'traefik.http.services.autosearch-minio-console.loadbalancer.server.port=9001'
+      - 'traefik.http.routers.autosearch-minio-console.rule=Host(`${WEB_MINIO_CONSOLE_DOMAIN}`)'
+      - 'traefik.http.routers.autosearch-minio-console.entrypoints=websecure'
+      - 'traefik.http.routers.autosearch-minio-console.tls=true'
+      - 'traefik.http.routers.autosearch-minio-console.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.autosearch-minio-console.service=autosearch-minio-console'
+      - 'traefik.http.routers.autosearch-minio-console.middlewares=security@file,rate-limit@file'
+
+networks:
+  autosearch-network:
+    external: true
+
+volumes:
+  mongo_data:
+  minio_data:
+  traefik_acme:

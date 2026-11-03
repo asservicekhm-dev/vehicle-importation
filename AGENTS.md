@@ -2,7 +2,7 @@
 
 Read this before making changes. The product spec lives in [`specs/`](./specs/README.md); this file is the operational summary. When this file and the spec disagree, the spec wins — then update this file.
 
-Current state: **Milestone 5 shipped** (secondary IA). Next: **Milestone 6 (infra harden)** of [`specs/08-bootstrap-roadmap.md`](./specs/08-bootstrap-roadmap.md). Items marked _(M<n>)_ are planned, not built yet.
+Current state: **Milestone 6 shipped** (infra harden). Next: **Milestone 7 (soft launch checklist)** of [`specs/08-bootstrap-roadmap.md`](./specs/08-bootstrap-roadmap.md). Items marked _(M<n>)_ are planned, not built yet.
 
 ## 1. What this is
 
@@ -64,7 +64,7 @@ packages/
   tsconfig/            @autosearch/tsconfig — base.json, nextjs.json
   eslint-config/       @autosearch/eslint-config — flat config (`.` base, `./next`)
 specs/                 product/architecture spec (read-only reference)
-Dockerfile.cms, Dockerfile.web, .deploy/   stubs until M6
+Dockerfile.cms, Dockerfile.web, .deploy/, .github/workflows/
 ```
 
 Shared packages ship TypeScript source (no build step). Apps list them in `transpilePackages`.
@@ -80,12 +80,13 @@ Run from the repo root:
 | `pnpm build` / `build:cms` / `build:web`                          | Production builds                                        |
 | `pnpm generate:types`                                             | Regenerate `apps/cms/src/payload-types.ts`               |
 | `pnpm seed:globals` / `seed:home` / `seed:services` / `seed:blog` | Idempotent dual-locale seeds (`*:local-media` blanks S3) |
+| `pnpm seed:all` / `seed:all:local-media` / `pnpm seed <area>`     | Seed chain (globals→home→services→blog) or one area      |
+| `pnpm seed:backup` / `seed:restore` (+ `:prod`)                   | Mongo + MinIO snapshot via `.deploy/seed/seed.mjs`       |
+| `pnpm new component\|view\|block …`                               | Scaffold web UI or CMS block + web stub                  |
 | `pnpm lint` / `pnpm lint:fix`                                     | ESLint in every package                                  |
 | `pnpm typecheck`                                                  | `tsc --noEmit` in every package                          |
 | `pnpm format` / `pnpm format:fix`                                 | Prettier check / write                                   |
 | `pnpm --filter @autosearch/cms generate:importmap`                | Regenerate Payload admin import map                      |
-
-Planned: `pnpm new component|view|block` _(M6)_, unified `pnpm seed <area>` _(polish)_, `seed:backup` / `seed:restore` _(M6)_.
 
 ## 5. Content model
 
@@ -98,7 +99,7 @@ Spec: [`specs/02-cms-model.md`](./specs/02-cms-model.md).
 - SEO: page `generateMetadata`, `robots.ts`, dynamic `sitemap.ts`. GTM via `NEXT_PUBLIC_GTM_ID` or SiteSettings `gtmId` (empty = off) + cookie consent banner.
 - _(design seed)_ `/design-seed` remains a noindex visual reference; production Home is CMS-driven.
 - About (`#about`) and Contacts (`#contacts`) stay Home section anchors — no `/about` or `/contacts` routes in v1.
-- _(M6)_ Infra harden: compose, Traefik, MinIO, CI, `pnpm new block`, deploy docs.
+- Infra: `.deploy` compose (dev/prod), Traefik, MinIO, CI/deploy workflows, `pnpm new`, seed backup — see [`DEPLOYMENT.md`](./DEPLOYMENT.md) / [`SERVER_SETUP.md`](./SERVER_SETUP.md).
 - Booking / leads: [`specs/09-booking-and-leads.md`](./specs/09-booking-and-leads.md).
 - **Never add:** Inventory (`cars` / `brands` catalogs, `/cars` routes), Autosearch search wizard, Explore, `subscriptions` / `catalog` viewTypes, gamification blocks, GoGym/Smarty APIs.
 - Do not create a Pages slug `cms` (collides with the prod `/cms` base path).
@@ -112,7 +113,7 @@ Spec: [`specs/02-cms-model.md`](./specs/02-cms-model.md).
 5. Build the component; return `null` when CMS fields are empty (graceful-null, [`specs/03-frontend-patterns.md`](./specs/03-frontend-patterns.md) § 10).
 6. Rendered via `RenderBlocks` + registry; unknown `blockType` → `null`.
 
-`pnpm new block <area>/<Name>` will scaffold steps 1, 4 and 5 _(M6)_.
+`pnpm new block <area>/<Name>` scaffolds CMS schema + registry registration + web component; still add the mapper entry and run `pnpm generate:types`.
 
 ## 7. Design source
 
@@ -149,9 +150,9 @@ No Autosearch Figma file yet. Design direction: [`specs/10-design-direction.md`]
 
 Idempotent `payload run` scripts that upsert by slug/filename and write both locales; `--local-media` blanks S3 env to use local disk. No AS Service content or assets.
 
-## 12. Deploy _(M6)_
+## 12. Deploy
 
-`DEPLOYMENT.md` will cover it. Pattern: `turbo prune` 3-stage Docker images built with `pnpm --filter … build` (not `turbo run build`), Next standalone, CMS basePath assert, Traefik with site `/` + CMS `/cms`.
+See [`DEPLOYMENT.md`](./DEPLOYMENT.md) and [`SERVER_SETUP.md`](./SERVER_SETUP.md). Pattern: `turbo prune` 3-stage images (`Dockerfile.cms` / `Dockerfile.web`) with `pnpm --filter … build` (not `turbo run build`), Next standalone, CMS `basePath` assert + `/cms/api/health`, Traefik site `/` + CMS `/cms`, network `autosearch-network`.
 
 ## 13. Known quirks / do-not-copy from AS Service
 
