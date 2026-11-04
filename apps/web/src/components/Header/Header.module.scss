@@ -24,13 +24,22 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-3);
   min-height: 72px;
   padding-block: var(--space-3);
 
   @include laptop {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--space-4);
     min-height: 78px;
     padding-block: var(--space-4);
+    container-type: inline-size;
+    container-name: site-header;
+  }
+
+  @include desktop {
+    gap: var(--space-6);
   }
 }
 
@@ -55,7 +64,6 @@
 
 .desktopNav {
   display: none;
-  flex: 1 1 auto;
   justify-content: center;
   min-width: 0;
 
@@ -67,14 +75,20 @@
 .navList {
   display: flex;
   align-items: center;
-  gap: var(--space-6);
+  gap: var(--space-4);
   margin: 0;
-  padding: 0 var(--space-8);
+  padding: 0 var(--space-4);
   list-style: none;
+  max-width: 100%;
   height: 46px;
   border-radius: var(--radius-sm);
   background-color: var(--color-surface-1);
   box-shadow: var(--shadow-1);
+
+  @include desktop {
+    gap: var(--space-6);
+    padding: 0 var(--space-8);
+  }
 }
 
 .navLink {
@@ -96,10 +110,37 @@
   display: none;
   flex-shrink: 0;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
 
   @include laptop {
     display: inline-flex;
+  }
+
+  @include desktop {
+    gap: var(--space-3);
+  }
+
+  /* Narrow laptop (e.g. 1280): icon-only phone so nav can't collide with brand. */
+  .phonePill {
+    width: 46px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .phoneText {
+    display: none;
+  }
+}
+
+@container site-header (min-width: 1280px) {
+  .desktopRight .phonePill {
+    width: auto;
+    padding: 0 var(--space-5);
+    justify-content: flex-start;
+  }
+
+  .desktopRight .phoneText {
+    display: inline;
   }
 }
 
