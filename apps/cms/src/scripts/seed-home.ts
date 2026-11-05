@@ -292,9 +292,9 @@ function buildHomeLayoutUa(formId: string, media: MarketingMedia) {
       blockType: 'auto-hero-block' as const,
       blockName: 'hero',
       backgroundImage: media.heroUsa,
-      title: 'Авто [[під ключ]] з [[США]], [[Європи]] та [[Кореї]]',
+      title: 'Авто під ключ\n[[із США, Європи та Кореї]]',
       subtitle:
-        'Підбираємо, перевіряємо і доставляємо авто з документами — [[без прихованих витрат]] і з розумінням кожного етапу.',
+        'Підбираємо, перевіряємо і доставляємо авто з документами, без прихованих витрат і з розумінням кожного етапу.',
       buttons: [
         { style: 'primary' as const, link: customLink('Отримати консультацію', '#callback') },
         { style: 'outline' as const, link: customLink('Як ми працюємо', '#route') },
@@ -648,9 +648,9 @@ function buildHomeLayoutEn(
       blockType: 'auto-hero-block' as const,
       blockName: 'hero',
       backgroundImage: media.heroUsa,
-      title: '[[Turnkey]] cars from the [[USA]], [[Europe]] and [[Korea]]',
+      title: 'Turnkey cars\n[[from the USA, Europe and Korea]]',
       subtitle:
-        'We search, inspect and deliver cars with documents — [[no hidden costs]], with a clear view of every step.',
+        'We search, inspect and deliver cars with documents, with no hidden costs and a clear view of every step.',
       buttons: [
         { style: 'primary' as const, link: customLink('Get a consultation', '#callback') },
         { style: 'outline' as const, link: customLink('How we work', '#route') },

@@ -25,7 +25,7 @@ export const AutoHeroBlock: Block = {
       label: 'Title',
       admin: {
         description:
-          'Wrap highlighted phrases in [[double brackets]], e.g. Авто [[під ключ]] зі [[США]].',
+          'Use a line break for two lines. Wrap the accent clause in [[double brackets]], e.g. Авто під ключ\\n[[із США, Європи та Кореї]].',
       },
     },
     {

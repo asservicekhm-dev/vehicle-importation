@@ -25,6 +25,9 @@
   "Layout": {
     "skipToContent": "Перейти до вмісту"
   },
+  "AutoHero": {
+    "originLabel": "Ринок"
+  },
   "Header": {
     "brand": "AS Autosearch",
     "navAbout": "Як ми працюємо",

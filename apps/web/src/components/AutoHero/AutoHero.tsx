@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import clsx from 'clsx';
 import { gsap } from 'gsap';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/Button';
 import { CMSLink } from '@/components/CMSLink';
@@ -16,6 +17,9 @@ import styles from './AutoHero.module.scss';
 
 type Props = AutoHeroBlockFields;
 
+/** Dwell time per origin before auto-advancing — long enough to read, not a flash. */
+const ORIGIN_AUTO_MS = 6500;
+
 const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 function isOriginId(value: string | null | undefined): value is OriginId {
@@ -25,6 +29,10 @@ function isOriginId(value: string | null | undefined): value is OriginId {
 function asMedia(value: unknown): Media | null {
   if (!value || typeof value === 'string') return null;
   return value as Media;
+}
+
+function prefersReducedMotion(): boolean {
+  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 }
 
 export function AutoHero({
@@ -37,6 +45,7 @@ export function AutoHero({
   origins,
   backgroundImage,
 }: Props) {
+  const t = useTranslations('AutoHero');
   const heading = title?.trim();
   const body = subtitle?.trim();
   const points = highlights?.filter((item) => item?.label?.trim()) ?? [];
@@ -49,12 +58,17 @@ export function AutoHero({
   const actionsRef = useRef<HTMLDivElement>(null);
   const originPanelRef = useRef<HTMLDivElement>(null);
   const highlightsRef = useRef<HTMLUListElement>(null);
+  const switcherRef = useRef<HTMLDivElement>(null);
+  const thumbRef = useRef<HTMLSpanElement>(null);
+  const autoPausedRef = useRef(false);
+  const heroInViewRef = useRef(true);
+  const thumbReadyRef = useRef(false);
 
   useIsomorphicLayoutEffect(() => {
     const frame = frameRef.current;
     if (!frame) return undefined;
 
-    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    const reduce = prefersReducedMotion();
     if (reduce) {
       frame.dataset.heroEntered = '';
       return undefined;
@@ -78,6 +92,8 @@ export function AutoHero({
       gsap.set(contentTargets, { clearProps: 'opacity,transform' });
     };
 
+    const safety = window.setTimeout(markEntered, 2000);
+
     const ctx = gsap.context(() => {
       gsap.to(contentTargets, {
         opacity: 1,
@@ -85,23 +101,137 @@ export function AutoHero({
         duration: 0.7,
         ease: 'power3.out',
         stagger: 0.09,
-        onComplete: markEntered,
+        onComplete: () => {
+          window.clearTimeout(safety);
+          markEntered();
+        },
       });
     }, frame);
 
     return () => {
+      window.clearTimeout(safety);
       ctx.revert();
       delete frame.dataset.heroEntered;
     };
   }, []);
 
-  if (!heading && !body && !originItems.length && !points.length) return null;
-
   const active = originItems.find((item) => item.originId === origin) ?? originItems[0] ?? null;
   const activeOriginId = active && isOriginId(active.originId) ? active.originId : null;
+
+  useIsomorphicLayoutEffect(() => {
+    const switcher = switcherRef.current;
+    const thumb = thumbRef.current;
+    if (!switcher || !thumb || !activeOriginId) return undefined;
+
+    const activeBtn = switcher.querySelector<HTMLElement>(
+      `button[data-origin="${activeOriginId}"]`,
+    );
+    if (!activeBtn) {
+      gsap.set(thumb, { opacity: 0 });
+      return undefined;
+    }
+
+    const target = {
+      width: activeBtn.offsetWidth,
+      height: activeBtn.offsetHeight,
+      x: activeBtn.offsetLeft,
+      y: activeBtn.offsetTop,
+      opacity: 1,
+    };
+
+    // First paint: place without tween. Later moves glide (CSS transitions were
+    // getting killed by ResizeObserver when the thumb's own size changed).
+    if (!thumbReadyRef.current || prefersReducedMotion()) {
+      gsap.set(thumb, target);
+      thumbReadyRef.current = true;
+      return undefined;
+    }
+
+    const tween = gsap.to(thumb, {
+      ...target,
+      duration: 0.55,
+      ease: 'power3.inOut',
+      overwrite: true,
+    });
+
+    return () => {
+      tween.kill();
+    };
+  }, [activeOriginId, originItems.length]);
+
+  useEffect(() => {
+    const onResize = () => {
+      const switcher = switcherRef.current;
+      const thumb = thumbRef.current;
+      if (!switcher || !thumb || !activeOriginId) return;
+      const activeBtn = switcher.querySelector<HTMLElement>(
+        `button[data-origin="${activeOriginId}"]`,
+      );
+      if (!activeBtn) return;
+      gsap.set(thumb, {
+        width: activeBtn.offsetWidth,
+        height: activeBtn.offsetHeight,
+        x: activeBtn.offsetLeft,
+        y: activeBtn.offsetTop,
+        opacity: 1,
+      });
+    };
+
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [activeOriginId]);
+
+  const originIdsKey = originItems.map((item) => item.originId).join(',');
+
+  useEffect(() => {
+    const ids = originIdsKey.split(',').filter((value): value is OriginId => isOriginId(value));
+    if (ids.length < 2) return undefined;
+    if (typeof window === 'undefined') return undefined;
+    if (prefersReducedMotion()) return undefined;
+
+    const frame = frameRef.current;
+    let io: IntersectionObserver | null = null;
+    if (frame && typeof IntersectionObserver !== 'undefined') {
+      io = new IntersectionObserver(
+        ([entry]) => {
+          heroInViewRef.current = entry?.isIntersecting ?? true;
+        },
+        { threshold: 0.35 },
+      );
+      io.observe(frame);
+    }
+
+    const timer = window.setInterval(() => {
+      if (document.hidden || autoPausedRef.current || !heroInViewRef.current) return;
+      const current = ids.includes(origin) ? origin : ids[0];
+      const index = ids.indexOf(current);
+      const next = ids[(index + 1) % ids.length];
+      if (next) setOrigin(next);
+    }, ORIGIN_AUTO_MS);
+
+    return () => {
+      window.clearInterval(timer);
+      io?.disconnect();
+    };
+  }, [origin, originIdsKey, setOrigin]);
+
+  if (!heading && !body && !originItems.length && !points.length) return null;
+
   const sectionId = (blockName || id || 'hero').toString();
   const headingPlain = heading ? stripAccentMarkers(heading) : undefined;
   const fallbackMedia = asMedia(backgroundImage);
+
+  const selectOrigin = (next: OriginId) => {
+    setOrigin(next);
+  };
+
+  const pauseAuto = () => {
+    autoPausedRef.current = true;
+  };
+
+  const resumeAuto = () => {
+    autoPausedRef.current = false;
+  };
 
   const photoLayers: { key: string; media: Media; active: boolean }[] = [];
   originItems.forEach((item) => {
@@ -127,6 +257,7 @@ export function AutoHero({
             {photoLayers.map((layer) => (
               <div
                 key={layer.key}
+                data-origin={layer.key}
                 className={clsx(styles.photoLayer, layer.active && styles.photoLayerActive)}
               >
                 <CMSMedia
@@ -141,8 +272,8 @@ export function AutoHero({
             <div className={styles.photoScrim} />
           </div>
 
-          <div className={styles.top}>
-            <div className={styles.content}>
+          <div className={styles.content}>
+            <div className={styles.lead}>
               {heading ? (
                 <h1 className={styles.title} aria-label={headingPlain} ref={titleRef}>
                   {renderAccentText(heading, styles.accent)}
@@ -153,48 +284,71 @@ export function AutoHero({
                   {renderAccentText(body, styles.accent)}
                 </p>
               ) : null}
-              {buttons?.length ? (
-                <div className={styles.actions} ref={actionsRef}>
-                  {buttons.map((button, index) => {
-                    const variant =
-                      button.style === 'outline' || button.style === 'ghost'
-                        ? button.style
-                        : 'primary';
-                    return (
-                      <Button
-                        key={button.id ?? index}
-                        asChild
-                        variant={variant}
-                        className={
-                          variant === 'primary' ? styles.primaryCta : styles.secondaryCta
-                        }
-                      >
-                        <CMSLink link={button.link} />
-                      </Button>
-                    );
-                  })}
-                </div>
-              ) : null}
             </div>
+
+            {buttons?.length ? (
+              <div className={styles.actions} ref={actionsRef}>
+                {buttons.map((button, index) => {
+                  const variant =
+                    button.style === 'outline' || button.style === 'ghost'
+                      ? button.style
+                      : 'primary';
+                  return (
+                    <Button
+                      key={button.id ?? index}
+                      asChild
+                      variant={variant}
+                      className={
+                        variant === 'primary' ? styles.primaryCta : styles.secondaryCta
+                      }
+                    >
+                      <CMSLink link={button.link} />
+                    </Button>
+                  );
+                })}
+              </div>
+            ) : null}
 
             {active ? (
               <div className={styles.originPanel} ref={originPanelRef}>
-                <div className={styles.switcher} role='group' aria-label='Origin'>
+                <div
+                  className={styles.switcher}
+                  ref={switcherRef}
+                  role='group'
+                  aria-label={t('originLabel')}
+                  onMouseEnter={pauseAuto}
+                  onMouseLeave={resumeAuto}
+                  onFocusCapture={pauseAuto}
+                  onBlurCapture={(event) => {
+                    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                      resumeAuto();
+                    }
+                  }}
+                >
+                  <span className={styles.thumb} ref={thumbRef} aria-hidden />
                   {originItems.map((item) => (
                     <button
                       key={item.id ?? item.originId}
                       type='button'
+                      data-origin={item.originId}
                       className={styles.originBtn}
                       aria-pressed={item.originId === active.originId}
                       onClick={() => {
-                        if (isOriginId(item.originId)) setOrigin(item.originId);
+                        if (!isOriginId(item.originId)) return;
+                        selectOrigin(item.originId);
+                        // Selection restarts the dwell timer; don't leave auto paused on focus
+                        resumeAuto();
                       }}
                     >
                       {item.label}
                     </button>
                   ))}
                 </div>
-                <p className={styles.meta}>
+                <p
+                  key={activeOriginId ?? 'meta'}
+                  className={styles.meta}
+                  aria-live='polite'
+                >
                   {active.term ? (
                     <span className={styles.metaTerm}>
                       {renderAccentText(active.term, styles.accent)}

@@ -63,9 +63,9 @@ Dropped in dark: periwinkle `#8FA0EC`, `#4A5FC4` / `#5468CF`. Error `#FF8A85` an
 ```
 HEADER   [AS Autosearch]  (Послуги  Як ми працюємо  Контакти)  (phone) (theme)(ua/en)
 HERO  ┌──────────────────────────────── rounded 26 photo ───────────────────────────┐
-      │ АВТО ПІД КЛЮЧ ЗІ США,                                                        │
-      │ ЄВРОПИ ТА КОРЕЇ                                                              │
-      │ sub (one sentence, max 60ch)                                                 │
+      │ АВТО ПІД КЛЮЧ                                              [ car, clear ]     │
+      │ ІЗ США, ЄВРОПИ ТА КОРЕЇ                                                      │
+      │ sub (one sentence, max 42ch)                                                 │
       │ [Отримати консультацію]  Як ми працюємо                                      │
       │ ( США | Європа | Корея )  typical term · what we check there  <- switcher     │
       └──────────────────────────────────────────────────────────────────────────────┘

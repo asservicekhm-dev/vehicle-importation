@@ -7,25 +7,21 @@
   display: flex;
   position: relative;
   flex-direction: column;
-  justify-content: flex-end;
-  gap: var(--space-8);
   border-radius: var(--radius-lg);
   background-color: var(--color-surface-brand);
-  padding: var(--space-10) var(--space-6) var(--space-8);
-  min-height: min(32rem, 70svh);
+  padding: var(--space-8) var(--space-6) var(--space-6);
+  /* Tall enough on mobile for title at top, photo in the middle, CTAs/pills at bottom */
+  min-height: min(44rem, 88svh);
   overflow: hidden;
   color: var(--color-on-brand);
 
   @include tablet {
-    gap: var(--space-10);
-    padding: var(--space-12) var(--space-12) var(--space-10);
-    min-height: min(34rem, 68svh);
+    padding: var(--space-10) var(--space-10) var(--space-8);
+    min-height: min(38rem, 72svh);
   }
 
   @include laptop {
-    gap: var(--space-10);
-    justify-content: space-between;
-    padding: var(--space-16) var(--space-12) var(--space-12);
+    padding: var(--space-12) var(--space-12) var(--space-10);
     min-height: min(40rem, 78svh);
   }
 
@@ -79,26 +75,69 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 70% center;
+  /* Bias the car into the lower/right half so top copy stays clear */
+  object-position: 70% 55%;
+
+  @include laptop {
+    object-position: 72% center;
+  }
+}
+
+.photoLayer[data-origin='usa'] .photoImg {
+  object-position: 72% 50%;
+
+  @include laptop {
+    object-position: 72% center;
+  }
+}
+
+.photoLayer[data-origin='europe'] .photoImg {
+  object-position: 60% 55%;
+
+  @include laptop {
+    object-position: 62% center;
+  }
+}
+
+.photoLayer[data-origin='korea'] .photoImg {
+  object-position: 65% 50%;
+
+  @include laptop {
+    object-position: 68% center;
+  }
 }
 
 .photoScrim {
   position: absolute;
   inset: 0;
   z-index: 1;
+  /* Heavy at top + bottom for copy/CTAs; clearer in the middle so the car reads */
   background:
     linear-gradient(
-      105deg,
-      color-mix(in srgb, var(--color-surface-brand) 78%, transparent) 0%,
-      color-mix(in srgb, var(--color-surface-brand) 42%, transparent) 48%,
-      color-mix(in srgb, var(--color-surface-brand) 18%, transparent) 100%
-    ),
-    linear-gradient(
       180deg,
-      color-mix(in srgb, var(--color-surface-brand) 28%, transparent) 0%,
-      transparent 38%,
-      color-mix(in srgb, var(--color-surface-brand) 52%, transparent) 100%
+      color-mix(in srgb, var(--color-surface-brand) 82%, transparent) 0%,
+      color-mix(in srgb, var(--color-surface-brand) 55%, transparent) 28%,
+      color-mix(in srgb, var(--color-surface-brand) 18%, transparent) 52%,
+      color-mix(in srgb, var(--color-surface-brand) 55%, transparent) 78%,
+      color-mix(in srgb, var(--color-surface-brand) 72%, transparent) 100%
     );
+
+  @include laptop {
+    background:
+      linear-gradient(
+        105deg,
+        color-mix(in srgb, var(--color-surface-brand) 88%, transparent) 0%,
+        color-mix(in srgb, var(--color-surface-brand) 62%, transparent) 36%,
+        color-mix(in srgb, var(--color-surface-brand) 18%, transparent) 62%,
+        color-mix(in srgb, var(--color-surface-brand) 4%, transparent) 100%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-surface-brand) 28%, transparent) 0%,
+        transparent 42%,
+        color-mix(in srgb, var(--color-surface-brand) 42%, transparent) 100%
+      );
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -130,47 +169,95 @@
   .photoLayerActive {
     transform: none;
   }
+
+  .originBtn {
+    transition: none;
+  }
+
+  .meta {
+    animation: none;
+  }
 }
 
-.top {
-  display: grid;
-  position: relative;
-  gap: var(--space-8);
-  z-index: 2;
-  margin-top: auto;
+@media (scripting: none) {
+  .frame:not([data-hero-entered]) {
+    .title,
+    .subtitle,
+    .actions,
+    .originPanel,
+    .highlights {
+      opacity: 1;
+      transform: none;
+    }
 
-  @include laptop {
-    grid-template-columns: minmax(0, 1.25fr) minmax(16rem, 0.75fr);
-    align-items: end;
-    gap: var(--space-10);
+    .subtitle {
+      opacity: 0.92;
+    }
+  }
+
+  .photo {
+    opacity: 1;
+    animation: none;
   }
 }
 
 .content {
   display: flex;
+  position: relative;
+  flex: 1 1 auto;
   flex-direction: column;
   gap: var(--space-5);
-  max-width: var(--measure);
+  z-index: 2;
+  /* Fill the frame so margin-top:auto on CTAs/pills can park them at the bottom */
+  min-height: 100%;
+
+  @include tablet {
+    gap: var(--space-6);
+  }
+
+  @include laptop {
+    gap: var(--space-5);
+    /* Leave the right side clear for the car; wide enough for both title lines */
+    max-width: min(52rem, 62%);
+  }
+}
+
+.lead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  order: 0;
+  max-width: 100%;
 }
 
 .title {
   margin: 0;
   color: var(--color-on-brand);
   font-weight: 800;
-  font-size: var(--text-display);
+  /* Mobile: denser so title + photo + bottom CTAs fit; laptop: hold both authored lines */
+  font-size: clamp(1.875rem, 1.2rem + 3.2vw, 2.5rem);
   line-height: var(--leading-tight);
   font-family: var(--font-heading);
   letter-spacing: -0.01em;
   text-transform: uppercase;
+  white-space: pre-line;
+
+  @include laptop {
+    font-size: clamp(2.25rem, 1.3rem + 2.6vw, 3rem);
+  }
 }
 
 .subtitle {
   opacity: 0.92;
   margin: 0;
-  max-width: 60ch;
+  max-width: 42ch;
   color: var(--color-on-brand);
-  font-size: var(--text-lg);
+  font-size: var(--text-md);
   line-height: var(--leading-body);
+
+  @include tablet {
+    font-size: var(--text-lg);
+  }
 }
 
 .accent {
@@ -182,25 +269,35 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-4);
+  /* Mobile: pull CTAs down with the origin row (AS Service pattern) */
+  order: 1;
+  margin-top: auto;
+
+  @include tablet {
+    /* Desktop/tablet: keep CTAs under the copy at the top */
+    order: 0;
+    margin-top: 0;
+  }
 
   .primaryCta {
+    /* Sky on the brand band — AS blue primary disappears into the hero in light theme */
     background-color: var(--color-accent);
-    color: var(--color-on-brand);
+    color: var(--color-footer-bg);
 
     &:hover:not(:disabled) {
-      background-color: color-mix(in srgb, var(--color-accent) 88%, var(--color-on-brand));
-      color: var(--color-on-brand);
+      background-color: color-mix(in srgb, var(--color-accent) 86%, var(--color-on-brand));
+      color: var(--color-footer-bg);
     }
   }
 
   .secondaryCta {
-    border-color: color-mix(in srgb, var(--color-on-brand) 55%, transparent);
-    background-color: transparent;
+    border-color: var(--color-on-brand);
+    background-color: color-mix(in srgb, var(--color-on-brand) 14%, transparent);
     color: var(--color-on-brand);
 
     &:hover:not(:disabled) {
       border-color: var(--color-on-brand);
-      background-color: color-mix(in srgb, var(--color-on-brand) 12%, transparent);
+      background-color: color-mix(in srgb, var(--color-on-brand) 24%, transparent);
       color: var(--color-on-brand);
     }
   }
@@ -209,26 +306,22 @@
 .originPanel {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
+  order: 2;
   width: fit-content;
   max-width: 100%;
-  border: 1px solid color-mix(in srgb, var(--color-on-brand) 22%, transparent);
-  border-radius: var(--radius-md);
-  background-color: color-mix(in srgb, var(--color-surface-brand) 55%, transparent);
-  padding: var(--space-5);
-  box-shadow: 0 12px 40px color-mix(in srgb, var(--color-surface-brand) 35%, transparent);
-  backdrop-filter: blur(14px) saturate(1.15);
-  -webkit-backdrop-filter: blur(14px) saturate(1.15);
 
-  @include laptop {
-    width: auto;
-    max-width: none;
+  @include tablet {
+    /* Pin origin facts to the bottom of the frame */
+    order: 0;
+    margin-top: auto;
   }
 }
 
 .switcher {
   display: inline-flex;
-  flex-wrap: wrap;
+  position: relative;
+  flex-wrap: nowrap;
   align-self: flex-start;
   width: fit-content;
   max-width: 100%;
@@ -238,7 +331,22 @@
   padding: var(--space-1);
 }
 
+.thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  opacity: 0;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-accent);
+  pointer-events: none;
+  /* Position/size animated via GSAP (x/y/width/height) */
+  will-change: transform, width, height;
+}
+
 .originBtn {
+  position: relative;
+  z-index: 1;
   opacity: 0.85;
   cursor: pointer;
   margin: 0;
@@ -250,11 +358,14 @@
   font: inherit;
   font-weight: 600;
   font-size: var(--text-sm);
+  transition:
+    color 0.35s ease,
+    opacity 0.35s ease;
 
   &[aria-pressed='true'] {
     opacity: 1;
-    background-color: var(--color-accent);
-    color: var(--color-surface-brand);
+    /* Night ink on sky — readable in both themes (on-primary is white in light) */
+    color: var(--color-footer-bg);
   }
 }
 
@@ -264,9 +375,23 @@
   gap: var(--space-2);
   opacity: 0.9;
   margin: 0;
+  max-width: 42ch;
   color: var(--color-on-brand);
   font-size: var(--text-sm);
   line-height: var(--leading-body);
+  animation: hero-meta-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes hero-meta-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 0.9;
+    transform: none;
+  }
 }
 
 .metaTerm {
@@ -279,11 +404,11 @@
   position: relative;
   gap: var(--space-3);
   z-index: 2;
+  opacity: 0.78;
   margin: 0;
   border-top: 1px solid color-mix(in srgb, var(--color-on-brand) 10%, transparent);
   padding: var(--space-5) 0 0;
   list-style: none;
-  opacity: 0.78;
 
   @include tablet {
     grid-template-columns: repeat(2, minmax(0, 1fr));

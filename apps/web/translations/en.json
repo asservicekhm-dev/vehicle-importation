@@ -25,6 +25,9 @@
   "Layout": {
     "skipToContent": "Skip to content"
   },
+  "AutoHero": {
+    "originLabel": "Market"
+  },
   "Header": {
     "brand": "AS Autosearch",
     "navAbout": "How we work",
