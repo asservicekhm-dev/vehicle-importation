@@ -95,39 +95,44 @@ export function WhyChooseUs({
       ) : null}
 
       <Container>
-        <AnimatedContent
-          className={styles.layout}
-          distance={64}
-          duration={0.75}
-          threshold={0.15}
-          stagger={0.08}
-        >
-          <div className={styles.copy}>
-            {eyebrow?.trim() ? <p className={styles.eyebrow}>{eyebrow.trim()}</p> : null}
-            {heading || accent ? (
-              <h2 id={headingId} className={styles.title}>
-                {heading ? <span className={styles.titleMain}>{heading}</span> : null}
-                {heading && accent ? ' ' : null}
-                {accent ? <span className={styles.titleAccent}>{accent}</span> : null}
-              </h2>
-            ) : null}
-            {intro?.trim() ? <p className={styles.intro}>{intro.trim()}</p> : null}
-          </div>
+        <div className={styles.layout}>
+          <AnimatedContent distance={72} duration={0.85}>
+            <div className={styles.copy}>
+              {eyebrow?.trim() ? <p className={styles.eyebrow}>{eyebrow.trim()}</p> : null}
+              {heading || accent ? (
+                <h2 id={headingId} className={styles.title}>
+                  {heading ? <span className={styles.titleMain}>{heading}</span> : null}
+                  {heading && accent ? ' ' : null}
+                  {accent ? <span className={styles.titleAccent}>{accent}</span> : null}
+                </h2>
+              ) : null}
+              {intro?.trim() ? <p className={styles.intro}>{intro.trim()}</p> : null}
+            </div>
+          </AnimatedContent>
 
           {list.length ? (
-            <ul className={styles.list}>
+            <AnimatedContent
+              className={styles.list}
+              role='list'
+              distance={96}
+              duration={0.95}
+              ease='power3.out'
+              blur={8}
+              scale={0.96}
+              stagger={0.16}
+            >
               {list.map((item, index) => (
-                <li key={item.id ?? index} className={styles.item}>
+                <div key={item.id ?? index} className={styles.item} role='listitem'>
                   <ReasonIcon iconKey={item.iconKey} />
                   <div>
                     <h3 className={styles.itemTitle}>{item.title}</h3>
                     <p className={styles.itemBody}>{item.body}</p>
                   </div>
-                </li>
+                </div>
               ))}
-            </ul>
+            </AnimatedContent>
           ) : null}
-        </AnimatedContent>
+        </div>
       </Container>
     </section>
   );

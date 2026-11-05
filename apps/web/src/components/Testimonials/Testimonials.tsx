@@ -173,7 +173,7 @@ export function Testimonials({ id, blockName, eyebrow, titleAccent, title, items
     >
       <Container>
         <div className={styles.panel}>
-          <AnimatedContent distance={48} duration={0.7} threshold={0.15}>
+          <AnimatedContent distance={72} duration={0.9}>
             <div className={styles.topBar}>
               {heading || accent ? (
                 <h2 id={headingId} className={styles.title}>

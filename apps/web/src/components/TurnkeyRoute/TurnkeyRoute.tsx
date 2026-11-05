@@ -16,6 +16,8 @@ gsap.registerPlugin(ScrollTrigger);
 const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 const STEPS_PER_ROW = 4;
+/** Matches `@include laptop` (≥1200). */
+const LAPTOP_MQ = '(min-width: 1200px)';
 
 type Props = TurnkeyRouteBlockFields;
 type Step = NonNullable<NonNullable<TurnkeyRouteBlockFields['steps']>[number]>;
@@ -26,6 +28,26 @@ function chunkSteps(steps: Step[], size: number): Step[][] {
     rows.push(steps.slice(i, i + size));
   }
   return rows;
+}
+
+function placeVerticalLine(wrap: HTMLElement, line: HTMLElement) {
+  const numbers = Array.from(wrap.querySelectorAll(`.${styles.number}`));
+  if (numbers.length < 2) {
+    line.style.visibility = 'hidden';
+    return;
+  }
+
+  line.style.visibility = 'visible';
+  const wrapRect = wrap.getBoundingClientRect();
+  const first = numbers[0].getBoundingClientRect();
+  const last = numbers[numbers.length - 1].getBoundingClientRect();
+  const top = first.top + first.height / 2 - wrapRect.top;
+  const height = last.top + last.height / 2 - wrapRect.top - top;
+  gsap.set(line, {
+    top,
+    height: Math.max(height, 0),
+    left: first.left + first.width / 2 - wrapRect.left - 1,
+  });
 }
 
 export function TurnkeyRoute({ id, blockName, eyebrow, title, steps }: Props) {
@@ -40,46 +62,134 @@ export function TurnkeyRoute({ id, blockName, eyebrow, title, steps }: Props) {
     if (!wrap || !list.length) return undefined;
 
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-    const lines = Array.from(wrap.querySelectorAll(`.${styles.line}`));
+    const horizontalLines = Array.from(wrap.querySelectorAll(`.${styles.line}`));
+    const verticalLine = wrap.querySelector(`.${styles.lineVertical}`) as HTMLElement | null;
     const stepEls = Array.from(wrap.querySelectorAll(`.${styles.step}`));
 
     if (reduce) {
-      gsap.set(lines, { scaleX: 1 });
+      gsap.set(horizontalLines, { scaleX: 1 });
+      if (verticalLine) {
+        placeVerticalLine(wrap, verticalLine);
+        gsap.set(verticalLine, { scaleY: 1, transformOrigin: 'top center' });
+      }
       gsap.set(stepEls, { clearProps: 'all' });
       return undefined;
     }
 
-    const ctx = gsap.context(() => {
-      if (lines.length) gsap.set(lines, { scaleX: 0, transformOrigin: 'left center' });
-      gsap.set(stepEls, { opacity: 0, y: 28 });
+    const mm = gsap.matchMedia();
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: wrap,
-          start: 'top 78%',
-          once: true,
-        },
-      });
+    mm.add(
+      {
+        isLaptop: LAPTOP_MQ,
+        isMobile: `(max-width: 1199px)`,
+      },
+      (context) => {
+        const { isLaptop } = context.conditions as { isLaptop: boolean };
+        let catchUp: (() => void) | undefined;
+        let resizeObserver: ResizeObserver | undefined;
 
-      if (lines.length) {
-        tl.to(lines, { scaleX: 1, duration: 0.9, ease: 'power2.out', stagger: 0.12 }, 0);
-      }
+        const ctx = gsap.context(() => {
+          gsap.set(stepEls, { opacity: 0, y: 36 });
 
-      tl.to(
-        stepEls,
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.55,
-          ease: 'power3.out',
-          stagger: 0.08,
-          clearProps: 'transform',
-        },
-        lines.length ? 0.15 : 0,
-      );
-    }, wrap);
+          const tl = gsap.timeline({ paused: true });
 
-    return () => ctx.revert();
+          if (isLaptop) {
+            if (horizontalLines.length) {
+              gsap.set(horizontalLines, { scaleX: 0, transformOrigin: 'left center' });
+              tl.to(
+                horizontalLines,
+                { scaleX: 1, duration: 0.9, ease: 'power2.out', stagger: 0.12 },
+                0,
+              );
+            }
+          } else if (verticalLine) {
+            placeVerticalLine(wrap, verticalLine);
+            gsap.set(verticalLine, { scaleY: 0, transformOrigin: 'top center' });
+            tl.to(verticalLine, { scaleY: 1, duration: 1.05, ease: 'power2.out' }, 0);
+
+            resizeObserver = new ResizeObserver(() => {
+              placeVerticalLine(wrap, verticalLine);
+              ScrollTrigger.refresh();
+            });
+            resizeObserver.observe(wrap);
+          }
+
+          tl.to(
+            stepEls,
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.65,
+              ease: 'power3.out',
+              stagger: 0.08,
+              clearProps: 'transform',
+            },
+            0.12,
+          );
+
+          let started = false;
+          const stopCatchUp = () => {
+            if (!catchUp) return;
+            window.removeEventListener('scroll', catchUp);
+            ScrollTrigger.removeEventListener('scrollStart', catchUp);
+            ScrollTrigger.removeEventListener('scrollEnd', catchUp);
+          };
+          const play = () => {
+            if (started) return;
+            started = true;
+            stopCatchUp();
+            if (!isLaptop && verticalLine) placeVerticalLine(wrap, verticalLine);
+            tl.play();
+          };
+          const finish = () => {
+            if (started && tl.progress() === 1) return;
+            started = true;
+            stopCatchUp();
+            if (!isLaptop && verticalLine) placeVerticalLine(wrap, verticalLine);
+            tl.progress(1);
+          };
+
+          catchUp = () => {
+            if (started) return;
+            const rect = wrap.getBoundingClientRect();
+            const viewH = window.innerHeight || document.documentElement.clientHeight;
+            if (rect.bottom <= 0) {
+              finish();
+              return;
+            }
+            if (rect.top < viewH && rect.bottom > 0) play();
+          };
+
+          ScrollTrigger.create({
+            trigger: wrap,
+            start: 'top bottom+=36',
+            once: true,
+            onEnter: play,
+            onRefresh: () => catchUp?.(),
+          });
+
+          catchUp();
+          requestAnimationFrame(() => catchUp?.());
+          window.addEventListener('scroll', catchUp, { passive: true });
+          ScrollTrigger.addEventListener('scrollStart', catchUp);
+          ScrollTrigger.addEventListener('scrollEnd', catchUp);
+        }, wrap);
+
+        return () => {
+          if (catchUp) {
+            window.removeEventListener('scroll', catchUp);
+            ScrollTrigger.removeEventListener('scrollStart', catchUp);
+            ScrollTrigger.removeEventListener('scrollEnd', catchUp);
+          }
+          resizeObserver?.disconnect();
+          ctx.revert();
+        };
+      },
+    );
+
+    return () => {
+      mm.revert();
+    };
   }, [list.length]);
 
   if (!heading && !list.length) return null;
@@ -89,13 +199,14 @@ export function TurnkeyRoute({ id, blockName, eyebrow, title, steps }: Props) {
   return (
     <section className={styles.section} id={sectionId}>
       <Container>
-        <AnimatedContent distance={64} duration={0.75} threshold={0.15} stagger={0.08}>
+        <AnimatedContent distance={88} duration={0.95} stagger={0.08}>
           {eyebrow?.trim() ? <p className={styles.eyebrow}>{eyebrow.trim()}</p> : null}
           {heading ? <h2 className={styles.heading}>{heading}</h2> : null}
         </AnimatedContent>
 
         {rows.length ? (
           <div className={styles.trackWrap} ref={trackWrapRef}>
+            <div className={styles.lineVertical} aria-hidden />
             {rows.map((row, rowIndex) => (
               <div key={row[0]?.id ?? `row-${rowIndex}`} className={styles.row}>
                 <div className={styles.line} aria-hidden />

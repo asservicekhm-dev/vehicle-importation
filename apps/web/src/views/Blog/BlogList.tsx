@@ -19,7 +19,7 @@ export function BlogList({ page, posts, readMoreLabel, emptyLabel }: Props) {
   return (
     <section className={styles.section}>
       <Container>
-        <AnimatedContent distance={64} duration={0.75} threshold={0.15} stagger={0.08}>
+        <AnimatedContent distance={88} duration={0.95} stagger={0.08}>
           <header className={styles.header}>
             <h1 className={styles.title}>{title}</h1>
           </header>

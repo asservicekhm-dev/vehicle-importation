@@ -72,7 +72,7 @@ export function AboutIntro({
   return (
     <section className={styles.section} id={sectionId} aria-labelledby={headingId}>
       <Container>
-        <AnimatedContent distance={64} duration={0.75} threshold={0.15} stagger={0.08}>
+        <AnimatedContent distance={88} duration={0.95} stagger={0.08}>
           <div className={styles.topRow}>
             <div className={styles.eyebrowCol}>
               <Eyebrow text={eyebrow} />

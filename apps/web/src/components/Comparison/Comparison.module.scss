@@ -54,15 +54,33 @@
   gap: var(--space-5);
   border-radius: var(--radius-md);
   padding: var(--space-6);
+  transition:
+    transform 0.28s ease,
+    box-shadow 0.28s ease,
+    border-color 0.28s ease;
 
   @include tablet {
     padding: var(--space-8);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-2);
+    }
   }
 }
 
 .columnMuted {
   border: 1px solid var(--color-border);
   background-color: var(--color-surface-2);
+  box-shadow: var(--shadow-1);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: color-mix(in srgb, var(--color-accent) 35%, var(--color-border));
+    }
+  }
 }
 
 .columnAccent {
@@ -73,6 +91,12 @@
     var(--color-surface-1) 8rem
   );
   box-shadow: var(--shadow-1);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: color-mix(in srgb, var(--color-accent) 70%, var(--color-border));
+    }
+  }
 }
 
 .columnTitle {
@@ -113,4 +137,16 @@
 .markAccent {
   color: var(--color-accent);
   font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .columnMuted,
+  .columnAccent {
+    transition: none;
+  }
+
+  .columnMuted:hover,
+  .columnAccent:hover {
+    transform: none;
+  }
 }

@@ -25,7 +25,7 @@ export function Comparison({ id, blockName, eyebrow, title, intro, leftColumn, r
       aria-labelledby={heading ? headingId : undefined}
     >
       <Container>
-        <AnimatedContent distance={64} duration={0.75} threshold={0.15} stagger={0.08}>
+        <AnimatedContent distance={88} duration={0.95} stagger={0.08}>
           <div className={styles.header}>
             {eyebrow?.trim() ? <p className={styles.eyebrow}>{eyebrow.trim()}</p> : null}
             {heading ? (

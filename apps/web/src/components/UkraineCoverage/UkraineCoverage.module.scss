@@ -37,11 +37,16 @@
 
 .title {
   margin: 0;
+  max-width: 100%;
+  min-width: 0;
   font-weight: 800;
-  font-size: var(--text-3xl);
-  line-height: var(--leading-tight);
+  font-size: clamp(1.625rem, 6.2vw, var(--text-3xl));
+  line-height: 1.18;
+  letter-spacing: -0.01em;
   font-family: var(--font-heading);
   text-transform: uppercase;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 .titleMain {
@@ -49,6 +54,7 @@
 }
 
 .titleAccent {
+  display: inline-block;
   color: var(--color-accent);
 }
 

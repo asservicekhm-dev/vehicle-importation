@@ -57,7 +57,7 @@ function BookingFormInner(props: Props) {
       data-variant={variant}
     >
       <Container>
-        <AnimatedContent distance={64} duration={0.75} threshold={0.15}>
+        <AnimatedContent distance={88} duration={0.95}>
           <div className={clsx(styles.layout, isPitch ? styles.layoutPitch : styles.layoutCallback)}>
             {isPitch ? (
               <>

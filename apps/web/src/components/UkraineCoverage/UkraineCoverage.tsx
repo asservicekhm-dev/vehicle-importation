@@ -74,9 +74,8 @@ export function UkraineCoverage({
       <Container>
         <AnimatedContent
           className={styles.layout}
-          distance={64}
-          duration={0.75}
-          threshold={0.15}
+          distance={88}
+          duration={0.95}
           stagger={0.08}
         >
           <div className={styles.copy}>

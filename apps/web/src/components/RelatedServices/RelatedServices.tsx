@@ -24,7 +24,7 @@ export function RelatedServices({ id, blockName, title, items }: Props) {
       aria-labelledby={heading ? headingId : undefined}
     >
       <Container>
-        <AnimatedContent distance={48} duration={0.7} threshold={0.12} stagger={0.06}>
+        <AnimatedContent distance={72} duration={0.9} stagger={0.06}>
           {heading ? (
             <h2 id={headingId} className={styles.title}>
               {heading}

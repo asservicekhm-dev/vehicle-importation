@@ -87,7 +87,7 @@ export function Directions({
       aria-labelledby={heading || accent ? headingId : undefined}
     >
       <Container>
-        <AnimatedContent distance={64} duration={0.75} threshold={0.15} stagger={0.08}>
+        <AnimatedContent distance={72} duration={0.85}>
           <div className={styles.header}>
             <div className={styles.titleBlock}>
               {heading || accent ? (
@@ -103,56 +103,64 @@ export function Directions({
               </div>
             ) : null}
           </div>
-
-          {cards.length > 0 ? (
-            <ul className={styles.grid}>
-              {cards.map((card) => {
-                const hasPrimary = Boolean(card.primary?.label?.trim());
-                const hasSecondary = Boolean(card.secondary?.label?.trim());
-                const hasImage = Boolean(card.image && typeof card.image !== 'string');
-
-                return (
-                  <li key={card.id} className={styles.gridItem}>
-                    <article className={styles.card}>
-                      {hasImage ? (
-                        <div className={styles.cardImage}>
-                          <CMSMedia
-                            media={card.image}
-                            className={styles.cardImg}
-                            fill
-                            sizes='(min-width: 768px) 40vw, 100vw'
-                          />
-                        </div>
-                      ) : null}
-                      <div className={styles.cardBody}>
-                        <h3 className={styles.cardTitle}>{card.title}</h3>
-                        {card.description ? (
-                          <p className={styles.cardDesc}>{card.description}</p>
-                        ) : null}
-                        {hasPrimary || hasSecondary ? (
-                          <div className={styles.cardActions}>
-                            {hasPrimary ? (
-                              <CMSLink link={card.primary} className={styles.cardCta}>
-                                {card.primary?.label}
-                              </CMSLink>
-                            ) : null}
-                            {hasSecondary ? (
-                              <CMSLink link={card.secondary} className={styles.cardCtaSecondary}>
-                                {card.secondary?.label}
-                              </CMSLink>
-                            ) : null}
-                          </div>
-                        ) : (
-                          <span className={styles.cardCtaMuted}>{t('order')}</span>
-                        )}
-                      </div>
-                    </article>
-                  </li>
-                );
-              })}
-            </ul>
-          ) : null}
         </AnimatedContent>
+
+        {cards.length > 0 ? (
+          <AnimatedContent
+            className={styles.grid}
+            role='list'
+            distance={96}
+            duration={0.9}
+            blur={6}
+            scale={0.97}
+            stagger={0.1}
+          >
+            {cards.map((card) => {
+              const hasPrimary = Boolean(card.primary?.label?.trim());
+              const hasSecondary = Boolean(card.secondary?.label?.trim());
+              const hasImage = Boolean(card.image && typeof card.image !== 'string');
+
+              return (
+                <div key={card.id} className={styles.gridItem} role='listitem'>
+                  <article className={styles.card}>
+                    {hasImage ? (
+                      <div className={styles.cardImage}>
+                        <CMSMedia
+                          media={card.image}
+                          className={styles.cardImg}
+                          fill
+                          sizes='(min-width: 768px) 40vw, 100vw'
+                        />
+                      </div>
+                    ) : null}
+                    <div className={styles.cardBody}>
+                      <h3 className={styles.cardTitle}>{card.title}</h3>
+                      {card.description ? (
+                        <p className={styles.cardDesc}>{card.description}</p>
+                      ) : null}
+                      {hasPrimary || hasSecondary ? (
+                        <div className={styles.cardActions}>
+                          {hasPrimary ? (
+                            <CMSLink link={card.primary} className={styles.cardCta}>
+                              {card.primary?.label}
+                            </CMSLink>
+                          ) : null}
+                          {hasSecondary ? (
+                            <CMSLink link={card.secondary} className={styles.cardCtaSecondary}>
+                              {card.secondary?.label}
+                            </CMSLink>
+                          ) : null}
+                        </div>
+                      ) : (
+                        <span className={styles.cardCtaMuted}>{t('order')}</span>
+                      )}
+                    </div>
+                  </article>
+                </div>
+              );
+            })}
+          </AnimatedContent>
+        ) : null}
       </Container>
     </section>
   );

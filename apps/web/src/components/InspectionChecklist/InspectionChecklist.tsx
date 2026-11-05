@@ -16,22 +16,27 @@ export function InspectionChecklist({ id, blockName, eyebrow, title, intro, item
   return (
     <section className={styles.section} id={sectionId}>
       <Container>
-        <AnimatedContent
-          className={styles.layout}
-          distance={64}
-          duration={0.75}
-          threshold={0.15}
-          stagger={0.08}
-        >
-          <div>
-            {eyebrow?.trim() ? <p className={styles.eyebrow}>{eyebrow.trim()}</p> : null}
-            {heading ? <h2 className={styles.heading}>{heading}</h2> : null}
-            {intro?.trim() ? <p className={styles.intro}>{intro.trim()}</p> : null}
-          </div>
+        <div className={styles.layout}>
+          <AnimatedContent distance={72} duration={0.85}>
+            <div>
+              {eyebrow?.trim() ? <p className={styles.eyebrow}>{eyebrow.trim()}</p> : null}
+              {heading ? <h2 className={styles.heading}>{heading}</h2> : null}
+              {intro?.trim() ? <p className={styles.intro}>{intro.trim()}</p> : null}
+            </div>
+          </AnimatedContent>
           {list.length ? (
-            <ul className={styles.list}>
+            <AnimatedContent
+              className={styles.list}
+              role='list'
+              distance={96}
+              duration={0.95}
+              ease='power3.out'
+              blur={8}
+              scale={0.96}
+              stagger={0.16}
+            >
               {list.map((item, index) => (
-                <li key={item.id ?? index} className={styles.item}>
+                <div key={item.id ?? index} className={styles.item} role='listitem'>
                   <span className={styles.check}>
                     <span className={styles.mark} aria-hidden>
                       ✓
@@ -41,11 +46,11 @@ export function InspectionChecklist({ id, blockName, eyebrow, title, intro, item
                   {item.detail?.trim() ? (
                     <p className={styles.detail}>{item.detail.trim()}</p>
                   ) : null}
-                </li>
+                </div>
               ))}
-            </ul>
+            </AnimatedContent>
           ) : null}
-        </AnimatedContent>
+        </div>
       </Container>
     </section>
   );

@@ -25,7 +25,7 @@ export function ServiceHero({ id, blockName, eyebrow, title, description, image 
       aria-labelledby={heading ? headingId : undefined}
     >
       <Container>
-        <AnimatedContent distance={48} duration={0.7} threshold={0.12}>
+        <AnimatedContent distance={72} duration={0.9}>
           <div className={styles.layout}>
             <div className={styles.copy}>
               {eyebrow?.trim() ? <p className={styles.eyebrow}>{eyebrow.trim()}</p> : null}

@@ -23,7 +23,7 @@ export function BlogPost({ post, backLabel }: Props) {
   return (
     <article className={styles.post}>
       <Container>
-        <AnimatedContent distance={48} duration={0.7} threshold={0.12}>
+        <AnimatedContent distance={72} duration={0.9}>
           <Link className={styles.back} href='/blog'>
             {backLabel}
           </Link>

@@ -43,7 +43,7 @@ export function PriceListSection({
   return (
     <section className={styles.section} id={sectionId}>
       <Container>
-        <AnimatedContent distance={64} duration={0.75} threshold={0.15} stagger={0.08}>
+        <AnimatedContent distance={88} duration={0.95} stagger={0.08}>
           <h2 className={styles.heading}>{heading}</h2>
           <div className={styles.grid} data-animate='price-grid'>
             {groups.map((group, index) => (

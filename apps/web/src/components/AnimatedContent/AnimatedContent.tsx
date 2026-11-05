@@ -44,6 +44,7 @@ export type AnimatedContentProps = Omit<HTMLAttributes<HTMLDivElement>, 'childre
   rotate?: number;
   tilt?: number;
   wipe?: Wipe;
+  /** 0–1: how far into the viewport the top must reach before playing (0.2 ≈ start at top 80%). */
   threshold?: number;
   delay?: number;
   stagger?: number;
@@ -61,13 +62,17 @@ export type AnimatedContentProps = Omit<HTMLAttributes<HTMLDivElement>, 'childre
   style?: CSSProperties;
 };
 
+function clamp01(value: number) {
+  return Math.min(Math.max(value, 0), 1);
+}
+
 export function AnimatedContent({
   children,
   container,
-  distance = 100,
+  distance = 80,
   direction = 'vertical',
   reverse = false,
-  duration = 0.8,
+  duration = 0.9,
   ease = 'power3.out',
   initialOpacity = 0,
   animateOpacity = true,
@@ -76,7 +81,7 @@ export function AnimatedContent({
   rotate = 0,
   tilt = 0,
   wipe = 'none',
-  threshold = 0.1,
+  threshold = 0.18,
   delay = 0,
   stagger = 0,
   staggerFrom = 'start',
@@ -105,6 +110,9 @@ export function AnimatedContent({
     if (typeof scroller === 'string') scroller = document.querySelector(scroller);
 
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+
+    let catchUp: (() => void) | undefined;
+    let disposeCatchUp: (() => void) | undefined;
 
     const ctx = gsap.context(() => {
       const targets = stagger > 0 && el.children.length ? Array.from(el.children) : [el];
@@ -194,61 +202,182 @@ export function AnimatedContent({
         return;
       }
 
-      // Fire as soon as the top peeks into the viewport. Using `top 85%`-style
-      // starts (via threshold) left below-the-fold peeks stuck at opacity 0.
-      const start = 'top bottom';
+      // Fire as soon as the resting layout box peeks into the viewport. A mid-viewport
+      // start (e.g. top 82%) leaves below-the-fold peeks stuck at opacity 0 until scroll.
+      const startPct = (1 - clamp01(threshold)) * 100;
+      const scrubStart = `top ${startPct}%`;
       const scrollTriggerScroller = scroller || undefined;
 
       if (scrub) {
-        const scrubStart = `top ${(1 - Math.min(Math.max(threshold, 0), 1)) * 100}%`;
         ScrollTrigger.create({
           trigger: el,
           scroller: scrollTriggerScroller,
           start: scrubStart,
-          end: `top ${Math.max((1 - threshold) * 100 - 45, 5)}%`,
+          end: `top ${Math.max(startPct - 45, 5)}%`,
           scrub: scrub === true ? true : Math.max(Number(scrub) || 0, 0.01),
           animation: tl,
         });
         return;
       }
 
+      let started = false;
+      let cancelled = false;
+      let loadHandler: (() => void) | undefined;
+      let io: IntersectionObserver | undefined;
+      // Enter offset shifts getBoundingClientRect; ST must fire on the resting layout box
+      // or laptop peeks under the hero stay blank (section padding visible, content below fold).
+      const enterLead = Math.ceil(Math.abs(distance));
+      const enterStart = horizontal ? `left right+=${enterLead}` : `top bottom+=${enterLead}`;
+
+      const stopCatchUp = () => {
+        if (catchUp) {
+          window.removeEventListener('scroll', catchUp);
+          document.removeEventListener('scroll', catchUp);
+          ScrollTrigger.removeEventListener('scrollEnd', catchUp);
+          ScrollTrigger.removeEventListener('scrollStart', catchUp);
+        }
+        if (loadHandler) window.removeEventListener('load', loadHandler);
+        io?.disconnect();
+        io = undefined;
+      };
+      disposeCatchUp = () => {
+        cancelled = true;
+        stopCatchUp();
+      };
+
       const play = () => {
-        if (tl.progress() === 0 && !tl.isActive()) tl.play();
+        if (cancelled || started) return;
+        started = true;
+        stopCatchUp();
+        if (tl.progress() < 1) tl.play();
+      };
+
+      /** Snap to final state when the block was scrolled past without a chance to play. */
+      const finish = () => {
+        if (cancelled) return;
+        if (started && tl.progress() === 1) return;
+        started = true;
+        stopCatchUp();
+        tl.progress(1);
+      };
+
+      /**
+       * Resting layout box. Subtract the wrapper enter translate when present.
+       * Stagger moves children instead — the wrapper border-box is already the resting box.
+       */
+      const layoutBox = () => {
+        const rect = el.getBoundingClientRect();
+        const ox = Number(gsap.getProperty(el, 'x')) || 0;
+        const oy = Number(gsap.getProperty(el, 'y')) || 0;
+        return {
+          top: rect.top - oy,
+          bottom: rect.bottom - oy,
+          left: rect.left - ox,
+          right: rect.right - ox,
+        };
+      };
+
+      /**
+       * Fast wheel / trackpad scrolls can jump past ScrollTrigger's enter line
+       * between ticks, so onEnter never fires and content stays at opacity 0.
+       * Any viewport intersection of the resting layout box (incl. peeks) must play.
+       * Listen on document too — some Chromium builds drop window scroll events.
+       */
+      catchUp = () => {
+        if (cancelled || started) return;
+        const box = layoutBox();
+        const viewH = window.innerHeight || document.documentElement.clientHeight;
+        const viewW = window.innerWidth || document.documentElement.clientWidth;
+        if (horizontal) {
+          if (box.right <= 0) {
+            finish();
+            return;
+          }
+          if (box.left < viewW && box.right > 0) play();
+          return;
+        }
+        if (box.bottom <= 0) {
+          finish();
+          return;
+        }
+        if (box.top < viewH && box.bottom > 0) play();
       };
 
       ScrollTrigger.create({
         trigger: el,
         scroller: scrollTriggerScroller,
-        start,
+        start: enterStart,
         once,
         onEnter: play,
+        onEnterBack: once ? undefined : play,
+        onRefresh: () => catchUp?.(),
         onLeaveBack: once
           ? undefined
           : () => {
+              started = false;
               if (mask) gsap.set(targets, { maskImage: mask, webkitMaskImage: mask });
               tl.reverse();
             },
       });
 
-      // ScrollTrigger onEnter can miss content that is already peeking into the
-      // viewport on first paint (hero height / layout). If the top is already
-      // above the bottom of the viewport, reveal now instead of waiting for scroll.
-      const revealIfAlreadyDue = () => {
-        const rect = el.getBoundingClientRect();
-        const viewH = window.innerHeight || document.documentElement.clientHeight;
-        if (rect.bottom <= 0) {
-          // Fully above the fold (e.g. scroll restoration) — show final state.
-          tl.progress(1);
-          return;
-        }
-        if (rect.top < viewH) play();
-      };
+      if (typeof IntersectionObserver !== 'undefined') {
+        io = new IntersectionObserver(
+          (entries) => {
+            if (cancelled || started) return;
+            for (const entry of entries) {
+              if (entry.isIntersecting || entry.intersectionRatio > 0) {
+                play();
+                return;
+              }
+              if (entry.boundingClientRect.bottom < 0) finish();
+            }
+          },
+          {
+            root: null,
+            // Expand only the leading edge so we fire just before enter.
+            rootMargin: horizontal
+              ? `0px ${enterLead}px 0px 0px`
+              : `0px 0px ${enterLead}px 0px`,
+            threshold: [0, 0.01, 0.1],
+          },
+        );
+        // Observe after paint so visibility:visible + layout are settled.
+        requestAnimationFrame(() => {
+          if (!cancelled && !started) io?.observe(el);
+        });
+      }
 
-      revealIfAlreadyDue();
-      requestAnimationFrame(revealIfAlreadyDue);
+      catchUp();
+      requestAnimationFrame(() => {
+        catchUp?.();
+        ScrollTrigger.refresh();
+        requestAnimationFrame(() => catchUp?.());
+      });
+      // Hero media / fonts can push layout after first paint — re-check once settled.
+      loadHandler = () => {
+        ScrollTrigger.refresh();
+        catchUp?.();
+      };
+      if (document.readyState === 'complete') {
+        requestAnimationFrame(loadHandler);
+      } else {
+        window.addEventListener('load', loadHandler, { once: true });
+      }
+      void document.fonts?.ready?.then(() => {
+        if (cancelled) return;
+        ScrollTrigger.refresh();
+        catchUp?.();
+      });
+      window.addEventListener('scroll', catchUp, { passive: true });
+      document.addEventListener('scroll', catchUp, { passive: true, capture: true });
+      ScrollTrigger.addEventListener('scrollStart', catchUp);
+      ScrollTrigger.addEventListener('scrollEnd', catchUp);
     }, el);
 
-    return () => ctx.revert();
+    return () => {
+      disposeCatchUp?.();
+      ctx.revert();
+    };
   }, [
     container,
     distance,

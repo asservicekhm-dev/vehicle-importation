@@ -26,7 +26,7 @@ export function ServiceInfo({ id, blockName, title, body, primaryCta, secondaryC
       aria-labelledby={heading ? headingId : undefined}
     >
       <Container>
-        <AnimatedContent distance={40} duration={0.65} threshold={0.12}>
+        <AnimatedContent distance={56} duration={0.85}>
           <div className={styles.inner}>
             {heading ? (
               <h2 id={headingId} className={styles.title}>
