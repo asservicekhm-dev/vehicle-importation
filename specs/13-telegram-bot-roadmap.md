@@ -18,13 +18,15 @@ flowchart LR
 
 ## Milestone B0 — Bot app scaffold
 
-- Create `apps/bot` (`@autosearch/bot`): Node 20, TypeScript `5.7.3`, [grammY](https://grammy.dev). No Next.js.
-- Package scripts: `dev` (tsx/watch), `build` (`tsc`), `start` (`node dist/…`), `lint`, `typecheck`.
-- Root scripts: `pnpm dev:bot`, `pnpm build:bot`; wire turbo filter.
-- `apps/bot/.env.example`: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_MODE=polling`, optional webhook vars, `BOT_INTERNAL_SECRET`, `CMS_INTERNAL_URL`.
-- Add bot runtime secrets to root `turbo.json` `globalPassThroughEnv`.
-- HTTP server: `GET /health` (liveness). Long-polling mode when webhook URL unset / `TELEGRAM_MODE=polling`.
-- Private chats only stub (ignore groups). Ukrainian copy module stub (`apps/bot/src/i18n/ua.ts`).
+**Status:** engineered in repo — needs your `TELEGRAM_BOT_TOKEN` in `apps/bot/.env` to confirm live polling.
+
+- [x] Create `apps/bot` (`@autosearch/bot`): Node 20, TypeScript `5.7.3`, [grammY](https://grammy.dev). No Next.js.
+- [x] Package scripts: `dev` (tsx/watch), `build` (`tsc`), `start` (`node dist/…`), `lint`, `typecheck`.
+- [x] Root scripts: `pnpm dev:bot`, `pnpm build:bot`; wire turbo filter.
+- [x] `apps/bot/.env.example`: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_MODE=polling`, optional webhook vars, `BOT_INTERNAL_SECRET`, `CMS_INTERNAL_URL`.
+- [x] Add bot runtime secrets to root `turbo.json` `globalPassThroughEnv`.
+- [x] HTTP server: `GET /health` (liveness). Long-polling mode when webhook URL unset / `TELEGRAM_MODE=polling`.
+- [x] Private chats only stub (ignore groups). Ukrainian copy module stub (`apps/bot/src/i18n/ua.ts`).
 
 **Exit:** `pnpm install` + `pnpm dev:bot` starts; `GET /health` ok without CMS; bot connects to Telegram via polling with a valid token (or fails clearly if token missing).
 

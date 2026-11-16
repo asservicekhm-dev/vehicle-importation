@@ -28,7 +28,15 @@
     "S3_PRESIGN_EXPIRES_SECONDS",
     "S3_ACL",
     "MEDIA_PATH",
-    "WATCHPACK_POLLING"
+    "WATCHPACK_POLLING",
+    "TELEGRAM_BOT_TOKEN",
+    "TELEGRAM_MODE",
+    "TELEGRAM_WEBHOOK_URL",
+    "TELEGRAM_WEBHOOK_SECRET",
+    "BOT_INTERNAL_SECRET",
+    "BOT_INTERNAL_URL",
+    "PORT",
+    "HOST"
   ],
   "tasks": {
     "dev": {
@@ -37,7 +45,7 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "generate:types": {
       "cache": false
