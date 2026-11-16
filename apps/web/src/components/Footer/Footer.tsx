@@ -117,6 +117,10 @@ export function Footer() {
   const { contacts, footer, header } = useGlobals();
 
   const scrollToTop = useCallback(() => {
+    if (window.location.hash) {
+      const nextUrl = `${window.location.pathname}${window.location.search}`;
+      window.history.replaceState(null, '', nextUrl);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 

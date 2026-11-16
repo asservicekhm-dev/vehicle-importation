@@ -11,7 +11,10 @@ export const toxigenesisFont = localFont({
   preload: false,
 });
 
-/** Body UI font — Gilroy Regular / Medium / SemiBold / Bold. */
+/**
+ * Body UI font — all Gilroy weights. Preload is off so Medium / SemiBold /
+ * Bold do not compete with the hero image; Regular is preloaded separately.
+ */
 export const gilroyFont = localFont({
   src: [
     { path: '../fonts/gilroy-regular.woff2', weight: '400', style: 'normal' },
@@ -22,6 +25,20 @@ export const gilroyFont = localFont({
   variable: '--font-gilroy',
   display: 'swap',
   adjustFontFallback: 'Arial',
+  preload: false,
+});
+
+/**
+ * Preload-only handle for Gilroy Regular. Same file hash as the 400 face in
+ * `gilroyFont`, so the browser fetches Regular once.
+ */
+export const gilroyRegularPreload = localFont({
+  src: '../fonts/gilroy-regular.woff2',
+  weight: '400',
+  style: 'normal',
+  variable: '--font-gilroy-preload',
+  display: 'swap',
+  preload: true,
 });
 
 /** Heading fallback when Toxigenesis fails to load (Cyrillic + Latin). */
@@ -36,5 +53,6 @@ export const manropeFont = Manrope({
 export const fontClassNames = [
   toxigenesisFont.variable,
   gilroyFont.variable,
+  gilroyRegularPreload.variable,
   manropeFont.variable,
 ].join(' ');

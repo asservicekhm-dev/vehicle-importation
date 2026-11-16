@@ -22,6 +22,11 @@ export function BackToTop() {
   }, []);
 
   const scrollToTop = () => {
+    // Drop section hashes so a refresh opens at the top, not `/#…`.
+    if (window.location.hash) {
+      const nextUrl = `${window.location.pathname}${window.location.search}`;
+      window.history.replaceState(null, '', nextUrl);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

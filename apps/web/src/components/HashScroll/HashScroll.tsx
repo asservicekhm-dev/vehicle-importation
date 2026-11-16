@@ -6,7 +6,7 @@ import { smoothScrollToHash } from '@/lib/smoothScrollTo';
 
 const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
-/** Late passes cover ScrollTrigger refreshes after fonts, images, and split chunks. */
+/** Late passes cover layout shifts after fonts, images, and deferred chunks. */
 const RETRY_MS = [0, 50, 150, 400, 900, 1600];
 
 function hashId(): string {
@@ -27,11 +27,9 @@ function isAligned(id: string): boolean {
 }
 
 /**
- * Direct loads of `/#route` stay at the top the first time.
- * ScrollTrigger.refresh() during startup calls scrollTo(0) and sets
- * history.scrollRestoration to "manual", which cancels the browser's pending
- * fragment scroll. A cached reload applies the hash before that refresh, so
- * only the first visit is wrong. Re-apply the hash after that refresh.
+ * Direct loads of `/#route` can miss the fragment when deferred chunks or
+ * fonts change layout after the first paint. Re-apply the hash a few times
+ * until the target is aligned (or the retries run out).
  */
 export function HashScroll() {
   useIsomorphicLayoutEffect(() => {
@@ -58,8 +56,6 @@ export function HashScroll() {
       smoothScrollToHash(`#${id}`, { updateUrl: false, behavior: 'auto' });
     };
 
-    // Registered after block layout effects, so this runs after ScrollTrigger's
-    // startup refresh (also a rAF) and still before the first paint.
     const raf = requestAnimationFrame(() => {
       align();
       requestAnimationFrame(align);

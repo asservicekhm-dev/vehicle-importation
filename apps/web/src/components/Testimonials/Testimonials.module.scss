@@ -85,6 +85,44 @@
   color: var(--color-on-brand);
 }
 
+/* Static quote list shown until the Swiper chunk mounts. */
+.shellList {
+  display: grid;
+  gap: var(--space-6);
+  margin: 0;
+  padding: 0 var(--space-5) var(--space-4);
+  list-style: none;
+  min-height: 16rem;
+
+  @include tablet {
+    padding-inline: var(--space-8);
+  }
+
+  @include laptop {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding-inline: var(--space-12);
+  }
+}
+
+.shellItem {
+  margin: 0;
+}
+
+.shellQuote {
+  margin: 0 0 var(--space-3);
+  color: var(--color-on-brand);
+  font-size: var(--text-md);
+  line-height: var(--leading-body);
+}
+
+.shellAuthor {
+  margin: 0;
+  opacity: 0.8;
+  color: var(--color-on-brand);
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
 .sliderWrap {
   position: relative;
   padding: var(--space-3) var(--space-5) 0;

@@ -30,10 +30,7 @@ export function InspectionChecklist({ id, blockName, eyebrow, title, intro, item
               role='list'
               distance={96}
               duration={0.95}
-              ease='power3.out'
-              blur={8}
-              scale={0.96}
-              stagger={0.16}
+              stagger={0.08}
             >
               {list.map((item, index) => (
                 <div key={item.id ?? index} className={styles.item} role='listitem'>

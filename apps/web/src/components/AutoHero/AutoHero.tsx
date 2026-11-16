@@ -70,14 +70,28 @@ export function AutoHero({
     const mount = () => setMountAllLayers(true);
     let idleId: number | undefined;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    let cancelled = false;
 
-    if (typeof window.requestIdleCallback === 'function') {
-      idleId = window.requestIdleCallback(mount, { timeout: 2000 });
+    const afterLoad = () => {
+      if (cancelled) return;
+      // No idle timeout — wait for a real idle slot so inactive slides
+      // do not compete with LCP bandwidth on a busy main thread.
+      if (typeof window.requestIdleCallback === 'function') {
+        idleId = window.requestIdleCallback(mount);
+      } else {
+        timer = setTimeout(mount, 0);
+      }
+    };
+
+    if (document.readyState === 'complete') {
+      afterLoad();
     } else {
-      timer = setTimeout(mount, 1200);
+      window.addEventListener('load', afterLoad, { once: true });
     }
 
     return () => {
+      cancelled = true;
+      window.removeEventListener('load', afterLoad);
       if (idleId !== undefined) window.cancelIdleCallback?.(idleId);
       if (timer !== undefined) clearTimeout(timer);
     };
@@ -174,7 +188,10 @@ export function AutoHero({
       const current = ids.includes(origin) ? origin : ids[0];
       const index = ids.indexOf(current);
       const next = ids[(index + 1) % ids.length];
-      if (next) setOrigin(next);
+      if (!next) return;
+      // Same path as a click: mount inactive layers before switching.
+      setMountAllLayers(true);
+      setOrigin(next);
     }, ORIGIN_AUTO_MS);
 
     return () => {

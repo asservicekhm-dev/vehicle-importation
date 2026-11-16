@@ -48,3 +48,10 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Deferred LazyMount shells: hide before the real block mounts + plays entrance. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-ac] [data-ac-shell] {
+    opacity: 0;
+  }
+}

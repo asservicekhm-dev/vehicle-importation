@@ -1,0 +1,46 @@
+.root {
+  --ac-y: 88px;
+  --ac-duration: 0.85s;
+  --ac-stagger: 0s;
+}
+
+/* No-JS / reduced-motion / before data-ac: content stays visible. */
+.single,
+.stagger > * {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /*
+   * `html[data-ac]` is set by a head script before paint — so first paint is
+   * already in the "from" state. React only flips `.play` to run the entrance.
+   * Opacity + translate only (no blur/scale).
+   */
+  :global(html[data-ac]) .single:not(.play) {
+    opacity: 0;
+    transform: translate3d(0, var(--ac-y), 0);
+  }
+
+  :global(html[data-ac]) .single.play {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    transition:
+      opacity var(--ac-duration) cubic-bezier(0.22, 1, 0.36, 1),
+      transform var(--ac-duration) cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  :global(html[data-ac]) .stagger:not(.play) > * {
+    opacity: 0;
+    transform: translate3d(0, var(--ac-y), 0);
+  }
+
+  :global(html[data-ac]) .stagger.play > * {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    transition:
+      opacity var(--ac-duration) cubic-bezier(0.22, 1, 0.36, 1),
+      transform var(--ac-duration) cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: calc(var(--ac-child-index, 0) * var(--ac-stagger));
+  }
+}

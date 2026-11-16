@@ -13,6 +13,7 @@ import { getBrandIconUrls, pickBrandIcon } from '@/lib/cms/brandIcons';
 import { getGlobals } from '@/lib/cms/getGlobals';
 import { fontClassNames } from '@/lib/fonts';
 import { APPLE_TOUCH_LINK_ID, FAVICON_LINK_ID } from '@/lib/theme/icons';
+import { animInitScript } from '@/lib/anim/script';
 import { themeInitScript } from '@/lib/theme/script';
 import { getThemePreference } from '@/lib/theme/server';
 import { Layout } from '@/views/Layout';
@@ -86,6 +87,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           <link id={APPLE_TOUCH_LINK_ID} rel='apple-touch-icon' href={initialAppleTouch} />
         ) : null}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: animInitScript }} />
         <GoogleTagManager gtmId={gtmId} />
       </head>
       <body suppressHydrationWarning>

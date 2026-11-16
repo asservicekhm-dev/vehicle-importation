@@ -109,11 +109,9 @@ export function Directions({
           <AnimatedContent
             className={styles.grid}
             role='list'
-            distance={96}
-            duration={0.9}
-            blur={6}
-            scale={0.97}
-            stagger={0.1}
+            distance={88}
+            duration={0.8}
+            stagger={0.08}
           >
             {cards.map((card) => {
               const hasPrimary = Boolean(card.primary?.label?.trim());

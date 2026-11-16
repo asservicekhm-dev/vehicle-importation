@@ -154,6 +154,8 @@
   border-radius: var(--radius-md);
   background-color: var(--color-surface-1);
   padding: var(--space-6);
+  /* Reserve space while LazyMount shell waits for the form chunk. */
+  min-height: 18rem;
 
   @include tablet {
     padding: var(--space-8);

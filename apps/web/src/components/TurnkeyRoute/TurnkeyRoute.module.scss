@@ -150,6 +150,35 @@
   }
 }
 
+/* Step titles only — holds layout until the GSAP timeline chunk mounts. */
+.shellTrack {
+  display: grid;
+  gap: var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-height: 20rem;
+
+  @include laptop {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+}
+
+.shellStep {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  column-gap: var(--space-4);
+  align-items: center;
+
+  @include laptop {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    align-items: flex-start;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .line {
     transform: scaleX(1);
