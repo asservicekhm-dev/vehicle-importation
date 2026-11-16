@@ -1,8 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-function siteOrigin(): string {
-  return (process.env.NEXT_PUBLIC_URL?.trim() || 'http://localhost:3000').replace(/\/$/, '');
-}
+import { siteOrigin } from '@/lib/seo/pageMetadata';
 
 export default function robots(): MetadataRoute.Robots {
   const origin = siteOrigin();

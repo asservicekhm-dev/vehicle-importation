@@ -1,0 +1,1 @@
+[2026-11-16] Audit completed: 0 pages captured (1 discovered, crawl incomplete), 4 findings (1 critical, 3 high, 0 medium, 0 low). Origin https://autosearch.km.ua does not resolve — domain inactive, RedemptionPeriod.

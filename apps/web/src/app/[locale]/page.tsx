@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 
 import { renderHome } from '@/appViewHandlers/pageBySlugViewHandlers';
+import { CmsPageJsonLd } from '@/components/JsonLd/CmsPageJsonLd';
 import { HOME_SLUG } from '@/lib/cms/constants';
 import { getPageBySlug } from '@/lib/cms/getPageBySlug';
 import { generatePageMetadata } from '@/lib/seo/pageMetadata';
@@ -37,5 +38,10 @@ export default async function HomePage({ params }: Props) {
 
   const page = await getPageBySlug(HOME_SLUG, locale);
 
-  return renderHome({ page });
+  return (
+    <>
+      <CmsPageJsonLd page={page} locale={locale} />
+      {renderHome({ page })}
+    </>
+  );
 }

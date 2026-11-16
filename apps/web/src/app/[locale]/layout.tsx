@@ -1,9 +1,11 @@
+import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 
 import { Cookies } from '@/components/Cookies';
+import { JsonLd } from '@/components/JsonLd/JsonLd';
 import { GoogleTagManager, GoogleTagManagerNoscript } from '@/components/GoogleTagManager';
 import { HashScroll } from '@/components/HashScroll';
 import { ThemeSync } from '@/components/ThemeSync';
@@ -14,6 +16,8 @@ import { getGlobals } from '@/lib/cms/getGlobals';
 import { fontClassNames } from '@/lib/fonts';
 import { APPLE_TOUCH_LINK_ID, FAVICON_LINK_ID } from '@/lib/theme/icons';
 import { animInitScript } from '@/lib/anim/script';
+import { siteJsonLd } from '@/lib/seo/jsonLd';
+import { siteOrigin } from '@/lib/seo/pageMetadata';
 import { themeInitScript } from '@/lib/theme/script';
 import { getThemePreference } from '@/lib/theme/server';
 import { Layout } from '@/views/Layout';
@@ -30,6 +34,25 @@ type Props = {
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale: localeParam } = await params;
+  if (!isLocale(localeParam)) return {};
+
+  const locale = localeParam as Locale;
+  const { siteSettings } = await getGlobals(locale);
+  const siteName = siteSettings?.siteName?.trim() || 'AS Autosearch';
+  const description = siteSettings?.defaultMetaDescription?.trim() || undefined;
+
+  return {
+    metadataBase: new URL(siteOrigin()),
+    title: {
+      default: siteSettings?.defaultMetaTitle?.trim() || siteName,
+    },
+    description,
+    applicationName: siteName,
+  };
 }
 
 export default async function LocaleLayout({ children, params }: Props) {
@@ -91,6 +114,14 @@ export default async function LocaleLayout({ children, params }: Props) {
         <GoogleTagManager gtmId={gtmId} />
       </head>
       <body suppressHydrationWarning>
+        <JsonLd
+          data={siteJsonLd({
+            locale,
+            header,
+            contacts,
+            siteSettings,
+          })}
+        />
         <GoogleTagManagerNoscript gtmId={gtmId} />
         <NextIntlClientProvider locale={locale} messages={translations}>
           <ThemeSync preference={preference} />

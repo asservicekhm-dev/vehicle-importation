@@ -8,6 +8,7 @@ import {
   renderHome,
   renderInformation,
 } from '@/appViewHandlers/pageBySlugViewHandlers';
+import { CmsPageJsonLd } from '@/components/JsonLd/CmsPageJsonLd';
 import { getPageBySlug } from '@/lib/cms/getPageBySlug';
 import { generatePageMetadata } from '@/lib/seo/pageMetadata';
 import { isLocale, type Locale } from '@autosearch/config';
@@ -55,16 +56,25 @@ export default async function CmsCatchAllPage({ params }: Props) {
 
   const page = await getPageBySlug(slug, locale);
 
-  switch (page.viewType) {
-    case 'home':
-      return renderHome({ page });
-    case 'information':
-      return renderInformation({ page });
-    case 'contacts':
-      return renderContacts({ page });
-    case 'blog':
-      return renderBlog({ page, locale });
-    default:
-      return renderInformation({ page });
-  }
+  const view = (() => {
+    switch (page.viewType) {
+      case 'home':
+        return renderHome({ page });
+      case 'information':
+        return renderInformation({ page });
+      case 'contacts':
+        return renderContacts({ page });
+      case 'blog':
+        return renderBlog({ page, locale });
+      default:
+        return renderInformation({ page });
+    }
+  })();
+
+  return (
+    <>
+      <CmsPageJsonLd page={page} locale={locale} />
+      {view}
+    </>
+  );
 }
