@@ -32,7 +32,7 @@ flowchart LR
 
 ## Milestone B1 — Access (`bot-users`)
 
-**Status:** engineered in repo — smoke: bot requests access → Admin «Телеграм» → approve/decline/block → `/start` reflects status.
+**Status:** done.
 
 - [x] CMS collection `bot-users` per [12](./12-telegram-bot.md) § Collection; Admin group «Телеграм»; register in `payload.config.ts`; `pnpm generate:types`.
 - [x] Access: Admin-only CRUD; create not public.
@@ -46,14 +46,31 @@ flowchart LR
 
 ## Milestone B2 — Lead bot API
 
-- CMS routes (same secret + require approved `telegramId` where listed in [12](./12-telegram-bot.md)):
+**Status:** engineered in repo — smoke with approved `telegramId` + `BOT_INTERNAL_SECRET` (see curl examples below).
+
+- [x] CMS routes (same secret + require approved `telegramId` where listed in [12](./12-telegram-bot.md)):
   - `GET /api/bot/leads` — paginated list (`limit=5`), sort `createdAt` desc; query params for `q`, filters
   - `GET /api/bot/leads/:id` — detail via Local API + `overrideAccess`
   - `PATCH /api/bot/leads/:id/status` — `{ status }`; set `readAt` when leaving `new` if empty
-- **Hard rule:** detail/list must **not** run Admin `afterRead` mark-as-read (`new` → `in-progress`). Do not use public `/api/leads` for the bot.
-- Validate status against existing select: `new` | `in-progress` | `won` | `lost`.
+- [x] **Hard rule:** detail/list must **not** run Admin `afterRead` mark-as-read (`new` → `in-progress`). Do not use public `/api/leads` for the bot.
+- [x] Validate status against existing select: `new` | `in-progress` | `won` | `lost`.
 
 **Exit:** Smoke/curl: open detail leaves `status: new` unchanged; status patch updates Payload and sets `readAt` when leaving `new`.
+
+```bash
+SECRET=…   # BOT_INTERNAL_SECRET
+TG=…       # approved telegramId
+# list
+curl -sS -H "Authorization: Bearer $SECRET" \
+  "http://127.0.0.1:3001/api/bot/leads?telegramId=$TG&limit=5"
+# detail (must keep status new)
+curl -sS -H "Authorization: Bearer $SECRET" \
+  "http://127.0.0.1:3001/api/bot/leads/<id>?telegramId=$TG"
+# status
+curl -sS -X PATCH -H "Authorization: Bearer $SECRET" -H 'content-type: application/json' \
+  -d "{\"telegramId\":\"$TG\",\"status\":\"in-progress\"}" \
+  "http://127.0.0.1:3001/api/bot/leads/<id>/status"
+```
 
 ## Milestone B3 — Inbox UX
 
