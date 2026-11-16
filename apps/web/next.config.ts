@@ -35,6 +35,10 @@ const nextConfig: NextConfig = {
     additionalData: `@use "@/scss/mixins" as *;`,
   },
   images: {
+    formats: ['image/avif', 'image/webp'],
+    // Floor for optimized remote CMS images when upstream Cache-Control is weak.
+    // Do not use a year — remote URLs are not content-hashed.
+    minimumCacheTTL: 14400,
     remotePatterns: s3RemotePatterns(),
     unoptimized: process.env.NEXT_IMAGE_UNOPTIMIZED === 'true',
   },

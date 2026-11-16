@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { cache } from 'react';
 
 import { payload } from '@/api';
@@ -14,19 +15,30 @@ import type { Locale } from '@autosearch/config';
 
 type GlobalSlug = 'header' | 'footer' | 'contacts' | 'site-settings' | 'price-list';
 
-async function safeGlobal<T>(slug: GlobalSlug, locale: Locale, tag: string): Promise<T | null> {
+async function fetchGlobal<T>(slug: GlobalSlug, locale: Locale): Promise<T | null> {
   try {
     return (await payload.findGlobal({
       slug,
       locale: locale as Config['locale'],
       depth: 2,
-      // @ts-expect-error SDK next options
-      next: { tags: [CACHE_TAGS.globals, tag] },
     })) as T;
   } catch (err) {
     console.error(`[getGlobals] Failed to load ${slug}`, err);
     return null;
   }
+}
+
+async function safeGlobal<T>(slug: GlobalSlug, locale: Locale, tag: string): Promise<T | null> {
+  const getCached = unstable_cache(
+    () => fetchGlobal<T>(slug, locale),
+    ['global', slug, locale],
+    {
+      tags: [CACHE_TAGS.globals, tag],
+      revalidate: false,
+    },
+  );
+
+  return getCached();
 }
 
 export const getGlobals = cache(async (locale: Locale) => {

@@ -5,12 +5,13 @@ import { getMessages, setRequestLocale } from 'next-intl/server';
 
 import { Cookies } from '@/components/Cookies';
 import { GoogleTagManager, GoogleTagManagerNoscript } from '@/components/GoogleTagManager';
+import { HashScroll } from '@/components/HashScroll';
+import { ThemeSync } from '@/components/ThemeSync';
 import { GlobalsProvider } from '@/contexts/GlobalsContext';
 import { routing } from '@/i18n/routing';
 import { getBrandIconUrls, pickBrandIcon } from '@/lib/cms/brandIcons';
 import { getGlobals } from '@/lib/cms/getGlobals';
 import { fontClassNames } from '@/lib/fonts';
-import { THEME_COLOR } from '@/lib/theme/constants';
 import { APPLE_TOUCH_LINK_ID, FAVICON_LINK_ID } from '@/lib/theme/icons';
 import { themeInitScript } from '@/lib/theme/script';
 import { getThemePreference } from '@/lib/theme/server';
@@ -44,24 +45,20 @@ export default async function LocaleLayout({ children, params }: Props) {
     getMessages(),
   ]);
 
-  const siteDefault = isThemePreference(siteSettings?.defaultTheme)
-    ? siteSettings.defaultTheme
-    : null;
-  const preference = await getThemePreference(siteDefault);
+  // Cookie wins over the site default. Explicit light/dark is also written to
+  // `data-theme` so client navigations (locale switch) don't drop the resolved theme.
+  const preference = await getThemePreference(
+    isThemePreference(siteSettings?.defaultTheme) ? siteSettings.defaultTheme : null,
+  );
   const enableThemeToggle = siteSettings?.enableThemeToggle !== false;
 
-  const resolvedTheme = preference === 'system' ? undefined : preference;
-  const themeColor =
-    preference === 'dark'
-      ? THEME_COLOR.dark
-      : preference === 'light'
-        ? THEME_COLOR.light
-        : undefined;
-
   const icons = getBrandIconUrls(siteSettings);
-  const initialFavicon = pickBrandIcon(resolvedTheme, icons.faviconLight, icons.faviconDark);
+  // Explicit light/dark picks the matching icon. `system` stays on the light
+  // asset until the inline script, or ThemeSync after a client navigation, swaps it.
+  const ssrThemeHint = preference === 'system' ? undefined : preference;
+  const initialFavicon = pickBrandIcon(ssrThemeHint, icons.faviconLight, icons.faviconDark);
   const initialAppleTouch = pickBrandIcon(
-    resolvedTheme,
+    ssrThemeHint,
     icons.appleTouchLight,
     icons.appleTouchDark,
   );
@@ -73,7 +70,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       lang={localeToHreflang[locale]}
       className={fontClassNames}
       data-theme-pref={preference}
-      {...(resolvedTheme ? { 'data-theme': resolvedTheme } : {})}
+      {...(preference === 'light' || preference === 'dark' ? { 'data-theme': preference } : {})}
       {...(icons.faviconLight ? { 'data-favicon-light': icons.faviconLight } : {})}
       {...(icons.faviconDark ? { 'data-favicon-dark': icons.faviconDark } : {})}
       {...(icons.appleTouchLight ? { 'data-apple-touch-light': icons.appleTouchLight } : {})}
@@ -81,7 +78,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       suppressHydrationWarning
     >
       <head>
-        <meta name='theme-color' content={themeColor} suppressHydrationWarning />
+        <meta name='theme-color' content='' suppressHydrationWarning />
         {initialFavicon ? (
           <link id={FAVICON_LINK_ID} rel='icon' type='image/webp' href={initialFavicon} />
         ) : null}
@@ -94,6 +91,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       <body suppressHydrationWarning>
         <GoogleTagManagerNoscript gtmId={gtmId} />
         <NextIntlClientProvider locale={locale} messages={translations}>
+          <ThemeSync preference={preference} />
           <GlobalsProvider
             header={header}
             footer={footer}
@@ -104,6 +102,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             <Layout themePreference={preference} enableThemeToggle={enableThemeToggle}>
               {children}
             </Layout>
+            <HashScroll />
             <Cookies enabled={Boolean(gtmId)} />
           </GlobalsProvider>
         </NextIntlClientProvider>

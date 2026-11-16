@@ -1,13 +1,14 @@
 import { Manrope } from 'next/font/google';
 import localFont from 'next/font/local';
 
-/** Primary heading font — Toxigenesis Bold. */
+/** Primary heading font — Toxigenesis Bold. Not LCP; skip preload. */
 export const toxigenesisFont = localFont({
-  src: '../fonts/toxigenesis-bold.woff',
+  src: '../fonts/toxigenesis-bold.woff2',
   weight: '700',
   style: 'normal',
   variable: '--font-toxigenesis',
   display: 'swap',
+  preload: false,
 });
 
 /** Body UI font — Gilroy Regular / Medium / SemiBold / Bold. */
@@ -20,6 +21,7 @@ export const gilroyFont = localFont({
   ],
   variable: '--font-gilroy',
   display: 'swap',
+  adjustFontFallback: 'Arial',
 });
 
 /** Heading fallback when Toxigenesis fails to load (Cyrillic + Latin). */
@@ -28,6 +30,7 @@ export const manropeFont = Manrope({
   weight: ['700', '800'],
   variable: '--font-fallback-heading',
   display: 'swap',
+  preload: false,
 });
 
 export const fontClassNames = [

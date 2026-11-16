@@ -25,8 +25,8 @@ export function ServiceHero({ id, blockName, eyebrow, title, description, image 
       aria-labelledby={heading ? headingId : undefined}
     >
       <Container>
-        <AnimatedContent distance={72} duration={0.9}>
-          <div className={styles.layout}>
+        <div className={styles.layout}>
+          <AnimatedContent distance={72} duration={0.9}>
             <div className={styles.copy}>
               {eyebrow?.trim() ? <p className={styles.eyebrow}>{eyebrow.trim()}</p> : null}
               {heading ? (
@@ -36,13 +36,19 @@ export function ServiceHero({ id, blockName, eyebrow, title, description, image 
               ) : null}
               {body ? <p className={styles.description}>{body}</p> : null}
             </div>
-            {hasImage ? (
-              <div className={styles.media}>
-                <CMSMedia media={image} className={styles.img} fill sizes='(min-width: 1200px) 45vw, 100vw' />
-              </div>
-            ) : null}
-          </div>
-        </AnimatedContent>
+          </AnimatedContent>
+          {hasImage ? (
+            <div className={styles.media}>
+              <CMSMedia
+                media={image}
+                className={styles.img}
+                fill
+                sizes='(min-width: 1200px) 45vw, 100vw'
+                priority
+              />
+            </div>
+          ) : null}
+        </div>
       </Container>
     </section>
   );

@@ -1,6 +1,6 @@
-import { AboutIntro } from '@/components/AboutIntro';
+import dynamic from 'next/dynamic';
+
 import { AutoHero } from '@/components/AutoHero';
-import { BookingForm } from '@/components/BookingForm';
 import { CarBrands } from '@/components/CarBrands';
 import { Comparison } from '@/components/Comparison';
 import { Directions } from '@/components/Directions';
@@ -14,12 +14,30 @@ import { ServiceFaq } from '@/components/ServiceFaq';
 import { ServiceFeatureCards } from '@/components/ServiceFeatureCards';
 import { ServiceHero } from '@/components/ServiceHero';
 import { ServiceInfo } from '@/components/ServiceInfo';
-import { Testimonials } from '@/components/Testimonials';
-import { TurnkeyRoute } from '@/components/TurnkeyRoute';
 import { UkraineCoverage } from '@/components/UkraineCoverage';
 import { WhyChooseUs } from '@/components/WhyChooseUs';
 
 import type { UnifiedBlockMapper } from './blockTypes';
+
+/** Heavy: Swiper — keep off pages that do not render testimonials. */
+const Testimonials = dynamic(() =>
+  import('@/components/Testimonials').then((m) => m.Testimonials),
+);
+
+/** Heavy: Motion + react-hook-form. */
+const BookingForm = dynamic(() =>
+  import('@/components/BookingForm').then((m) => m.BookingForm),
+);
+
+/** Heavy: CountUp → Motion. */
+const AboutIntro = dynamic(() =>
+  import('@/components/AboutIntro').then((m) => m.AboutIntro),
+);
+
+/** Heavy: dedicated GSAP / ScrollTrigger timeline. */
+const TurnkeyRoute = dynamic(() =>
+  import('@/components/TurnkeyRoute').then((m) => m.TurnkeyRoute),
+);
 
 export const unifiedBlocksMapper = {
   'dummy-section': (block) => <DummySection {...block} />,

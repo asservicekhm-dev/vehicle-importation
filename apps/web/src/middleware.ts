@@ -9,6 +9,9 @@ import { getCmsBaseUrl } from './lib/cmsBaseUrl';
 
 const handleI18nRouting = createMiddleware(routing);
 
+const REDIRECTS_TTL_MS = 60_000;
+const REDIRECTS_TIMEOUT_MS = 800;
+
 type RedirectDoc = {
   from?: string;
   type?: string;
@@ -23,6 +26,46 @@ type RedirectDoc = {
   };
 };
 
+type RedirectsCache = {
+  docs: RedirectDoc[];
+  expiresAt: number;
+};
+
+let redirectsCache: RedirectsCache | null = null;
+let lastGoodRedirects: RedirectDoc[] = [];
+
+async function getRedirectDocs(): Promise<RedirectDoc[]> {
+  const now = Date.now();
+  if (redirectsCache && redirectsCache.expiresAt > now) {
+    return redirectsCache.docs;
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REDIRECTS_TIMEOUT_MS);
+
+  try {
+    const cmsBase = getCmsBaseUrl();
+    const res = await fetch(`${cmsBase}/api/redirects?limit=100&depth=1`, {
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      throw new Error(`Redirects fetch failed: ${res.status}`);
+    }
+
+    const data = (await res.json()) as { docs?: RedirectDoc[] };
+    const docs = data.docs ?? [];
+    redirectsCache = { docs, expiresAt: now + REDIRECTS_TTL_MS };
+    lastGoodRedirects = docs;
+    return docs;
+  } catch {
+    if (lastGoodRedirects.length > 0) return lastGoodRedirects;
+    return [];
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const segments = pathname.split('/').filter(Boolean);
@@ -31,14 +74,10 @@ export async function middleware(request: NextRequest) {
   const localePrefix = hasLocale ? `/${currentLocaleCandidate}` : '';
 
   try {
-    const cmsBase = getCmsBaseUrl();
-    const redirects = (await fetch(`${cmsBase}/api/redirects?limit=100&depth=1`, {
-      next: { tags: ['redirects'], revalidate: 60 },
-    }).then((res) => res.json())) as { docs?: RedirectDoc[] };
-
+    const docs = await getRedirectDocs();
     const pathnameWithoutLocale = hasLocale ? `/${segments.slice(1).join('/')}` || '/' : pathname;
 
-    const redirect = redirects.docs?.find((r) => {
+    const redirect = docs.find((r) => {
       if (!r.from) return false;
       const normalizedFrom = r.from.replace(/\/$/, '') || '/';
       const normalizedPathname = pathnameWithoutLocale.replace(/\/$/, '') || '/';

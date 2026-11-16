@@ -2,11 +2,11 @@
 
 Local webfonts used by `apps/web/src/lib/fonts.ts`:
 
-| File | Family | Role |
-| --- | --- | --- |
-| `toxigenesis-bold.woff` | Toxigenesis | Display / headings |
-| `gilroy-*.woff2` | Gilroy | Body / UI |
+| File | Family | Role | Redistribution |
+| --- | --- | --- | --- |
+| `toxigenesis-bold.woff2` | Toxigenesis | Display / headings | Cleared (project owner, 2026-11-16) |
+| `gilroy-*.woff2` | Gilroy | Body / UI | **Not cleared** — confirm before public CDN redistribution |
 
-**Soft-launch gate:** commercial redistribution rights for these files must be confirmed by the project owner before public production launch. Until cleared, treat them as **not cleared for public CDN redistribution**.
+**Toxigenesis:** commercial redistribution rights confirmed by the project owner on 2026-11-16. Safe to ship as a self-hosted webfont on production.
 
-When cleared, record the license source and date here (or replace with a licensed alternative and update this file).
+**Gilroy:** still treat as **not cleared for public CDN redistribution** until the project owner confirms commercial rights. When cleared, record the license source and date here (or replace with a licensed alternative and update this file).

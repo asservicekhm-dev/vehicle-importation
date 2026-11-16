@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { gsap } from 'gsap';
 import { useTranslations } from 'next-intl';
@@ -19,6 +19,9 @@ type Props = AutoHeroBlockFields;
 
 /** Dwell time per origin before auto-advancing — long enough to read, not a flash. */
 const ORIGIN_AUTO_MS = 6500;
+
+/** Container max-width is 1440px; keep hero srcset from requesting desktop max. */
+const HERO_SIZES = '(min-width: 1440px) 1344px, 100vw';
 
 const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
@@ -52,68 +55,33 @@ export function AutoHero({
   const originItems =
     origins?.filter((item) => item?.label?.trim() && isOriginId(item.originId)) ?? [];
   const { origin, setOrigin } = useOrigin();
+  /** Idle-load inactive origin slides so LCP only fetches the active photo. */
+  const [mountAllLayers, setMountAllLayers] = useState(false);
   const frameRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const subtitleRef = useRef<HTMLParagraphElement>(null);
-  const actionsRef = useRef<HTMLDivElement>(null);
-  const originPanelRef = useRef<HTMLDivElement>(null);
-  const highlightsRef = useRef<HTMLUListElement>(null);
   const switcherRef = useRef<HTMLDivElement>(null);
   const thumbRef = useRef<HTMLSpanElement>(null);
   const autoPausedRef = useRef(false);
   const heroInViewRef = useRef(true);
   const thumbReadyRef = useRef(false);
 
-  useIsomorphicLayoutEffect(() => {
-    const frame = frameRef.current;
-    if (!frame) return undefined;
+  useEffect(() => {
+    if (mountAllLayers) return undefined;
 
-    const reduce = prefersReducedMotion();
-    if (reduce) {
-      frame.dataset.heroEntered = '';
-      return undefined;
+    const mount = () => setMountAllLayers(true);
+    let idleId: number | undefined;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    if (typeof window.requestIdleCallback === 'function') {
+      idleId = window.requestIdleCallback(mount, { timeout: 2000 });
+    } else {
+      timer = setTimeout(mount, 1200);
     }
-
-    const contentTargets = [
-      titleRef.current,
-      subtitleRef.current,
-      actionsRef.current,
-      originPanelRef.current,
-      highlightsRef.current,
-    ].filter((el): el is NonNullable<typeof el> => Boolean(el));
-
-    if (!contentTargets.length) {
-      frame.dataset.heroEntered = '';
-      return undefined;
-    }
-
-    const markEntered = () => {
-      frame.dataset.heroEntered = '';
-      gsap.set(contentTargets, { clearProps: 'opacity,transform' });
-    };
-
-    const safety = window.setTimeout(markEntered, 2000);
-
-    const ctx = gsap.context(() => {
-      gsap.to(contentTargets, {
-        opacity: 1,
-        y: 0,
-        duration: 0.7,
-        ease: 'power3.out',
-        stagger: 0.09,
-        onComplete: () => {
-          window.clearTimeout(safety);
-          markEntered();
-        },
-      });
-    }, frame);
 
     return () => {
-      window.clearTimeout(safety);
-      ctx.revert();
-      delete frame.dataset.heroEntered;
+      if (idleId !== undefined) window.cancelIdleCallback?.(idleId);
+      if (timer !== undefined) clearTimeout(timer);
     };
-  }, []);
+  }, [mountAllLayers]);
 
   const active = originItems.find((item) => item.originId === origin) ?? originItems[0] ?? null;
   const activeOriginId = active && isOriginId(active.originId) ? active.originId : null;
@@ -222,6 +190,7 @@ export function AutoHero({
   const fallbackMedia = asMedia(backgroundImage);
 
   const selectOrigin = (next: OriginId) => {
+    setMountAllLayers(true);
     setOrigin(next);
   };
 
@@ -249,12 +218,19 @@ export function AutoHero({
     photoLayers.push({ key: 'fallback', media: fallbackMedia, active: true });
   }
 
+  // First paint / SSR: only the active layer (priority). After idle, mount the rest
+  // so origin switches can crossfade without competing for LCP bandwidth.
+  const visibleLayers =
+    mountAllLayers || photoLayers.length <= 1
+      ? photoLayers
+      : photoLayers.filter((layer) => layer.active);
+
   return (
     <section className={styles.section} id={sectionId}>
       <Container>
         <div className={styles.frame} ref={frameRef}>
           <div className={styles.photo} aria-hidden>
-            {photoLayers.map((layer) => (
+            {visibleLayers.map((layer) => (
               <div
                 key={layer.key}
                 data-origin={layer.key}
@@ -264,7 +240,7 @@ export function AutoHero({
                   media={layer.media}
                   fill
                   className={styles.photoImg}
-                  sizes='100vw'
+                  sizes={HERO_SIZES}
                   priority={layer.active}
                 />
               </div>
@@ -275,19 +251,17 @@ export function AutoHero({
           <div className={styles.content}>
             <div className={styles.lead}>
               {heading ? (
-                <h1 className={styles.title} aria-label={headingPlain} ref={titleRef}>
+                <h1 className={styles.title} aria-label={headingPlain}>
                   {renderAccentText(heading, styles.accent)}
                 </h1>
               ) : null}
               {body ? (
-                <p className={styles.subtitle} ref={subtitleRef}>
-                  {renderAccentText(body, styles.accent)}
-                </p>
+                <p className={styles.subtitle}>{renderAccentText(body, styles.accent)}</p>
               ) : null}
             </div>
 
             {buttons?.length ? (
-              <div className={styles.actions} ref={actionsRef}>
+              <div className={styles.actions}>
                 {buttons.map((button, index) => {
                   const variant =
                     button.style === 'outline' || button.style === 'ghost'
@@ -310,7 +284,7 @@ export function AutoHero({
             ) : null}
 
             {active ? (
-              <div className={styles.originPanel} ref={originPanelRef}>
+              <div className={styles.originPanel}>
                 <div
                   className={styles.switcher}
                   ref={switcherRef}
@@ -363,7 +337,7 @@ export function AutoHero({
           </div>
 
           {points.length ? (
-            <ul className={styles.highlights} ref={highlightsRef}>
+            <ul className={styles.highlights}>
               {points.map((point, index) => (
                 <li key={point.id ?? index} className={styles.highlight}>
                   <span className={styles.highlightMark} aria-hidden />

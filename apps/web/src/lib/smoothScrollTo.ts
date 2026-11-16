@@ -12,13 +12,14 @@ type SmoothScrollOptions = {
    * updated the URL.
    */
   deferMs?: number;
+  /** Default is smooth, or `auto` when the user prefers reduced motion. */
+  behavior?: ScrollBehavior;
 };
 
-function scrollToId(id: string): boolean {
+function scrollToId(id: string, behavior: ScrollBehavior): boolean {
   const target = document.getElementById(id);
   if (!target) return false;
 
-  const behavior: ScrollBehavior = prefersReducedMotion() ? 'auto' : 'smooth';
   target.scrollIntoView({ behavior, block: 'start' });
   return true;
 }
@@ -39,8 +40,11 @@ export function smoothScrollToHash(hash: string, options: SmoothScrollOptions = 
   const id = hash.replace(/^#/, '').trim();
   if (!id) return false;
 
+  const behavior: ScrollBehavior =
+    options.behavior ?? (prefersReducedMotion() ? 'auto' : 'smooth');
+
   const run = () => {
-    const found = scrollToId(id);
+    const found = scrollToId(id, behavior);
     if (found && options.updateUrl !== false) {
       syncHashUrl(id);
     }

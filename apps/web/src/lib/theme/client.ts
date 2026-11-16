@@ -12,14 +12,16 @@ export function resolveTheme(pref: ThemePreference): 'light' | 'dark' {
   return pref;
 }
 
-export function applyThemePreference(pref: ThemePreference): void {
+export function applyThemePreference(pref: ThemePreference, options?: { persist?: boolean }): void {
   const resolved = resolveTheme(pref);
   const root = document.documentElement;
 
   root.setAttribute('data-theme-pref', pref);
   root.setAttribute('data-theme', resolved);
 
-  document.cookie = `${THEME_COOKIE}=${pref}; path=/; max-age=${THEME_COOKIE_MAX_AGE}; samesite=lax`;
+  if (options?.persist !== false) {
+    document.cookie = `${THEME_COOKIE}=${pref}; path=/; max-age=${THEME_COOKIE_MAX_AGE}; samesite=lax`;
+  }
 
   const meta = document.querySelector('meta[name="theme-color"]');
 

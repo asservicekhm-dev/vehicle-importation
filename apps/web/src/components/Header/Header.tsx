@@ -126,7 +126,6 @@ export function Header({ themePreference, enableThemeToggle = true }: Props) {
                 dark={header?.logoDark}
                 alt={brandLabel}
                 size={48}
-                priority
               />
               {showBrandText ? <span className={styles.brandText}>{brandLabel}</span> : null}
             </Link>

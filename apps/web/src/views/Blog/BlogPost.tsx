@@ -27,17 +27,19 @@ export function BlogPost({ post, backLabel }: Props) {
           <Link className={styles.back} href='/blog'>
             {backLabel}
           </Link>
-          {hasImage ? (
-            <div className={styles.postMedia}>
-              <CMSMedia
-                media={post.thumbnail}
-                className={styles.postImg}
-                fill
-                sizes='(min-width: 1200px) 720px, 100vw'
-                priority
-              />
-            </div>
-          ) : null}
+        </AnimatedContent>
+        {hasImage ? (
+          <div className={styles.postMedia}>
+            <CMSMedia
+              media={post.thumbnail}
+              className={styles.postImg}
+              fill
+              sizes='(min-width: 1200px) 720px, 100vw'
+              priority
+            />
+          </div>
+        ) : null}
+        <AnimatedContent distance={72} duration={0.9}>
           <h1 className={styles.postTitle}>{post.title}</h1>
           {author ? <p className={styles.meta}>{author}</p> : null}
           {body ??
