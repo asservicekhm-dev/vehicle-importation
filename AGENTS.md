@@ -43,14 +43,13 @@ apps/
     src/app/api/media-redirect/  S3/local media redirect
     src/payload-types.ts  generated (CMS); web imports stripped `payload-types-export.ts` via `@autosearch/cms/payload-types`
   web/                 @autosearch/web
-    src/app/[locale]/  App Router locale + [...slug] CMS pages + blog/[slug] + design-seed (dev-only)
+    src/app/[locale]/  App Router locale + [...slug] CMS pages + blog/[slug]
     src/app/api/revalidate/  CMS→web webhook
     src/api/           Payload SDK client
     src/components/    primitives, Header/Footer, ThemeToggle, LocaleSwitcher, CMS glue, RenderBlocks
     src/contexts/      GlobalsProvider
     src/views/Layout/  Header + main + Footer shell
     src/views/BlogList|BlogPost/  Blog index + post
-    src/views/DesignSeed/  Design seed preview sections (dev-only)
     src/fonts/         Toxigenesis + Gilroy (localFont)
     src/lib/fonts.ts   next/font loaders
     src/lib/theme/     cookie + no-flash script + client apply
@@ -97,7 +96,6 @@ Spec: [`specs/02-cms-model.md`](./specs/02-cms-model.md).
 - Booking UI: `ServiceBookingForm` modes `consultation` \| `turnkey` \| `inspection` \| `expert`; Directions primary «Замовити» → `?service=<mode>#callback`, secondary «Детальніше» → `/services/…`; option lists in `@autosearch/config`.
 - Revalidate: CMS hooks POST `WEB_URL/api/revalidate` with `REVALIDATE_SECRET` (not CMS-local `revalidatePath`). Soft-launch gates: [`specs/11-soft-launch-checklist.md`](./specs/11-soft-launch-checklist.md).
 - SEO: page `generateMetadata`, `robots.ts`, dynamic `sitemap.ts`. GTM via `NEXT_PUBLIC_GTM_ID` or SiteSettings `gtmId` (empty = off) + cookie consent banner.
-- _(design seed)_ `/design-seed` remains a noindex visual reference; production Home is CMS-driven.
 - About (`#about`) and Contacts (`#contacts`) stay Home section anchors — no `/about` or `/contacts` routes in v1.
 - Infra: `.deploy` compose (dev/prod), Traefik, MinIO, CI/deploy workflows, `pnpm new`, seed backup — see [`DEPLOYMENT.md`](./DEPLOYMENT.md) / [`SERVER_SETUP.md`](./SERVER_SETUP.md).
 - Booking / leads: [`specs/09-booking-and-leads.md`](./specs/09-booking-and-leads.md).

@@ -37,7 +37,6 @@ export function localizedPageUrl(locale: Locale, slug: string | null | undefined
 
 export function isIndexablePageSlug(slug: string | null | undefined): boolean {
   const path = pagePathFromSlug(slug);
-  if (path === '/design-seed' || path.startsWith('/design-seed/')) return false;
   if (path === '/cms' || path.startsWith('/cms/')) return false;
   if (path === '/api' || path.startsWith('/api/')) return false;
   return true;

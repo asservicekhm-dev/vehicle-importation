@@ -110,7 +110,7 @@ Header names the section, not all five services. Service rows carry a scope fact
 
 ## Preview
 
-Dev-only route: `/design-seed` (and `/en/design-seed`). `notFound()` in production; `robots: noindex`. Presentational sections under `apps/web/src/views/DesignSeed/` become M4 block wrappers later.
+The dev-only `/design-seed` route and `apps/web/src/views/DesignSeed/` preview were removed. Home is the CMS page.
 
 ## Notes log
 
