@@ -105,7 +105,7 @@ export default async function LocaleLayout({ children, params }: Props) {
               {children}
             </Layout>
             <HashScroll />
-            <Cookies enabled={Boolean(gtmId)} />
+            <Cookies gtmEnabled={Boolean(gtmId)} />
           </GlobalsProvider>
         </NextIntlClientProvider>
       </body>

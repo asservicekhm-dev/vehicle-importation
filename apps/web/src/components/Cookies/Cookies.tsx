@@ -1,65 +1,90 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import clsx from 'clsx';
 import { useTranslations } from 'next-intl';
 
+import { Button } from '@/components/Button';
 import { COOKIE_CONSENT_KEY, isTagAssistantSession, updateGtmConsent } from '@/lib/gtmConsent';
 
 import styles from './Cookies.module.scss';
 
 type Props = {
-  enabled: boolean;
+  /** When true, Accept/Decline also update GTM Consent Mode. */
+  gtmEnabled?: boolean;
 };
 
-function CookiesContent({ onDone }: { onDone: () => void }) {
+type ConsentChoice = 'granted' | 'denied';
+
+const ENTER_DELAY_MS = 400;
+const EXIT_MS = 320;
+
+export function Cookies({ gtmEnabled = false }: Props) {
   const t = useTranslations('Cookies');
-
-  const accept = () => {
-    localStorage.setItem(COOKIE_CONSENT_KEY, 'granted');
-    updateGtmConsent('granted');
-    onDone();
-  };
-
-  const decline = () => {
-    localStorage.setItem(COOKIE_CONSENT_KEY, 'denied');
-    updateGtmConsent('denied');
-    onDone();
-  };
-
-  return (
-    <div className={styles.wrapper} role='dialog' aria-label={t('title')}>
-      <p className={styles.description}>{t('description')}</p>
-      <div className={styles.actions}>
-        <button type='button' className={styles.accept} onClick={accept}>
-          {t('accept')}
-        </button>
-        <button type='button' className={styles.decline} onClick={decline}>
-          {t('decline')}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-export function Cookies({ enabled }: Props) {
-  const [ready, setReady] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!enabled) return;
-    if (isTagAssistantSession()) {
-      setReady(true);
+    if (isTagAssistantSession()) return;
+
+    const stored = localStorage.getItem(COOKIE_CONSENT_KEY);
+    if (stored === 'granted' || stored === 'denied') {
+      if (gtmEnabled) updateGtmConsent(stored);
       return;
     }
 
-    const stored = localStorage.getItem(COOKIE_CONSENT_KEY);
-    if (stored === 'granted') updateGtmConsent('granted');
-    if (stored === 'denied') updateGtmConsent('denied');
-    setVisible(!stored);
-    setReady(true);
-  }, [enabled]);
+    setMounted(true);
+    const enterTimer = window.setTimeout(() => setOpen(true), ENTER_DELAY_MS);
+    return () => window.clearTimeout(enterTimer);
+  }, [gtmEnabled]);
 
-  if (!enabled || !ready || !visible) return null;
+  const choose = (state: ConsentChoice) => {
+    if (busy) return;
+    setBusy(true);
+    localStorage.setItem(COOKIE_CONSENT_KEY, state);
+    if (gtmEnabled) updateGtmConsent(state);
+    setOpen(false);
+    window.setTimeout(() => setMounted(false), EXIT_MS);
+  };
 
-  return <CookiesContent onDone={() => setVisible(false)} />;
+  if (!mounted) return null;
+
+  return (
+    <div
+      className={clsx(styles.wrapper, open && styles.open)}
+      role='dialog'
+      aria-labelledby='cookie-consent-title'
+      aria-describedby='cookie-consent-description'
+    >
+      <h2 id='cookie-consent-title' className={styles.title}>
+        {t('title')}
+      </h2>
+      <p id='cookie-consent-description' className={styles.description}>
+        {t('description')}
+      </p>
+      <div className={styles.actions}>
+        <Button
+          type='button'
+          variant='primary'
+          size='sm'
+          className={styles.action}
+          disabled={busy}
+          onClick={() => choose('granted')}
+        >
+          {t('accept')}
+        </Button>
+        <Button
+          type='button'
+          variant='outline'
+          size='sm'
+          className={styles.action}
+          disabled={busy}
+          onClick={() => choose('denied')}
+        >
+          {t('decline')}
+        </Button>
+      </div>
+    </div>
+  );
 }
