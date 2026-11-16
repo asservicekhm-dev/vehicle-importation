@@ -2,7 +2,7 @@
 
 Staff Telegram bot for **AS Autosearch** operators: request access in Payload Admin, then get notified about new leads and manage them with buttons. Ukrainian UI only. Not a customer-facing bot.
 
-This document is the product + engineering contract. Implementation lives in `apps/bot` (`@autosearch/bot`) plus CMS collection/routes. When this file and [AGENTS.md](../AGENTS.md) disagree, this file wins — then update AGENTS.md.
+This document is the product + engineering contract. Implementation lives in `apps/bot` (`@autosearch/bot`) plus CMS collection/routes. Implementation order: [13-telegram-bot-roadmap.md](./13-telegram-bot-roadmap.md). When this file and [AGENTS.md](../AGENTS.md) disagree, this file wins — then update AGENTS.md.
 
 ## Product intent
 

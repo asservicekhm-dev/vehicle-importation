@@ -53,6 +53,7 @@ flowchart TB
 | [10-design-direction.md](./10-design-direction.md) | Design seed: palette, type, wireframes, principles, rejected defaults |
 | [11-soft-launch-checklist.md](./11-soft-launch-checklist.md) | M7 soft-launch gates: engineering vs human/staging sign-off |
 | [12-telegram-bot.md](./12-telegram-bot.md) | Staff Telegram bot: access requests, lead notify/list/search/status, webhook deploy |
+| [13-telegram-bot-roadmap.md](./13-telegram-bot-roadmap.md) | Ordered milestones B0–B6 to implement the staff Telegram bot |
 
 ## Cross-cutting Keep / Adapt / Drop
 
