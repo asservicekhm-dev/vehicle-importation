@@ -24,6 +24,7 @@ Source: `apps/cms` (Payload 3.83.0, MongoDB, Lexical, S3/MinIO). Decisions are f
 | `forms` | Form Builder defs | **Keep** — extend for lead types (see [09-booking-and-leads.md](./09-booking-and-leads.md)) |
 | `form-submissions` | Raw submissions + email | **Keep** — primary write path for booking |
 | `contact-submissions` | Lead inbox | **Adapt** → unified `leads` (same hook pattern as today) |
+| `bot-users` | Telegram staff access requests | **Add** — pending/approved/declined/blocked; Admin group «Телеграм». See [12-telegram-bot.md](./12-telegram-bot.md) |
 | `newsletter-subscriptions` | Newsletter inbox | **Keep** (optional) |
 | `redirects` | 301/302 | **Keep** — cache on web |
 | `explore-sections` / `explore-pages` | Docs builder | **Drop** |
@@ -202,11 +203,16 @@ No inventory collections (`brands`, `models`, `cars`, car taxonomies, `car-featu
 
 ### `leads`
 
-- `type`: `callback` | `test-drive` | `trade-in` | `finance` | `general`.
+- `type`: `callback` | `test-drive` | `trade-in` | `finance` | `general` (plus booking modes `consultation` | `turnkey` | `inspection` | `expert`).
 - `status`: `new` | `in-progress` | `won` | `lost`.
 - Contact fields + optional `branch` relation + source URL + UTM + consent + `formSubmission` link.
 - Spam: honeypot `companyWebsite` + CMS reject hook; web `sendForm` rate-limits before POST.
 - Full booking → inbox behaviour: [09-booking-and-leads.md](./09-booking-and-leads.md).
+- Staff Telegram notify + inbox (no Admin `afterRead` side effects on bot detail): [12-telegram-bot.md](./12-telegram-bot.md).
+
+### `bot-users`
+
+Telegram operators who may use the staff bot. Fields: `telegramId` (unique), `username`, `firstName`, `lastName`, `languageCode`, `status` (`pending` | `approved` | `declined` | `blocked`), `requestedAt`, `decidedAt`, admin `note`. Admin group «Телеграм». Create is not public; bot uses `/api/bot/…` + `overrideAccess`. Full contract: [12-telegram-bot.md](./12-telegram-bot.md).
 
 ## Block recipe (carry into AGENTS.md)
 

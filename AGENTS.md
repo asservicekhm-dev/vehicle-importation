@@ -6,10 +6,11 @@ Current state: **Milestone 7 engineering done** (soft launch code + checklist). 
 
 ## 1. What this is
 
-Website for **AS Autosearch**, a car-search and import business (“Автопідбір”). Cars from the USA, Europe and South Korea. Core services: pre-purchase inspection, turnkey car search (main), expert for a day, computer diagnostics, and travel to other cities. Ukrainian is the default language, English is the second one. Payload CMS 3 + Next.js 15 monorepo with the same architecture as the AS Service site (`wayon/landing`), minus its Wayon/GoGym legacy.
+Website for **AS Autosearch**, a car-search and import business (“Автопідбір”). Cars from the USA, Europe and South Korea. Core services: pre-purchase inspection, turnkey car search (main), expert for a day, computer diagnostics, and travel to other cities. Ukrainian is the default language, English is the second one. Payload CMS 3 + Next.js 15 monorepo with the same architecture as the AS Service site (`wayon/landing`), minus its Wayon/GoGym legacy. Staff Telegram bot for lead notifications and inbox management (spec only until implemented — [`specs/12-telegram-bot.md`](./specs/12-telegram-bot.md)).
 
-- `apps/cms` — `@autosearch/cms`, Payload admin + REST API (port 3001; `/cms` in prod). Source of truth for all content (Pages, Blog, Leads, globals).
+- `apps/cms` — `@autosearch/cms`, Payload admin + REST API (port 3001; `/cms` in prod). Source of truth for all content (Pages, Blog, Leads, `bot-users`, globals).
 - `apps/web` — `@autosearch/web`, public Next.js site (port 3000). Renders CMS content; almost no hardcoded copy. Nested Pages via `[...slug]`; Blog at `/blog` + `/blog/[slug]`.
+- `apps/bot` — `@autosearch/bot`, Node/TypeScript grammY staff Telegram bot (port 3002; `/telegram` webhook in prod). Ukrainian UI, button-driven leads inbox for approved operators.
 
 ## 2. Stack cheat sheet
 
@@ -20,11 +21,12 @@ Pinned baseline: [`specs/01-architecture.md`](./specs/01-architecture.md) § Sta
 | Package manager | `pnpm@10.11.0` (`packageManager` field), Turborepo 2                          |
 | Node            | 20 (`.nvmrc`)                                                                 |
 | TypeScript      | `5.7.3` everywhere                                                            |
-| Next.js / React | `15.4.11` / `19.2.1` in both apps                                             |
+| Next.js / React | `15.4.11` / `19.2.1` in cms + web                                             |
 | Payload         | `3.83.0` — pin **all** `@payloadcms/*` to the same version                    |
+| Bot             | Node 20 + TypeScript + grammY (no Next.js); Ukrainian UI only                 |
 | DB / storage    | MongoDB 7, S3 / MinIO (local disk when `S3_*` unset)                          |
 | i18n            | `next-intl 4.0.2` — `ua` unprefixed, `en` under `/en`, middleware `as-needed` |
-| Styling         | **SCSS Modules only.** No Tailwind, no `prettier-plugin-tailwindcss`          |
+| Styling         | **SCSS Modules only** (web). No Tailwind, no `prettier-plugin-tailwindcss`    |
 | Forms / UI      | `react-hook-form ^7.54`, Radix (accordion, checkbox, dialog, slot), `clsx`    |
 | CMS client      | `@payload-enchants/sdk 1.2.2`; types via `@autosearch/cms/payload-types`      |
 | Later (pinned)  | framer-motion, lenis, swiper                                                  |
@@ -35,12 +37,13 @@ Pinned baseline: [`specs/01-architecture.md`](./specs/01-architecture.md) § Sta
 apps/
   cms/                 @autosearch/cms
     src/payload.config.ts
-    src/collections/   Users, Media, Pages (marketing + service blocks), Blog, BlogCategories, BlogAuthors, Leads
+    src/collections/   Users, Media, Pages (marketing + service blocks), Blog, BlogCategories, BlogAuthors, Leads, BotUsers
     src/globals/       header, footer, contacts, site-settings, price-list
     src/plugins/       SEO, redirects, form-builder (Forms + FormSubmissions → Leads)
     src/scripts/       seed-globals, seed-home, seed-services, seed-blog
     src/app/(payload)/ Payload admin + API routes (generated files — don't hand-edit)
     src/app/api/media-redirect/  S3/local media redirect
+    src/app/api/bot/   CMS↔bot internal routes (secret; lead list/detail/status, access)
     src/payload-types.ts  generated (CMS); web imports stripped `payload-types-export.ts` via `@autosearch/cms/payload-types`
   web/                 @autosearch/web
     src/app/[locale]/  App Router locale + [...slug] CMS pages + blog/[slug]
@@ -58,12 +61,15 @@ apps/
     src/middleware.ts  next-intl + CMS redirects
     src/scss/          mixins.scss (auto-injected), globals.scss, tokens.scss
     translations/      ua.json + en.json
+  bot/                 @autosearch/bot
+    grammY staff Telegram bot; webhook (prod) / long polling (dev)
+    Ukrainian button UI; session in-memory; talks to CMS /api/bot/* + receives /internal/*
 packages/
-  config/              @autosearch/config — locales + themePreferences (default system)
+  config/              @autosearch/config — locales + themePreferences (default system) + booking options
   tsconfig/            @autosearch/tsconfig — base.json, nextjs.json
   eslint-config/       @autosearch/eslint-config — flat config (`.` base, `./next`)
 specs/                 product/architecture spec (read-only reference)
-Dockerfile.cms, Dockerfile.web, .deploy/, .github/workflows/
+Dockerfile.cms, Dockerfile.web, Dockerfile.bot, .deploy/, .github/workflows/
 ```
 
 Shared packages ship TypeScript source (no build step). Apps list them in `transpilePackages`.
@@ -75,8 +81,8 @@ Run from the repo root:
 | Command                                                           | What it does                                             |
 | ----------------------------------------------------------------- | -------------------------------------------------------- |
 | `pnpm install`                                                    | Install workspace                                        |
-| `pnpm dev` / `pnpm dev:cms` / `pnpm dev:web`                      | Turbo dev (web :3000, cms :3001)                         |
-| `pnpm build` / `build:cms` / `build:web`                          | Production builds                                        |
+| `pnpm dev` / `pnpm dev:cms` / `pnpm dev:web` / `pnpm dev:bot`     | Turbo dev (web :3000, cms :3001, bot :3002)              |
+| `pnpm build` / `build:cms` / `build:web` / `build:bot`            | Production builds                                        |
 | `pnpm generate:types`                                             | Regenerate `apps/cms/src/payload-types.ts`               |
 | `pnpm seed:globals` / `seed:home` / `seed:services` / `seed:blog` | Idempotent dual-locale seeds (`*:local-media` blanks S3) |
 | `pnpm seed:all` / `seed:all:local-media` / `pnpm seed <area>`     | Seed chain (globals→home→services→blog) or one area      |
@@ -91,16 +97,17 @@ Run from the repo root:
 
 Spec: [`specs/02-cms-model.md`](./specs/02-cms-model.md).
 
-- **Now:** `users`, `media` (WebP `formatOptions` + `favicon`/`icon` sizes), `pages` (localized `layout` + `viewType`: `home | information | contacts | blog`), `blog` + `blog-categories` + `blog-authors`, `leads` inbox, globals `header` / `footer` (`logoLight`/`logoDark`/`logoText`) / `contacts` / `site-settings` (`favicon*` + `appleTouchIcon*` + optional `gtmId`) / `price-list`, plugins SEO / redirects / form-builder (Forms + FormSubmissions → leads when `submissionKind: lead`) / conditional S3. Localization: `ua` + `en`, `fallback: false`. Brand WebPs live in `apps/cms/src/seed-assets/brand/` and are upserted by `seed:globals`.
-- Home marketing blocks (seed order): `auto-hero`, early `booking-form` (pitch), `about-intro`, `why-choose-us`, `directions`, `comparison`, `price-list` (reads global), `inspection-checklist`, `turnkey-route`, `ukraine-coverage`, `testimonials`, `service-faq`, bottom `booking-form` (callback); also registered `car-brands`, `page-breadcrumbs`. Service landings use `service-hero` / `service-info` / `service-feature-cards` / `service-benefits` / `related-services` + breadcrumbs + booking. Web `sendForm` is the only write path (no GoGym). Spam: honeypot `companyWebsite` + CMS reject + `sendForm` IP rate limit.
+- **Now:** `users`, `media` (WebP `formatOptions` + `favicon`/`icon` sizes), `pages` (localized `layout` + `viewType`: `home | information | contacts | blog`), `blog` + `blog-categories` + `blog-authors`, `leads` inbox, `bot-users` (Telegram staff access — spec in [`specs/12-telegram-bot.md`](./specs/12-telegram-bot.md)), globals `header` / `footer` (`logoLight`/`logoDark`/`logoText`) / `contacts` / `site-settings` (`favicon*` + `appleTouchIcon*` + optional `gtmId`) / `price-list`, plugins SEO / redirects / form-builder (Forms + FormSubmissions → leads when `submissionKind: lead`) / conditional S3. Localization: `ua` + `en`, `fallback: false`. Brand WebPs live in `apps/cms/src/seed-assets/brand/` and are upserted by `seed:globals`.
+- Home marketing blocks (seed order): `auto-hero`, early `booking-form` (pitch), `about-intro`, `why-choose-us`, `directions`, `comparison`, `price-list` (reads global), `inspection-checklist`, `turnkey-route`, `ukraine-coverage`, `testimonials`, `service-faq`, bottom `booking-form` (callback); also registered `car-brands`, `page-breadcrumbs`. Service landings use `service-hero` / `service-info` / `service-feature-cards` / `service-benefits` / `related-services` + breadcrumbs + booking. Web `sendForm` is the only visitor write path (no GoGym). Spam: honeypot `companyWebsite` + CMS reject + `sendForm` IP rate limit.
 - Booking UI: `ServiceBookingForm` modes `consultation` \| `turnkey` \| `inspection` \| `expert`; Directions primary «Замовити» → `?service=<mode>#callback`, secondary «Детальніше» → `/services/…`; option lists in `@autosearch/config`.
 - Revalidate: CMS hooks POST `WEB_URL/api/revalidate` with `REVALIDATE_SECRET` (not CMS-local `revalidatePath`). Soft-launch gates: [`specs/11-soft-launch-checklist.md`](./specs/11-soft-launch-checklist.md).
+- Telegram bot: CMS may POST `BOT_INTERNAL_URL/internal/leads` after lead create; bot talks to `/api/bot/*` with `BOT_INTERNAL_SECRET`. **Do not** load leads for the bot via public `/api/leads` — Admin `afterRead` auto-flips `new` → `in-progress`. Bot detail must leave status/`readAt` unchanged until the operator taps a status button. Spec: [`specs/12-telegram-bot.md`](./specs/12-telegram-bot.md).
 - SEO: page `generateMetadata`, `robots.ts`, dynamic `sitemap.ts`. GTM via `NEXT_PUBLIC_GTM_ID` or SiteSettings `gtmId` (empty = off) + cookie consent banner.
 - About (`#about`) and Contacts (`#contacts`) stay Home section anchors — no `/about` or `/contacts` routes in v1.
 - Infra: `.deploy` compose (dev/prod), Traefik, MinIO, CI/deploy workflows, `pnpm new`, seed backup — see [`DEPLOYMENT.md`](./DEPLOYMENT.md) / [`SERVER_SETUP.md`](./SERVER_SETUP.md).
 - Booking / leads: [`specs/09-booking-and-leads.md`](./specs/09-booking-and-leads.md).
 - **Never add:** Inventory (`cars` / `brands` catalogs, `/cars` routes), Autosearch search wizard, Explore, `subscriptions` / `catalog` viewTypes, gamification blocks, GoGym/Smarty APIs.
-- Do not create a Pages slug `cms` (collides with the prod `/cms` base path).
+- Do not create a Pages slug `cms` or `telegram` (collide with prod `/cms` and `/telegram` path prefixes).
 
 ## 6. Block recipe _(M3+)_
 
@@ -137,9 +144,9 @@ No Autosearch Figma file yet. Design direction: [`specs/10-design-direction.md`]
 
 ## 10. Environment & infra
 
-- `apps/cms/.env.example` → `apps/cms/.env`; `apps/web/.env.local.example` → `apps/web/.env.local`.
+- `apps/cms/.env.example` → `apps/cms/.env`; `apps/web/.env.local.example` → `apps/web/.env.local`; `apps/bot/.env.example` → `apps/bot/.env`.
 - CMS fails fast on missing `PAYLOAD_SECRET` / `DATABASE_URI` (`src/lib/env.ts`).
-- Full env matrix: [`specs/06-infra-devex.md`](./specs/06-infra-devex.md) § Env matrix. No default GTM id, no GoGym vars.
+- Full env matrix: [`specs/06-infra-devex.md`](./specs/06-infra-devex.md) § Env matrix. Bot: `TELEGRAM_*`, `BOT_INTERNAL_SECRET`, `BOT_INTERNAL_URL` (empty = skip notify). No default GTM id, no GoGym vars.
 - Turbo runs in strict env mode: build-time vars go in `turbo.json` `globalEnv`, runtime-only secrets in `globalPassThroughEnv`. Add new vars there or Turbo strips them.
 - Local MongoDB: anything on `mongodb://127.0.0.1:27017/autosearch` (e.g. `docker run --rm -p 27017:27017 mongo:7`) until the dev compose lands _(M6)_.
 - Naming: packages `@autosearch/*`; containers / network / bucket / DB `autosearch-*` / `autosearch-network` / `autosearch-media` / `autosearch`.
@@ -150,7 +157,7 @@ Idempotent `payload run` scripts that upsert by slug/filename and write both loc
 
 ## 12. Deploy
 
-See [`DEPLOYMENT.md`](./DEPLOYMENT.md) and [`SERVER_SETUP.md`](./SERVER_SETUP.md). Pattern: `turbo prune` 3-stage images (`Dockerfile.cms` / `Dockerfile.web`) with `pnpm --filter … build` (not `turbo run build`), Next standalone, CMS `basePath` assert + `/cms/api/health`, Traefik site `/` + CMS `/cms`, network `autosearch-network`.
+See [`DEPLOYMENT.md`](./DEPLOYMENT.md) and [`SERVER_SETUP.md`](./SERVER_SETUP.md). Pattern: `turbo prune` 3-stage images (`Dockerfile.cms` / `Dockerfile.web` / `Dockerfile.bot`) with `pnpm --filter … build` (not `turbo run build`), Next standalone for cms/web, bot `tsc` → `node dist`, CMS `basePath` assert + `/cms/api/health`, Traefik site `/` + CMS `/cms` + bot `/telegram`, network `autosearch-network`.
 
 ## 13. Known quirks / do-not-copy from AS Service
 
@@ -163,6 +170,7 @@ See [`DEPLOYMENT.md`](./DEPLOYMENT.md) and [`SERVER_SETUP.md`](./SERVER_SETUP.md
 | Dual Wayon / `--as-*` palettes                                  | Single semantic set, no aliases                         |
 | Duplicate locale config in cms + web                            | `@autosearch/config` only                               |
 | `next lint` + dead `--ext`                                      | `eslint .` with flat config per package                 |
+| Leads Admin `afterRead` auto-marks `new` as in-progress         | Bot must use `/api/bot/leads` (no side effects on read) |
 
 Payload-generated files under `apps/cms/src/app/(payload)/` and `importMap.js`: regenerate, don't hand-edit.
 

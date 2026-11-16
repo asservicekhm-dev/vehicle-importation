@@ -6,8 +6,8 @@ Starter-spec for **AS Autosearch** (car dealership landing), distilled from the 
 
 | Area | Decision |
 | --- | --- |
-| Workspace | **Keep** pnpm + Turborepo, two apps under `apps/` |
-| Scope name | **Adapt** `@wayon-landing/*` → `@autosearch/{cms,web}` |
+| Workspace | **Keep** pnpm + Turborepo apps under `apps/` (cms + web + bot) |
+| Scope name | **Adapt** `@wayon-landing/*` → `@autosearch/{cms,web}`; **Add** `@autosearch/bot` |
 | Shared packages | **Adapt** — add `packages/{config,tsconfig,eslint-config}` (optional but recommended) |
 | Type sharing | **Keep** workspace `import type` from CMS `payload-types`; **Adapt** add package `exports` |
 | Styling | **Keep** SCSS Modules only; **Drop** Tailwind / `prettier-plugin-tailwindcss` |
@@ -40,7 +40,8 @@ Starter-spec for **AS Autosearch** (car dealership landing), distilled from the 
 autosearch/
 ├─ apps/
 │  ├─ cms/                    # @autosearch/cms  — Payload 3 + Next, :3001
-│  └─ web/                    # @autosearch/web  — Next 15 + next-intl, :3000
+│  ├─ web/                    # @autosearch/web  — Next 15 + next-intl, :3000
+│  └─ bot/                    # @autosearch/bot  — grammY staff Telegram bot, :3002
 ├─ packages/                  # recommended
 │  ├─ config/                 # defaultLocale=ua, locales=[ua,en] (shared runtime)
 │  ├─ tsconfig/
@@ -49,12 +50,15 @@ autosearch/
 ├─ .github/workflows/
 ├─ Dockerfile.cms
 ├─ Dockerfile.web
+├─ Dockerfile.bot
 ├─ package.json
 ├─ pnpm-workspace.yaml        # apps/*, packages/*
 ├─ turbo.json
 ├─ AGENTS.md
 └─ docs/
 ```
+
+Staff Telegram bot contract: [12-telegram-bot.md](./12-telegram-bot.md).
 
 ## Type sharing
 
@@ -68,8 +72,8 @@ autosearch/
 
 | Script | Purpose |
 | --- | --- |
-| `dev` / `dev:cms` / `dev:web` | Turbo filtered dev |
-| `build:cms` / `build:web` | Production builds |
+| `dev` / `dev:cms` / `dev:web` / `dev:bot` | Turbo filtered dev |
+| `build:cms` / `build:web` / `build:bot` | Production builds |
 | `lint` / `format` / `typecheck` | Quality gates |
 | `generate:types` | Payload types (CMS) |
 | `new` | Scaffold component/view (and later `block`) |
@@ -94,15 +98,15 @@ Declared today in `turbo.json` `globalEnv`:
 - `NEXT_PUBLIC_GTM_ID`
 - `NEXT_PUBLIC_S3_PUBLIC_URL`, `NEXT_PUBLIC_S3_BROWSER_BASE`
 
-Also required at runtime (full matrix in [06-infra-devex.md](./06-infra-devex.md)): `PAYLOAD_SECRET`, `DATABASE_URI`, `CMS_INTERNAL_URL`, S3/MinIO set, SMTP optional.
+Also required at runtime (full matrix in [06-infra-devex.md](./06-infra-devex.md)): `PAYLOAD_SECRET`, `DATABASE_URI`, `CMS_INTERNAL_URL`, S3/MinIO set, SMTP optional. Bot/CMS notify: `TELEGRAM_BOT_TOKEN`, `BOT_INTERNAL_SECRET`, `BOT_INTERNAL_URL` (optional empty = skip), webhook vars in prod — see [12-telegram-bot.md](./12-telegram-bot.md).
 
-**Adapt:** ship `apps/cms/.env.example` and `apps/web/.env.local.example`. Fail fast on missing required vars.
+**Adapt:** ship `apps/cms/.env.example`, `apps/web/.env.local.example`, and `apps/bot/.env.example`. Fail fast on missing required vars.
 
 ## Keep / Adapt / Drop
 
 ### Keep
 
-- Two-app monorepo, SCSS Modules, Payload block architecture, typed SDK client, next-intl with **Ukrainian default + English**, `localePrefix: 'as-needed'`, Docker turbo-prune multi-stage images, CI quality job (format/lint/typecheck).
+- App monorepo (cms + web + bot), SCSS Modules (web), Payload block architecture, typed SDK client, next-intl with **Ukrainian default + English**, `localePrefix: 'as-needed'`, Docker turbo-prune multi-stage images, CI quality job (format/lint/typecheck).
 
 ### Adapt
 
@@ -125,5 +129,6 @@ Also required at runtime (full matrix in [06-infra-devex.md](./06-infra-devex.md
 | --- | --- | --- |
 | Web | 3000 (Docker host 3200) | `https://<site>/` |
 | CMS | 3001 (Docker host 3201) | `https://<site>/cms` via `CMS_BASE_PATH=/cms` |
+| Bot | 3002 | `https://<site>/telegram` webhook (Traefik `PathPrefix(/telegram)`); internal CMS↔bot on Docker network |
 
-Do not create a Pages slug `cms`. Media uses `/api/media-redirect?k=…` (presigned S3 GET).
+Do not create a Pages slug `cms` or `telegram` (collides with prod path prefixes). Media uses `/api/media-redirect?k=…` (presigned S3 GET).

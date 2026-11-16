@@ -93,6 +93,7 @@ Mirror the existing form-builder hook behaviour, with a clearer Autosearch namin
 | 2 | `form-submissions` | Raw durable log of every submit (`form` + `submissionData`) |
 | 3 | `leads` | Editor-facing inbox (replaces `contact-submissions`) when `submissionKind` is `lead` / `contact` |
 | 4 | Email | If Form has `emails[]` and SMTP configured — same `{{field}}` substitution as today |
+| 5 | Telegram notify _(optional)_ | After lead create, CMS may `POST` `BOT_INTERNAL_URL/internal/leads` so approved staff get a bot message. **Not** a second write path — still one `form-submissions` + one `leads` doc. Empty `BOT_INTERNAL_URL` or bot downtime must not fail the form. See [12-telegram-bot.md](./12-telegram-bot.md). |
 
 ### `forms.submissionKind`
 
@@ -157,5 +158,6 @@ Editors work primarily in **`leads`**, not raw `form-submissions` (raw remains f
 - [ ] One Payload `form-submissions` document is created per successful submit.
 - [ ] One `leads` document appears in Admin with `status: new` and parsed contact fields.
 - [ ] Optional email fires when configured; otherwise inbox-only is enough.
+- [ ] Optional Telegram notify fires when `BOT_INTERNAL_URL` is set; form still succeeds if the bot is down ([12](./12-telegram-bot.md)).
 - [ ] Payload errors surface as error toasts; success only on `ok`.
 - [ ] No dependency on `GOGYM_*` env or `api.beta.gogym.club`.

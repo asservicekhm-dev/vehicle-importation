@@ -10,12 +10,12 @@ Reusable, code-derived blueprint for a new **AS Autosearch** car-dealership land
 | Dimension | Decision |
 | --- | --- |
 | Stack | Payload CMS 3 + Next.js 15 monorepo, MongoDB, S3/MinIO, next-intl, SCSS Modules |
-| Apps | `apps/cms` (:3001, `/cms` in prod) + `apps/web` (:3000) |
+| Apps | `apps/cms` (:3001, `/cms` in prod) + `apps/web` (:3000) + `apps/bot` (:3002, `/telegram` webhook in prod) |
 | Locales | **Ukrainian (default)** + **English**. Codes `ua` / `en`; `ua` has no URL prefix, `en` is `/en/…` |
 | Content | CMS blocks + `viewType` routing; almost no hardcoded copy; every UI string in both `translations/ua.json` and `translations/en.json` |
 | Theme | Semantic tokens; `[data-theme=light\|dark]`; cookie + SiteSettings default; no legacy aliases |
 | Domain | Import/search from USA·EU·KR; five services (inspection, turnkey, expert-for-a-day, diagnostics, travel); CMS price list; leads, blog; About/Contacts as Home sections (no `/about`/`/contacts` in v1; no inventory catalog, no search wizard) |
-| Booking / leads | Same as AS Service **primary inbox**: Form Builder → `form-submissions` → Admin `leads` (+ optional email). No GoGym. See [09-booking-and-leads.md](./09-booking-and-leads.md) |
+| Booking / leads | Same as AS Service **primary inbox**: Form Builder → `form-submissions` → Admin `leads` (+ optional email). Staff Telegram bot for lead notify + inbox. No GoGym. See [09-booking-and-leads.md](./09-booking-and-leads.md), [12-telegram-bot.md](./12-telegram-bot.md) |
 | Naming | `@autosearch/*`, containers/buckets `autosearch-*` |
 | Drop | Inventory / cars catalog, Autosearch search wizard, Explore, gamification blocks, subscriptions, gogym APIs, Tailwind prettier plugin, dual Wayon/`--as-*` palettes |
 
@@ -24,6 +24,7 @@ flowchart TB
   subgraph monorepo [Autosearch monorepo]
     CMS[apps/cms Payload]
     Web[apps/web Next]
+    Bot[apps/bot grammY]
   end
   Editor[Editors] --> CMS
   CMS --> Mongo[(MongoDB)]
@@ -31,6 +32,9 @@ flowchart TB
   Web -->|typed REST + types| CMS
   Users[Visitors] --> Web
   Web --> Theme[data-theme light/dark]
+  CMS -->|new lead + auth decisions| Bot
+  Bot -->|bot API + secret| CMS
+  Operators[Staff] --> Bot
 ```
 
 ## Document index
@@ -48,12 +52,13 @@ flowchart TB
 | [09-booking-and-leads.md](./09-booking-and-leads.md) | Booking form + Payload leads inbox (parity with AS Service primary path) |
 | [10-design-direction.md](./10-design-direction.md) | Design seed: palette, type, wireframes, principles, rejected defaults |
 | [11-soft-launch-checklist.md](./11-soft-launch-checklist.md) | M7 soft-launch gates: engineering vs human/staging sign-off |
+| [12-telegram-bot.md](./12-telegram-bot.md) | Staff Telegram bot: access requests, lead notify/list/search/status, webhook deploy |
 
 ## Cross-cutting Keep / Adapt / Drop
 
 ### Keep
 
-- pnpm + Turborepo two-app layout; Payload block recipe; typed SDK client; RenderBlocks + mappers; graceful-null CMS components; next-intl with Ukrainian default + English (`ua`/`en`, as-needed prefixes); SCSS Modules + breakpoint mixins; Docker turbo-prune + basePath assert; idempotent seeds; booking/lead form via form-submissions → Admin inbox (see [09](./09-booking-and-leads.md)).
+- pnpm + Turborepo app layout; Payload block recipe; typed SDK client; RenderBlocks + mappers; graceful-null CMS components; next-intl with Ukrainian default + English (`ua`/`en`, as-needed prefixes); SCSS Modules + breakpoint mixins; Docker turbo-prune + basePath assert; idempotent seeds; booking/lead form via form-submissions → Admin inbox (see [09](./09-booking-and-leads.md)); staff Telegram bot for leads (see [12](./12-telegram-bot.md)).
 
 ### Adapt
 

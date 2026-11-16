@@ -6,12 +6,12 @@ Source: root Dockerfiles, `.deploy/`, `.github/workflows/`, CMS seeds, `AGENTS.m
 
 | Legacy | Autosearch |
 | --- | --- |
-| `@wayon-landing/{web,cms}` | `@autosearch/{web,cms}` |
+| `@wayon-landing/{web,cms}` | `@autosearch/{web,cms,bot}` |
 | compose `wayon-landing[-dev]` | `autosearch[-dev]` |
 | containers / network / bucket / Mongo DB | `autosearch-*` / `autosearch-network` / `autosearch-media` / `autosearch` |
 | `WEB_WAYON_LANDING_DOMAIN` | `WEB_DOMAIN` |
 | `ci-wayon-landing.yml` | `ci.yml` |
-| `Dockerfile` / `DockerfileWeb` | `Dockerfile.cms` / `Dockerfile.web` |
+| `Dockerfile` / `DockerfileWeb` | `Dockerfile.cms` / `Dockerfile.web` / `Dockerfile.bot` |
 
 Rename once at project start — packages, compose, workflow, env, and server paths must stay in lockstep.
 
@@ -22,9 +22,10 @@ Rename once at project start — packages, compose, workflow, env, and server pa
 1. `turbo prune --scope=@autosearch/<app> --docker`
 2. Install from pruned `json` + lockfile (cache layer)
 3. Copy full prune output; build with **`pnpm --filter … build`** (not `turbo run build` — Turbo 2 strict env strips undeclared vars)
-4. Runner = Next `standalone` + static + public
+4. Runner = Next `standalone` + static + public (cms/web); bot = compiled `dist` + `node`
 5. CMS: assert `.next/routes-manifest.json` `basePath` === `CMS_BASE_PATH`
 6. Web: bake `NEXT_PUBLIC_*` as `ARG` → `ENV` at build time
+7. Bot: `Dockerfile.bot`, listen `:3002`, health on `/health` — [12-telegram-bot.md](./12-telegram-bot.md)
 
 ### Adapt / Drop
 
@@ -42,16 +43,18 @@ Rename once at project start — packages, compose, workflow, env, and server pa
 
 ### Dev (`docker-compose.dev.yml`)
 
-- Services: cms, web, mongo:7, minio (pin tag).
+- Services: cms, web, bot, mongo:7, minio (pin tag).
 - Bind-mount repo; `WATCHPACK_POLLING`; `NEXT_IMAGE_UNOPTIMIZED=true`.
-- Ports example: web 3200, cms 3201, mongo 27019, minio 9200/9201.
+- Ports example: web 3200, cms 3201, bot 3202 (optional), mongo 27019, minio 9200/9201.
+- Bot: long polling when `TELEGRAM_WEBHOOK_URL` unset (`TELEGRAM_MODE=polling`). See [12-telegram-bot.md](./12-telegram-bot.md).
 - **Adapt:** healthchecks + `depends_on: condition: service_healthy`; drop obsolete `version:`.
 
 ### Prod
 
 - Traefik v3.6 (pin — older Docker API issues), Let's Encrypt, security + rate-limit middlewares.
-- Single domain: site `/`, CMS `/cms` (`CMS_BASE_PATH`), MinIO on subdomains.
+- Single domain: site `/`, CMS `/cms` (`CMS_BASE_PATH`), bot webhook `/telegram` (priority above web), MinIO on subdomains.
 - Web runtime: `CMS_INTERNAL_URL=http://cms:3001/cms` for SSR fetches.
+- Bot: `TELEGRAM_MODE=webhook`, public `TELEGRAM_WEBHOOK_URL=https://<site>/telegram/webhook`; CMS `BOT_INTERNAL_URL=http://bot:3002`. Internal bot notify paths stay off Traefik.
 - **Drop** legacy `cms.<site>` redirect router unless needed.
 - **Adapt:** one Traefik-per-host vs per-project decision; log rotation; post-deploy health curl.
 
@@ -68,9 +71,15 @@ Rename once at project start — packages, compose, workflow, env, and server pa
 | S3_* + MinIO roots | minioadmin defaults | real secrets; no compose defaults that override env_file |
 | `NEXT_PUBLIC_GTM_ID` | unset | set; **no hardcoded default id** |
 | SMTP | optional | optional |
+| `TELEGRAM_BOT_TOKEN` | bot | bot |
+| `TELEGRAM_MODE` | `polling` | `webhook` |
+| `TELEGRAM_WEBHOOK_URL` | unset | `https://<site>/telegram/webhook` |
+| `TELEGRAM_WEBHOOK_SECRET` | optional | required for webhook |
+| `BOT_INTERNAL_SECRET` | cms + bot | cms + bot |
+| `BOT_INTERNAL_URL` | `http://bot:3002` or empty to skip | `http://bot:3002` |
 | GoGym API vars | — | **Drop** |
 
-Ship `apps/*/.env*.example` and `.deploy/setup.sh` that copies `*.example` → real files. Validate required vars at boot.
+Ship `apps/*/.env*.example` (including `apps/bot/.env.example`) and `.deploy/setup.sh` that copies `*.example` → real files. Validate required vars at boot. Bot/CMS notify details: [12-telegram-bot.md](./12-telegram-bot.md).
 
 ## CI / Deploy
 
@@ -81,8 +90,8 @@ Ship `apps/*/.env*.example` and `.deploy/setup.sh` that copies `*.example` → r
 
 ### Deploy
 
-- Branches: `dev` → staging, `main` → production; SSH + `docker compose build/up` per service; path filters for web vs cms.
-- **Adapt:** Environment-scoped secrets (`SSH_*`); matrix job; server-side `deploy.sh`; `git fetch && reset --hard`; `StrictHostKeyChecking=yes` + known_hosts; `cancel-in-progress: false` on main; health gate after up; include Dockerfiles in path filters; consider web rebuild when `payload-types.ts` changes.
+- Branches: `dev` → staging, `main` → production; SSH + `docker compose build/up` per service; path filters for web vs cms vs bot.
+- **Adapt:** Environment-scoped secrets (`SSH_*`); matrix job; server-side `deploy.sh`; `git fetch && reset --hard`; `StrictHostKeyChecking=yes` + known_hosts; `cancel-in-progress: false` on main; health gate after up; include Dockerfiles (`Dockerfile.cms` / `Dockerfile.web` / `Dockerfile.bot`) and `apps/bot/**` in path filters; consider web rebuild when `payload-types.ts` changes.
 
 ## Seeds
 
@@ -129,8 +138,7 @@ Ship `apps/*/.env*.example` and `.deploy/setup.sh` that copies `*.example` → r
 
 | Area | Keep | Adapt | Drop |
 | --- | --- | --- | --- |
-| Docker | prune 3-stage, bypass turbo build, basePath assert | pins, healthchecks, rename files | unused Dockerfiles |
-| Compose | Traefik `/cms` routing, MinIO pin, env_file caveat | healthchecks, Traefik ownership | legacy cms host, `version:` |
-| Seed | idempotent payload scripts | unified runner, safer prod restore | AS content dump |
+| Docker | prune 3-stage, bypass turbo build, basePath assert | pins, healthchecks, rename files, `Dockerfile.bot` | unused Dockerfiles |
+| Compose | Traefik `/cms` routing, MinIO pin, env_file caveat | healthchecks, Traefik ownership, bot `/telegram` + polling in dev | legacy cms host, `version:` || Seed | idempotent payload scripts | unified runner, safer prod restore | AS content dump |
 | CI/CD | quality job, SSH compose deploy | secrets model, health gate, filters | duplicated deploy jobs as-is |
 | DX | new scaffolder, AGENTS structure | block generator, env examples | gogym / Smarty defaults |
