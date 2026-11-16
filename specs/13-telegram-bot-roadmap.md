@@ -18,7 +18,7 @@ flowchart LR
 
 ## Milestone B0 — Bot app scaffold
 
-**Status:** engineered in repo — needs your `TELEGRAM_BOT_TOKEN` in `apps/bot/.env` to confirm live polling.
+**Status:** done.
 
 - [x] Create `apps/bot` (`@autosearch/bot`): Node 20, TypeScript `5.7.3`, [grammY](https://grammy.dev). No Next.js.
 - [x] Package scripts: `dev` (tsx/watch), `build` (`tsc`), `start` (`node dist/…`), `lint`, `typecheck`.
@@ -32,13 +32,15 @@ flowchart LR
 
 ## Milestone B1 — Access (`bot-users`)
 
-- CMS collection `bot-users` per [12](./12-telegram-bot.md) § Collection; Admin group «Телеграм»; register in `payload.config.ts`; `pnpm generate:types`.
-- Access: Admin-only CRUD; create not public.
-- CMS routes (secret `BOT_INTERNAL_SECRET`):
+**Status:** engineered in repo — smoke: bot requests access → Admin «Телеграм» → approve/decline/block → `/start` reflects status.
+
+- [x] CMS collection `bot-users` per [12](./12-telegram-bot.md) § Collection; Admin group «Телеграм»; register in `payload.config.ts`; `pnpm generate:types`.
+- [x] Access: Admin-only CRUD; create not public.
+- [x] CMS routes (secret `BOT_INTERNAL_SECRET`):
   - `POST /api/bot/access-request` — upsert pending by `telegramId`
   - `GET /api/bot/operators/:telegramId` — status for that user
-- Bot: `/start` + unauthorized UX — «Запросити доступ», pending / declined / blocked messages; declined may re-request; blocked cannot.
-- Shared secret header check on CMS bot routes (`Authorization: Bearer` or `X-Bot-Secret`).
+- [x] Bot: `/start` + unauthorized UX — «Запросити доступ», pending / declined / blocked messages; declined may re-request; blocked cannot.
+- [x] Shared secret header check on CMS bot routes (`Authorization: Bearer` or `X-Bot-Secret`).
 
 **Exit:** Telegram user requests access → Admin sees `pending` row → status reflected when bot re-checks operator endpoint. Manual Admin status change is enough for this milestone (decision push is B5).
 

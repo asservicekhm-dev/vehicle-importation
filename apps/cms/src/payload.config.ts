@@ -23,6 +23,7 @@ import { defaultLocale, localeLabels, locales } from '@autosearch/config';
 import { Blog } from './collections/Blog';
 import { BlogAuthors } from './collections/BlogAuthors';
 import { BlogCategories } from './collections/BlogCategories';
+import { BotUsers } from './collections/BotUsers';
 import { Leads } from './collections/Leads';
 import { Media } from './collections/Media';
 import { Pages } from './collections/Pages';
@@ -67,7 +68,7 @@ export default buildConfig({
     },
     user: Users.slug,
   },
-  collections: [Users, Media, Pages, Leads, Blog, BlogCategories, BlogAuthors],
+  collections: [Users, Media, Pages, Leads, BotUsers, Blog, BlogCategories, BlogAuthors],
   db: mongooseAdapter({
     url: requireEnv('DATABASE_URI'),
   }),

@@ -1,10 +1,13 @@
 import { Bot } from 'grammy';
 
+import { handleHelp, handleStart, handleTextMessage } from './access/handlers.js';
+import { CmsBotClient } from './cms/client.js';
 import type { BotEnv } from './env.js';
 import { ua } from './i18n/ua.js';
 
 export function createBot(env: BotEnv): Bot {
   const bot = new Bot(env.telegramBotToken);
+  const cms = new CmsBotClient(env);
 
   bot.use(async (ctx, next) => {
     if (ctx.chat && ctx.chat.type !== 'private') {
@@ -17,11 +20,19 @@ export function createBot(env: BotEnv): Bot {
   });
 
   bot.command('start', async (ctx) => {
-    await ctx.reply(ua.startStub);
+    await handleStart(ctx, cms);
   });
 
   bot.command('help', async (ctx) => {
-    await ctx.reply(ua.helpStub);
+    await handleHelp(ctx, cms);
+  });
+
+  bot.on('message:text', async (ctx, next) => {
+    if (ctx.message.text.startsWith('/')) {
+      await next();
+      return;
+    }
+    await handleTextMessage(ctx, cms);
   });
 
   bot.catch((err) => {
@@ -31,7 +42,7 @@ export function createBot(env: BotEnv): Bot {
   return bot;
 }
 
-/** B0: long polling. Webhook wiring lands in B6. */
+/** B0/B1: long polling. Webhook wiring lands in B6. */
 export async function startBot(bot: Bot, env: BotEnv): Promise<void> {
   if (env.telegramMode === 'webhook') {
     throw new Error(

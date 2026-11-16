@@ -72,6 +72,7 @@ export interface Config {
     media: Media;
     pages: Page;
     leads: Lead;
+    'bot-users': BotUser;
     blog: Blog;
     'blog-categories': BlogCategory;
     'blog-authors': BlogAuthor;
@@ -89,6 +90,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     leads: LeadsSelect<false> | LeadsSelect<true>;
+    'bot-users': BotUsersSelect<false> | BotUsersSelect<true>;
     blog: BlogSelect<false> | BlogSelect<true>;
     'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
     'blog-authors': BlogAuthorsSelect<false> | BlogAuthorsSelect<true>;
@@ -283,7 +285,7 @@ export interface AutoHeroBlockFields {
    */
   backgroundImage?: (string | null) | Media;
   /**
-   * Wrap highlighted phrases in [[double brackets]], e.g. Авто [[під ключ]] зі [[США]].
+   * Use a line break for two lines. Wrap the accent clause in [[double brackets]], e.g. Авто під ключ\n[[із США, Європи та Кореї]].
    */
   title: string;
   /**
@@ -1045,6 +1047,38 @@ export interface FormSubmission {
   createdAt: string;
 }
 /**
+ * Staff Telegram access requests. Approve operators before they can manage leads in the bot.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bot-users".
+ */
+export interface BotUser {
+  id: string;
+  /**
+   * Telegram user id as a string.
+   */
+  telegramId: string;
+  /**
+   * Without @.
+   */
+  username?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  /**
+   * Stored for diagnostics; bot UI stays Ukrainian.
+   */
+  languageCode?: string | null;
+  status: 'pending' | 'approved' | 'declined' | 'blocked';
+  requestedAt?: string | null;
+  decidedAt?: string | null;
+  /**
+   * Internal only — not shown in the bot.
+   */
+  note?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "blog".
  */
@@ -1170,6 +1204,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'leads';
         value: string | Lead;
+      } | null)
+    | ({
+        relationTo: 'bot-users';
+        value: string | BotUser;
       } | null)
     | ({
         relationTo: 'blog';
@@ -1891,6 +1929,23 @@ export interface LeadsSelect<T extends boolean = true> {
         medium?: T;
         campaign?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bot-users_select".
+ */
+export interface BotUsersSelect<T extends boolean = true> {
+  telegramId?: T;
+  username?: T;
+  firstName?: T;
+  lastName?: T;
+  languageCode?: T;
+  status?: T;
+  requestedAt?: T;
+  decidedAt?: T;
+  note?: T;
   updatedAt?: T;
   createdAt?: T;
 }
