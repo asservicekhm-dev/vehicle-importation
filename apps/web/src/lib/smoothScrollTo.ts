@@ -1,3 +1,5 @@
+import { getLenisInstance } from '@/components/SmoothScroll';
+
 export function prefersReducedMotion(): boolean {
   if (typeof window === 'undefined') return false;
   return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
@@ -16,9 +18,23 @@ type SmoothScrollOptions = {
   behavior?: ScrollBehavior;
 };
 
+function scrollMarginTop(el: Element): number {
+  return parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+}
+
 function scrollToId(id: string, behavior: ScrollBehavior): boolean {
   const target = document.getElementById(id);
   if (!target) return false;
+
+  const immediate = behavior === 'auto' || prefersReducedMotion();
+  const lenis = getLenisInstance();
+  if (lenis) {
+    lenis.scrollTo(target, {
+      offset: -scrollMarginTop(target),
+      immediate,
+    });
+    return true;
+  }
 
   target.scrollIntoView({ behavior, block: 'start' });
   return true;
@@ -31,6 +47,25 @@ function syncHashUrl(id: string): void {
   if (currentUrl !== nextUrl) {
     window.history.pushState(null, '', nextUrl);
   }
+}
+
+/** Smooth-scroll to page top (Lenis when active). Optionally clears `#hash`. */
+export function smoothScrollToTop(options: { clearHash?: boolean } = {}): void {
+  if (typeof window === 'undefined') return;
+
+  if (options.clearHash && window.location.hash) {
+    const nextUrl = `${window.location.pathname}${window.location.search}`;
+    window.history.replaceState(null, '', nextUrl);
+  }
+
+  const immediate = prefersReducedMotion();
+  const lenis = getLenisInstance();
+  if (lenis) {
+    lenis.scrollTo(0, { immediate });
+    return;
+  }
+
+  window.scrollTo({ top: 0, behavior: immediate ? 'auto' : 'smooth' });
 }
 
 /** Smooth-scroll to a same-page hash target, respecting scroll-margin and reduced motion. */

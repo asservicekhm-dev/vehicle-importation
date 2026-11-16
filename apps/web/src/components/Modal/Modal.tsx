@@ -29,6 +29,7 @@ export function Modal({
         <Dialog.Overlay className={styles.overlay} />
         <Dialog.Content
           className={styles.content}
+          data-lenis-prevent
           aria-describedby={undefined}
           onCloseAutoFocus={(event) => {
             if (onCloseAutoFocus) {

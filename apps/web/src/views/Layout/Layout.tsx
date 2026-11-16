@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import { BackToTop } from '@/components/BackToTop';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
+import { SmoothScroll } from '@/components/SmoothScroll';
 import type { ThemePreference } from '@autosearch/config';
 
 import styles from './Layout.module.scss';
@@ -32,6 +33,7 @@ export async function Layout({
       </main>
       <Footer />
       <BackToTop />
+      <SmoothScroll />
     </div>
   );
 }

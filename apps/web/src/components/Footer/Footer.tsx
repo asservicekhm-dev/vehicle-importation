@@ -7,6 +7,7 @@ import { CMSLink } from '@/components/CMSLink';
 import { CMSMedia } from '@/components/CMSMedia';
 import { useGlobals } from '@/contexts/GlobalsContext';
 import { Link } from '@/i18n/navigation';
+import { smoothScrollToTop } from '@/lib/smoothScrollTo';
 import type { Contact, Header, Media } from '@autosearch/cms/payload-types';
 import {
   defaultAddressEn,
@@ -117,11 +118,7 @@ export function Footer() {
   const { contacts, footer, header } = useGlobals();
 
   const scrollToTop = useCallback(() => {
-    if (window.location.hash) {
-      const nextUrl = `${window.location.pathname}${window.location.search}`;
-      window.history.replaceState(null, '', nextUrl);
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    smoothScrollToTop({ clearHash: true });
   }, []);
 
   const fromFooter = extractNavRows(footer?.navItems);

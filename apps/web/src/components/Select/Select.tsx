@@ -282,7 +282,13 @@ export function Select(props: SelectProps) {
               />
             ) : null}
 
-            <ul className={styles.list} id={listId} role='listbox' aria-multiselectable={multiple}>
+            <ul
+              className={styles.list}
+              id={listId}
+              role='listbox'
+              aria-multiselectable={multiple}
+              data-lenis-prevent
+            >
               {items.length === 0 ? (
                 <li>
                   <p className={styles.empty}>{emptyLabel}</p>
