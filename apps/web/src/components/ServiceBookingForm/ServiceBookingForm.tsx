@@ -293,8 +293,25 @@ export function ServiceBookingForm({
     }
 
     if (!compact && data.service === 'inspection') {
-      if (data.priceRange) rows.push({ field: 'priceRange', value: data.priceRange });
-      if (data.addons.length) rows.push({ field: 'addons', value: data.addons.join(',') });
+      // Store human labels on the lead (Select values are row/addon ids).
+      if (data.priceRange) {
+        const rangeRow = inspectionRangeOptions(priceList).find(
+          (row) => row.id === data.priceRange || row.label === data.priceRange,
+        );
+        rows.push({
+          field: 'priceRange',
+          value: rangeRow?.label ?? data.priceRange,
+        });
+      }
+      if (data.addons.length) {
+        const addonLabels = data.addons.map((key) => {
+          const addon = inspectionAddonOptions(priceList).find(
+            (row) => row.id === key || row.label === key,
+          );
+          return addon?.label ?? key;
+        });
+        rows.push({ field: 'addons', value: addonLabels.join(', ') });
+      }
       if (inspectionLines.length) {
         rows.push({
           field: 'expectedPrice',

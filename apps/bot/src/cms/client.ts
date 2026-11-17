@@ -44,6 +44,26 @@ export class CmsBotClient {
     return `${this.env.cmsInternalUrl}${path.startsWith('/') ? path : `/${path}`}`;
   }
 
+  async listApprovedOperators(): Promise<OperatorInfo[]> {
+    const params = new URLSearchParams({ status: 'approved' });
+    const res = await fetch(this.url(`/api/bot/operators?${params}`), {
+      method: 'GET',
+      headers: this.headers(),
+    });
+
+    const data = (await res.json().catch(() => null)) as
+      | { ok?: boolean; docs?: OperatorInfo[]; error?: string }
+      | null;
+
+    if (!res.ok || !data?.ok || !Array.isArray(data.docs)) {
+      throw new Error(
+        `[bot→cms] listApprovedOperators failed (${res.status}): ${data?.error ?? res.statusText}`,
+      );
+    }
+
+    return data.docs;
+  }
+
   async getOperator(telegramId: string): Promise<OperatorInfo> {
     const res = await fetch(this.url(`/api/bot/operators/${encodeURIComponent(telegramId)}`), {
       method: 'GET',

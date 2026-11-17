@@ -1,4 +1,10 @@
-import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload';
+import type {
+  CollectionAfterChangeHook,
+  CollectionBeforeChangeHook,
+  CollectionConfig,
+} from 'payload';
+
+import { notifyBotAuthDecision } from '@/lib/botNotify';
 
 const setDecidedAt: CollectionBeforeChangeHook = ({ data, originalDoc }) => {
   if (!data) return data;
@@ -15,6 +21,40 @@ const setDecidedAt: CollectionBeforeChangeHook = ({ data, originalDoc }) => {
   }
 
   return data;
+};
+
+/** Notify the Telegram user when Admin changes their access status. */
+const notifyBotOnAuthChange: CollectionAfterChangeHook = async ({
+  doc,
+  previousDoc,
+  operation,
+}) => {
+  const nextStatus = doc.status;
+  const prevStatus = previousDoc?.status ?? null;
+
+  if (
+    typeof nextStatus !== 'string' ||
+    (operation === 'update' && nextStatus === prevStatus)
+  ) {
+    return doc;
+  }
+
+  // Skip create-as-pending (user already saw requestSent in the bot).
+  if (operation === 'create' && nextStatus === 'pending') {
+    return doc;
+  }
+
+  try {
+    await notifyBotAuthDecision({
+      telegramId: String(doc.telegramId),
+      status: nextStatus as 'pending' | 'approved' | 'declined' | 'blocked',
+      previousStatus: typeof prevStatus === 'string' ? prevStatus : null,
+    });
+  } catch (err) {
+    console.error('[bot-users] auth notify failed', err);
+  }
+
+  return doc;
 };
 
 export const BotUsers: CollectionConfig = {
@@ -40,6 +80,7 @@ export const BotUsers: CollectionConfig = {
   },
   hooks: {
     beforeChange: [setDecidedAt],
+    afterChange: [notifyBotOnAuthChange],
   },
   fields: [
     {

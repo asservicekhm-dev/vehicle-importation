@@ -96,11 +96,13 @@ curl -sS -X PATCH -H "Authorization: Bearer $SECRET" -H 'content-type: applicati
 
 ## Milestone B5 — Notifications
 
-- On lead **create**, CMS `POST`s `BOT_INTERNAL_URL/internal/leads` with secret; short timeout (2–3s); log failures; **never** fail form/lead create if bot is down.
-- Empty `BOT_INTERNAL_URL` → skip (CMS boots without bot).
-- Bot `POST /internal/leads`: notify every `approved` operator; full field set per [12](./12-telegram-bot.md); «Відкрити» button; dedupe by lead id.
-- On `bot-users` status change, CMS `POST`s `BOT_INTERNAL_URL/internal/auth`; bot messages that Telegram user.
-- Status edits on leads do **not** fan out.
+**Status:** done.
+
+- [x] On lead **create**, CMS `POST`s `BOT_INTERNAL_URL/internal/leads` with secret; short timeout (2–3s); log failures; **never** fail form/lead create if bot is down.
+- [x] Empty `BOT_INTERNAL_URL` → skip (CMS boots without bot).
+- [x] Bot `POST /internal/leads`: notify every `approved` operator; full field set per [12](./12-telegram-bot.md); «Відкрити» button; dedupe by lead id.
+- [x] On `bot-users` status change, CMS `POST`s `BOT_INTERNAL_URL/internal/auth`; bot messages that Telegram user.
+- [x] Status edits on leads do **not** fan out.
 
 **Exit:** Booking form creates lead → approved users get Telegram message; Admin approve/decline/block notifies the requester; form still succeeds if bot is stopped.
 

@@ -230,6 +230,7 @@ async function main() {
       // Payload create typing is strict; seed payload is shaped like Lead fields.
       data: data as never,
       overrideAccess: true,
+      context: { skipBotNotify: true },
     });
   }
 

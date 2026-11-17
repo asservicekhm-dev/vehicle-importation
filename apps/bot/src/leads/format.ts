@@ -290,14 +290,20 @@ function withCurrency(formattedAmount: string, currency: string | null): string 
 
 /**
  * Money display: `1231211` + `eur` → `€1 231 211`; `usd` → `$1 231 211`.
- * Also accepts combined strings like `700 USD`.
+ * Also accepts combined strings like `700 USD` / `від 100 USD`.
  */
 export function formatMoneyDisplay(
   amountRaw: string | null | undefined,
   currencyRaw?: string | null,
 ): string | null {
   if (!amountRaw?.trim()) return null;
-  const trimmed = amountRaw.trim();
+  let trimmed = amountRaw.trim();
+
+  const fromMatch = trimmed.match(/^(від|from)\s+/i);
+  const fromPrefix = fromMatch ? 'від ' : '';
+  if (fromMatch) {
+    trimmed = trimmed.slice(fromMatch[0].length).trim();
+  }
 
   let amountPart = trimmed;
   let currencyPart = currencyRaw?.trim() ?? '';
@@ -311,20 +317,48 @@ export function formatMoneyDisplay(
   }
 
   const digits = amountPart.replace(/\D/g, '');
-  if (!digits) return trimmed;
+  if (!digits) return amountRaw.trim();
 
-  return withCurrency(formatAmountDigits(digits), normalizeCurrencyCode(currencyPart));
+  return `${fromPrefix}${withCurrency(formatAmountDigits(digits), normalizeCurrencyCode(currencyPart))}`;
+}
+
+/**
+ * Service estimate may be several lines joined with `+`
+ * (`2 000 UAH + 700 UAH + від 100 USD`). Format each segment; never mash digits.
+ */
+export function formatExpectedPriceDisplay(
+  amountRaw: string | null | undefined,
+  currencyRaw?: string | null,
+): string | null {
+  if (!amountRaw?.trim()) return null;
+  const trimmed = amountRaw.trim();
+
+  if (trimmed.includes('+')) {
+    return trimmed
+      .split(/\s*\+\s*/)
+      .map((part) => formatMoneyDisplay(part.trim()) ?? part.trim())
+      .join(' + ');
+  }
+
+  return formatMoneyDisplay(trimmed, currencyRaw) ?? trimmed;
+}
+
+/** 24-char hex → Payload row/addon id stored by older form submits. */
+function looksLikeDocumentId(value: string): boolean {
+  return /^[a-f0-9]{24}$/i.test(value.trim());
 }
 
 /**
  * Vehicle price range (always USD in this product): `22000-32000` → `$22 000 – $32 000`.
  * Human labels from the price list (e.g. `До $10 000`) pass through unchanged.
+ * Bare document ids are omitted (legacy form bug).
  */
 export function formatPriceRangeDisplay(
   rangeRaw: string | null | undefined,
 ): string | null {
   if (!rangeRaw?.trim()) return null;
   const trimmed = rangeRaw.trim();
+  if (looksLikeDocumentId(trimmed)) return null;
 
   const match = trimmed.match(
     /^([\d\s.,]+)\s*[-–—]\s*([\d\s.,]+)(?:\s*(грн|uah|usd|eur|₴|\$|€|[A-Za-z]{3}))?$/i,
@@ -341,6 +375,18 @@ export function formatPriceRangeDisplay(
   const low = withCurrency(formatAmountDigits(lowDigits), currency);
   const high = withCurrency(formatAmountDigits(highDigits), currency);
   return `${low} – ${high}`;
+}
+
+/** Addon labels; drop legacy comma-separated document ids. */
+export function formatAddonsDisplay(addonsRaw: string | null | undefined): string | null {
+  if (!addonsRaw?.trim()) return null;
+  const parts = addonsRaw
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (!parts.length) return null;
+  if (parts.every(looksLikeDocumentId)) return null;
+  return parts.filter((part) => !looksLikeDocumentId(part)).join(', ') || null;
 }
 
 export function formatActiveFiltersLine(session: ChatSession): string | null {
@@ -413,10 +459,28 @@ export function formatLeadListCardHtml(doc: LeadSummary, indexOnPage: number): s
   return lines.join('\n');
 }
 
-export function formatLeadDetailHtml(doc: LeadDetail): string {
+export function formatLeadNotifyHtml(doc: LeadDetail): string {
+  return formatLeadDetailHtml(doc, ua.leadNotifyTitle);
+}
+
+export function formatLeadDetailHtml(
+  doc: LeadDetail,
+  title: string = ua.leadDetailTitle,
+): string {
   const req = doc.request;
+  const priceRange = formatPriceRangeDisplay(req?.priceRange);
+  const addons = formatAddonsDisplay(req?.addons);
+  const expectedPrice = formatExpectedPriceDisplay(
+    req?.expectedPrice,
+    req?.budgetCurrency,
+  );
+  const origin = formatOriginLabel(req?.origin);
+  const carType = formatCarTypeLabel(req?.carType);
+  const carBrand = formatCarBrandLabel(req?.carBrand);
+  const deliveryCity = formatDeliveryCityLabel(req?.deliveryCity);
+
   const lines: Array<string | null> = [
-    `📋 <b>${escapeHtml(ua.leadDetailTitle)}</b>`,
+    `📋 <b>${escapeHtml(title)}</b>`,
     labeled(ua.fieldStatus, escapeHtml(statusLabelWithEmoji(doc.status))),
     typeLabel(doc.type)
       ? labeled(ua.fieldType, escapeHtml(typeLabel(doc.type)!))
@@ -433,42 +497,17 @@ export function formatLeadDetailHtml(doc: LeadDetail): string {
           ),
         )
       : null,
-    formatOriginLabel(req?.origin)
-      ? labeled(ua.fieldOrigin, escapeHtml(formatOriginLabel(req?.origin)!))
-      : null,
-    formatCarTypeLabel(req?.carType)
-      ? labeled(ua.fieldCarType, escapeHtml(formatCarTypeLabel(req?.carType)!))
-      : null,
-    formatCarBrandLabel(req?.carBrand)
-      ? labeled(ua.fieldCarBrand, escapeHtml(formatCarBrandLabel(req?.carBrand)!))
-      : null,
+    origin ? labeled(ua.fieldOrigin, escapeHtml(origin)) : null,
+    carType ? labeled(ua.fieldCarType, escapeHtml(carType)) : null,
+    carBrand ? labeled(ua.fieldCarBrand, escapeHtml(carBrand)) : null,
     req?.otherCity
-      ? labeled(
-          ua.fieldDeliveryCity,
-          escapeHtml(formatDeliveryCityLabel(req.deliveryCity) || ua.yes),
-        )
-      : formatDeliveryCityLabel(req?.deliveryCity)
-        ? labeled(
-            ua.fieldDeliveryCity,
-            escapeHtml(formatDeliveryCityLabel(req?.deliveryCity)!),
-          )
+      ? labeled(ua.fieldDeliveryCity, escapeHtml(deliveryCity || ua.yes))
+      : deliveryCity
+        ? labeled(ua.fieldDeliveryCity, escapeHtml(deliveryCity))
         : null,
-    req?.priceRange
-      ? labeled(
-          ua.fieldPriceRange,
-          escapeHtml(formatPriceRangeDisplay(req.priceRange) ?? req.priceRange),
-        )
-      : null,
-    req?.addons ? labeled(ua.fieldAddons, escapeHtml(req.addons)) : null,
-    req?.expectedPrice
-      ? labeled(
-          ua.fieldExpectedPrice,
-          escapeHtml(
-            formatMoneyDisplay(req.expectedPrice, req.budgetCurrency) ??
-              req.expectedPrice,
-          ),
-        )
-      : null,
+    priceRange ? labeled(ua.fieldPriceRange, escapeHtml(priceRange)) : null,
+    addons ? labeled(ua.fieldAddons, escapeHtml(addons)) : null,
+    expectedPrice ? labeled(ua.fieldExpectedPrice, escapeHtml(expectedPrice)) : null,
     doc.source?.trim() ? labeled(ua.fieldSource, escapeHtml(doc.source.trim())) : null,
     labeled(ua.fieldCreatedAt, escapeHtml(formatKyiv(doc.createdAt))),
     doc.readAt ? labeled(ua.fieldReadAt, escapeHtml(formatKyiv(doc.readAt))) : null,

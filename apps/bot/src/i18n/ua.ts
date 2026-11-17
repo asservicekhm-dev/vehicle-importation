@@ -54,8 +54,15 @@ export const ua = {
   alreadyLastPage: 'Це остання сторінка.',
 
   leadDetailTitle: 'Заявка',
+  leadNotifyTitle: 'Нова заявка',
   openLead: 'Відкрити',
   unnamed: 'Без імені',
+  authNotifyApproved:
+    '✅ Ваш доступ до бота заявок схвалено. Користуйтеся меню нижче.',
+  authNotifyDeclined:
+    '❌ Ваш запит на доступ відхилено. Можете надіслати запит ще раз.',
+  authNotifyBlocked: '🚫 Доступ заблоковано. Зверніться до адміністратора сайту.',
+  authNotifyPending: '⏳ Ваш запит на доступ знову на розгляді.',
   statusUpdated: '✅ Статус оновлено.',
   openFailed: '⚠️ Не вдалося відкрити заявку.',
   statusFailed: '⚠️ Не вдалося змінити статус.',

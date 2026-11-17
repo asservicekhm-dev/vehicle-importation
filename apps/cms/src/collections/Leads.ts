@@ -1,4 +1,11 @@
-import type { CollectionAfterReadHook, CollectionConfig } from 'payload';
+import type {
+  CollectionAfterChangeHook,
+  CollectionAfterReadHook,
+  CollectionConfig,
+} from 'payload';
+
+import { notifyBotLeadCreate } from '@/lib/botNotify';
+import type { Lead } from '@/payload-types';
 
 const markAsReadOnOpen: CollectionAfterReadHook = async ({ doc, req }) => {
   const anyReq = req as { context?: Record<string, unknown> };
@@ -23,6 +30,22 @@ const markAsReadOnOpen: CollectionAfterReadHook = async ({ doc, req }) => {
   return doc;
 };
 
+/** Create-only fan-out to staff Telegram bot. Never fails the lead write. */
+const notifyBotOnLeadCreate: CollectionAfterChangeHook = async ({
+  doc,
+  operation,
+  req,
+}) => {
+  if (operation !== 'create') return doc;
+  if (req.context?.skipBotNotify) return doc;
+  try {
+    await notifyBotLeadCreate(doc as Lead);
+  } catch (err) {
+    console.error('[leads] bot notify failed', err);
+  }
+  return doc;
+};
+
 export const Leads: CollectionConfig = {
   slug: 'leads',
   labels: {
@@ -42,6 +65,7 @@ export const Leads: CollectionConfig = {
   },
   hooks: {
     afterRead: [markAsReadOnOpen],
+    afterChange: [notifyBotOnLeadCreate],
   },
   fields: [
     {

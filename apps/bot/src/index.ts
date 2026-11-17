@@ -1,11 +1,13 @@
 import { createBot, startBot } from './bot.js';
+import { CmsBotClient } from './cms/client.js';
 import { loadEnv } from './env.js';
-import { startHealthServer } from './server.js';
+import { startHttpServer } from './server.js';
 
 async function main(): Promise<void> {
   const env = loadEnv();
-  const healthServer = startHealthServer(env);
+  const cms = new CmsBotClient(env);
   const bot = createBot(env);
+  const httpServer = startHttpServer(env, { bot, cms });
 
   const shutdown = async (signal: string) => {
     console.info(`[bot] ${signal} received, shutting down…`);
@@ -15,7 +17,7 @@ async function main(): Promise<void> {
       console.error('[bot] stop error', err);
     }
     await new Promise<void>((resolve) => {
-      healthServer.close(() => resolve());
+      httpServer.close(() => resolve());
     });
     process.exit(0);
   };
