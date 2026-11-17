@@ -4,6 +4,7 @@ import { handleHelp, handleStart, handleTextMessage } from './access/handlers.js
 import { CmsBotClient } from './cms/client.js';
 import type { BotEnv } from './env.js';
 import { ua } from './i18n/ua.js';
+import { handleLeadCallback } from './leads/handlers.js';
 
 export function createBot(env: BotEnv): Bot {
   const bot = new Bot(env.telegramBotToken);
@@ -27,6 +28,10 @@ export function createBot(env: BotEnv): Bot {
     await handleHelp(ctx, cms);
   });
 
+  bot.on('callback_query:data', async (ctx) => {
+    await handleLeadCallback(ctx, cms);
+  });
+
   bot.on('message:text', async (ctx, next) => {
     if (ctx.message.text.startsWith('/')) {
       await next();
@@ -42,7 +47,7 @@ export function createBot(env: BotEnv): Bot {
   return bot;
 }
 
-/** B0/B1: long polling. Webhook wiring lands in B6. */
+/** Long polling. Webhook wiring lands in B6. */
 export async function startBot(bot: Bot, env: BotEnv): Promise<void> {
   if (env.telegramMode === 'webhook') {
     throw new Error(

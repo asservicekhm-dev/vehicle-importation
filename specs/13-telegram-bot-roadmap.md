@@ -46,7 +46,7 @@ flowchart LR
 
 ## Milestone B2 — Lead bot API
 
-**Status:** engineered in repo — smoke with approved `telegramId` + `BOT_INTERNAL_SECRET` (see curl examples below).
+**Status:** done.
 
 - [x] CMS routes (same secret + require approved `telegramId` where listed in [12](./12-telegram-bot.md)):
   - `GET /api/bot/leads` — paginated list (`limit=5`), sort `createdAt` desc; query params for `q`, filters
@@ -74,11 +74,13 @@ curl -sS -X PATCH -H "Authorization: Bearer $SECRET" -H 'content-type: applicati
 
 ## Milestone B3 — Inbox UX
 
-- Persistent reply keyboard for approved operators: «Заявки», «Пошук», «Фільтри», «Допомога» (search/filters can stub until B4).
-- «Заявки»: inline list (5/page), row = name · phone · status; prev/next; page indicator.
-- Detail screen: omit empty fields; under 4096 chars; four status buttons («Нова» / «В роботі» / «Успішна» / «Відхилена»).
-- In-memory session per `chatId` (page; later filters). Short `callback_data` codes (`l:`, `p:`, `s:`).
-- Gate all lead actions on approved operator status.
+**Status:** engineered in repo — smoke as approved operator: «Заявки» → open → change status.
+
+- [x] Persistent reply keyboard for approved operators: «Заявки», «Пошук», «Фільтри», «Допомога» (search/filters stub until B4).
+- [x] «Заявки»: inline list (5/page), row = name · phone · status; prev/next; page indicator.
+- [x] Detail screen: omit empty fields; under 4096 chars; four status buttons («Нова» / «В роботі» / «Успішна» / «Відхилена»).
+- [x] In-memory session per `chatId` (page; later filters). Short `callback_data` codes (`l:`, `p:`, `s:`).
+- [x] Gate all lead actions on approved operator status.
 
 **Exit:** Approved operator can list → open → change status end-to-end against a seeded/local CMS.
 

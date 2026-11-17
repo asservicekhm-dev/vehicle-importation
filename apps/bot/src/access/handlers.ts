@@ -2,7 +2,18 @@ import type { Context } from 'grammy';
 
 import type { CmsBotClient, OperatorStatus } from '../cms/client.js';
 import { ua } from '../i18n/ua.js';
-import { clearKeyboard, requestAccessKeyboard } from './keyboards.js';
+import {
+  handleListNext,
+  handleListPrev,
+  handleListRefresh,
+  handleMenuFilters,
+  handleMenuHome,
+  handleMenuLeads,
+  handleMenuSearch,
+  isListPositionButton,
+} from '../leads/handlers.js';
+import { setSessionMode } from '../session.js';
+import { clearKeyboard, mainMenuKeyboard, requestAccessKeyboard } from './keyboards.js';
 
 function profileFromCtx(ctx: Context) {
   const from = ctx.from;
@@ -21,9 +32,12 @@ export async function replyForStatus(
   status: OperatorStatus | null,
 ): Promise<void> {
   switch (status) {
-    case 'approved':
-      await ctx.reply(ua.approved, { reply_markup: clearKeyboard() });
+    case 'approved': {
+      const chatId = ctx.chat?.id;
+      if (chatId != null) setSessionMode(chatId, 'menu');
+      await ctx.reply(ua.approved, { reply_markup: mainMenuKeyboard() });
       return;
+    }
     case 'pending':
       await ctx.reply(ua.pending, { reply_markup: clearKeyboard() });
       return;
@@ -58,7 +72,9 @@ export async function handleHelp(ctx: Context, cms: CmsBotClient): Promise<void>
   try {
     const operator = await cms.getOperator(profile.telegramId);
     if (operator.status === 'approved') {
-      await ctx.reply(ua.helpApproved, { reply_markup: clearKeyboard() });
+      const chatId = ctx.chat?.id;
+      if (chatId != null) setSessionMode(chatId, 'menu');
+      await ctx.reply(ua.helpApproved, { reply_markup: mainMenuKeyboard() });
       return;
     }
     await ctx.reply(ua.helpUnauthorized, {
@@ -87,7 +103,7 @@ export async function handleRequestAccess(ctx: Context, cms: CmsBotClient): Prom
     }
 
     if (result.status === 'approved') {
-      await ctx.reply(ua.approved, { reply_markup: clearKeyboard() });
+      await ctx.reply(ua.approved, { reply_markup: mainMenuKeyboard() });
       return;
     }
 
@@ -98,12 +114,14 @@ export async function handleRequestAccess(ctx: Context, cms: CmsBotClient): Prom
   }
 }
 
-/** Non-command private text: request button or status gate. */
+/** Non-command private text: access gate or approved main menu. */
 export async function handleTextMessage(ctx: Context, cms: CmsBotClient): Promise<void> {
   const profile = profileFromCtx(ctx);
   if (!profile) return;
 
   const text = ctx.message?.text?.trim();
+  if (!text) return;
+
   if (text === ua.requestAccess) {
     await handleRequestAccess(ctx, cms);
     return;
@@ -111,11 +129,47 @@ export async function handleTextMessage(ctx: Context, cms: CmsBotClient): Promis
 
   try {
     const operator = await cms.getOperator(profile.telegramId);
-    if (operator.status === 'approved') {
-      await ctx.reply(ua.helpApproved, { reply_markup: clearKeyboard() });
+    if (operator.status !== 'approved') {
+      await replyForStatus(ctx, operator.status);
       return;
     }
-    await replyForStatus(ctx, operator.status);
+
+    switch (text) {
+      case ua.menuLeads:
+        await handleMenuLeads(ctx, cms);
+        return;
+      case ua.menuHome:
+        await handleMenuHome(ctx);
+        return;
+      case ua.prevPage:
+        await handleListPrev(ctx, cms);
+        return;
+      case ua.nextPage:
+        await handleListNext(ctx, cms);
+        return;
+      case ua.menuSearch:
+        await handleMenuSearch(ctx);
+        return;
+      case ua.menuFilters:
+        await handleMenuFilters(ctx);
+        return;
+      case ua.menuHelp: {
+        const chatId = ctx.chat?.id;
+        if (chatId != null) setSessionMode(chatId, 'menu');
+        await ctx.reply(ua.helpApproved, { reply_markup: mainMenuKeyboard() });
+        return;
+      }
+      default:
+        if (isListPositionButton(text)) {
+          await handleListRefresh(ctx, cms);
+          return;
+        }
+        {
+          const chatId = ctx.chat?.id;
+          if (chatId != null) setSessionMode(chatId, 'menu');
+          await ctx.reply(ua.helpApproved, { reply_markup: mainMenuKeyboard() });
+        }
+    }
   } catch (err) {
     console.error('[bot] getOperator failed', err);
     await ctx.reply(ua.cmsError);

@@ -21,6 +21,7 @@
     "seed:services:local-media": "pnpm --filter @autosearch/cms seed:services:local-media",
     "seed:blog": "pnpm --filter @autosearch/cms seed:blog",
     "seed:blog:local-media": "pnpm --filter @autosearch/cms seed:blog:local-media",
+    "seed:bot-leads": "pnpm --filter @autosearch/cms seed:bot-leads",
     "seed:all": "pnpm seed:globals && pnpm seed:home && pnpm seed:services && pnpm seed:blog",
     "seed:all:local-media": "pnpm seed:globals:local-media && pnpm seed:home:local-media && pnpm seed:services:local-media && pnpm seed:blog:local-media",
     "seed": "node ./scripts/seed-area.mjs",

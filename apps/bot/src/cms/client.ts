@@ -1,4 +1,10 @@
 import type { BotEnv } from '../env.js';
+import type {
+  LeadDetail,
+  LeadListQuery,
+  LeadListResult,
+  LeadStatus,
+} from './leads.js';
 
 export type OperatorStatus = 'pending' | 'approved' | 'declined' | 'blocked';
 
@@ -105,5 +111,90 @@ export class CmsBotClient {
       telegramId: data.telegramId ?? profile.telegramId,
       id: data.id,
     };
+  }
+
+  async listLeads(query: LeadListQuery): Promise<LeadListResult> {
+    const params = new URLSearchParams();
+    params.set('telegramId', query.telegramId);
+    params.set('page', String(query.page ?? 1));
+    params.set('limit', String(query.limit ?? 5));
+    if (query.q) params.set('q', query.q);
+    if (query.status) params.set('status', query.status);
+    if (query.type) params.set('type', query.type);
+    if (query.origin) params.set('origin', query.origin);
+    if (query.carBrand) params.set('carBrand', query.carBrand);
+    if (query.datePreset) params.set('datePreset', query.datePreset);
+
+    const res = await fetch(this.url(`/api/bot/leads?${params}`), {
+      method: 'GET',
+      headers: this.headers(),
+    });
+
+    const data = (await res.json().catch(() => null)) as
+      | (Partial<LeadListResult> & { ok?: boolean; error?: string })
+      | null;
+
+    if (!res.ok || !data?.ok || !Array.isArray(data.docs)) {
+      throw new Error(
+        `[bot→cms] listLeads failed (${res.status}): ${data?.error ?? res.statusText}`,
+      );
+    }
+
+    return {
+      page: data.page ?? query.page ?? 1,
+      limit: data.limit ?? query.limit ?? 5,
+      totalDocs: data.totalDocs ?? data.docs.length,
+      totalPages: data.totalPages ?? 1,
+      hasNextPage: Boolean(data.hasNextPage),
+      hasPrevPage: Boolean(data.hasPrevPage),
+      docs: data.docs,
+    };
+  }
+
+  async getLead(telegramId: string, id: string): Promise<LeadDetail> {
+    const params = new URLSearchParams({ telegramId });
+    const res = await fetch(
+      this.url(`/api/bot/leads/${encodeURIComponent(id)}?${params}`),
+      {
+        method: 'GET',
+        headers: this.headers(),
+      },
+    );
+
+    const data = (await res.json().catch(() => null)) as
+      | { ok?: boolean; doc?: LeadDetail; error?: string }
+      | null;
+
+    if (!res.ok || !data?.ok || !data.doc) {
+      throw new Error(
+        `[bot→cms] getLead failed (${res.status}): ${data?.error ?? res.statusText}`,
+      );
+    }
+
+    return data.doc;
+  }
+
+  async patchLeadStatus(
+    telegramId: string,
+    id: string,
+    status: LeadStatus,
+  ): Promise<LeadDetail> {
+    const res = await fetch(this.url(`/api/bot/leads/${encodeURIComponent(id)}/status`), {
+      method: 'PATCH',
+      headers: this.headers(),
+      body: JSON.stringify({ telegramId, status }),
+    });
+
+    const data = (await res.json().catch(() => null)) as
+      | { ok?: boolean; doc?: LeadDetail; error?: string }
+      | null;
+
+    if (!res.ok || !data?.ok || !data.doc) {
+      throw new Error(
+        `[bot→cms] patchLeadStatus failed (${res.status}): ${data?.error ?? res.statusText}`,
+      );
+    }
+
+    return data.doc;
   }
 }
