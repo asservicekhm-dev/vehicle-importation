@@ -40,10 +40,10 @@ export type LeadListQuery = {
   page?: number;
   limit?: number;
   q?: string;
-  status?: LeadStatus;
-  type?: string;
-  origin?: string;
-  carBrand?: string;
+  statuses?: LeadStatus[];
+  types?: string[];
+  origins?: string[];
+  carBrands?: string[];
   datePreset?: string;
 };
 

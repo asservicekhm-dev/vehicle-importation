@@ -119,10 +119,10 @@ export class CmsBotClient {
     params.set('page', String(query.page ?? 1));
     params.set('limit', String(query.limit ?? 5));
     if (query.q) params.set('q', query.q);
-    if (query.status) params.set('status', query.status);
-    if (query.type) params.set('type', query.type);
-    if (query.origin) params.set('origin', query.origin);
-    if (query.carBrand) params.set('carBrand', query.carBrand);
+    if (query.statuses?.length) params.set('status', query.statuses.join(','));
+    if (query.types?.length) params.set('type', query.types.join(','));
+    if (query.origins?.length) params.set('origin', query.origins.join(','));
+    if (query.carBrands?.length) params.set('carBrand', query.carBrands.join(','));
     if (query.datePreset) params.set('datePreset', query.datePreset);
 
     const res = await fetch(this.url(`/api/bot/leads?${params}`), {

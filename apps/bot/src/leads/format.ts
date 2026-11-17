@@ -1,5 +1,12 @@
 import type { LeadDetail, LeadListResult, LeadStatus, LeadSummary } from '../cms/leads.js';
 import { ua } from '../i18n/ua.js';
+import { type ChatSession,hasActiveFilters } from '../session.js';
+import {
+  brandFilterLabel,
+  dateFilterLabel,
+  originFilterLabel,
+  typeFilterLabel,
+} from './filterOptions.js';
 
 /** Status cue (Telegram buttons can't use real colors). */
 const STATUS_EMOJI: Record<LeadStatus, string> = {
@@ -336,14 +343,56 @@ export function formatPriceRangeDisplay(
   return `${low} – ${high}`;
 }
 
-export function formatListHeaderHtml(result: LeadListResult): string {
-  if (result.totalDocs === 0) {
-    return escapeHtml(ua.leadsEmpty);
+export function formatActiveFiltersLine(session: ChatSession): string | null {
+  const parts: string[] = [];
+  if (session.q) parts.push(`🔍 «${session.q}»`);
+  for (const status of session.statuses) {
+    parts.push(statusLabelWithEmoji(status));
   }
+  for (const type of session.types) {
+    parts.push(typeFilterLabel(type));
+  }
+  for (const origin of session.origins) {
+    parts.push(originFilterLabel(origin));
+  }
+  for (const brand of session.carBrands) {
+    parts.push(brandFilterLabel(brand));
+  }
+  if (session.datePreset && session.datePreset !== 'all') {
+    parts.push(dateFilterLabel(session.datePreset));
+  }
+  if (parts.length === 0) return null;
+  return parts.join(' · ');
+}
+
+export function formatFiltersPanelHtml(session: ChatSession): string {
+  const active = formatActiveFiltersLine(session);
   return [
-    escapeHtml(ua.leadsListTitle),
-    escapeHtml(ua.pageIndicator(result.page, Math.max(result.totalPages, 1))),
+    escapeHtml(ua.filtersTitle),
+    escapeHtml(ua.filtersHint),
+    active ? escapeHtml(active) : escapeHtml(ua.filterAny),
   ].join('\n');
+}
+
+export function formatListHeaderHtml(
+  result: LeadListResult,
+  session: ChatSession,
+): string {
+  const lines = [escapeHtml(ua.leadsListTitle)];
+  const active = formatActiveFiltersLine(session);
+  if (active) lines.push(escapeHtml(active));
+
+  if (result.totalDocs === 0) {
+    lines.push(
+      escapeHtml(hasActiveFilters(session) ? ua.leadsEmptyFiltered : ua.leadsEmpty),
+    );
+    return lines.join('\n');
+  }
+
+  lines.push(
+    escapeHtml(ua.pageIndicator(result.page, Math.max(result.totalPages, 1))),
+  );
+  return lines.join('\n');
 }
 
 export function formatLeadListCardHtml(doc: LeadSummary, indexOnPage: number): string {

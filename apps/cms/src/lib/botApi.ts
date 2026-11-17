@@ -110,12 +110,21 @@ export type BotLeadListQuery = {
   page: number;
   limit: number;
   q?: string;
-  status?: LeadStatus;
-  type?: LeadType;
-  origin?: string;
-  carBrand?: string;
+  /** Multi-select; omit / empty = any. */
+  statuses?: LeadStatus[];
+  types?: LeadType[];
+  origins?: string[];
+  carBrands?: string[];
   datePreset: DatePreset;
 };
+
+function parseCsvParam(raw: string | null): string[] {
+  if (!raw?.trim()) return [];
+  return raw
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
 
 export function parseLeadListQuery(url: URL): BotLeadListQuery | { error: string } {
   const telegramId = url.searchParams.get('telegramId')?.trim() ?? '';
@@ -130,16 +139,20 @@ export function parseLeadListQuery(url: URL): BotLeadListQuery | { error: string
 
   const q = url.searchParams.get('q')?.trim() || undefined;
 
-  const statusRaw = url.searchParams.get('status')?.trim();
-  if (statusRaw && !isLeadStatus(statusRaw)) return { error: 'invalid_status' };
-  const status = statusRaw && isLeadStatus(statusRaw) ? statusRaw : undefined;
+  const statusParts = parseCsvParam(url.searchParams.get('status'));
+  if (statusParts.some((part) => !isLeadStatus(part))) {
+    return { error: 'invalid_status' };
+  }
+  const statuses = statusParts.filter(isLeadStatus);
 
-  const typeRaw = url.searchParams.get('type')?.trim();
-  if (typeRaw && !isLeadType(typeRaw)) return { error: 'invalid_type' };
-  const type = typeRaw && isLeadType(typeRaw) ? typeRaw : undefined;
+  const typeParts = parseCsvParam(url.searchParams.get('type'));
+  if (typeParts.some((part) => !isLeadType(part))) {
+    return { error: 'invalid_type' };
+  }
+  const types = typeParts.filter(isLeadType);
 
-  const origin = url.searchParams.get('origin')?.trim() || undefined;
-  const carBrand = url.searchParams.get('carBrand')?.trim() || undefined;
+  const origins = parseCsvParam(url.searchParams.get('origin'));
+  const carBrands = parseCsvParam(url.searchParams.get('carBrand'));
 
   const datePresetRaw = url.searchParams.get('datePreset')?.trim() ?? 'all';
   if (!isDatePreset(datePresetRaw)) return { error: 'invalid_date_preset' };
@@ -149,10 +162,10 @@ export function parseLeadListQuery(url: URL): BotLeadListQuery | { error: string
     page,
     limit,
     q,
-    status,
-    type,
-    origin,
-    carBrand,
+    statuses: statuses.length ? statuses : undefined,
+    types: types.length ? types : undefined,
+    origins: origins.length ? origins : undefined,
+    carBrands: carBrands.length ? carBrands : undefined,
     datePreset: datePresetRaw,
   };
 }
@@ -196,17 +209,28 @@ function startOfKyivDayUtc(daysAgo = 0): string {
 export function buildLeadsWhere(query: BotLeadListQuery): Where {
   const and: Where[] = [];
 
-  if (query.status) {
-    and.push({ status: { equals: query.status } });
+  if (query.statuses?.length === 1) {
+    and.push({ status: { equals: query.statuses[0]! } });
+  } else if (query.statuses && query.statuses.length > 1) {
+    and.push({ status: { in: query.statuses } });
   }
-  if (query.type) {
-    and.push({ type: { equals: query.type } });
+
+  if (query.types?.length === 1) {
+    and.push({ type: { equals: query.types[0]! } });
+  } else if (query.types && query.types.length > 1) {
+    and.push({ type: { in: query.types } });
   }
-  if (query.origin) {
-    and.push({ 'request.origin': { equals: query.origin } });
+
+  if (query.origins?.length === 1) {
+    and.push({ 'request.origin': { equals: query.origins[0]! } });
+  } else if (query.origins && query.origins.length > 1) {
+    and.push({ 'request.origin': { in: query.origins } });
   }
-  if (query.carBrand) {
-    and.push({ 'request.carBrand': { equals: query.carBrand } });
+
+  if (query.carBrands?.length === 1) {
+    and.push({ 'request.carBrand': { equals: query.carBrands[0]! } });
+  } else if (query.carBrands && query.carBrands.length > 1) {
+    and.push({ 'request.carBrand': { in: query.carBrands } });
   }
 
   if (query.datePreset === 'today') {

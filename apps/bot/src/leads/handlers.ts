@@ -4,22 +4,34 @@ import { mainMenuKeyboard } from '../access/keyboards.js';
 import type { CmsBotClient } from '../cms/client.js';
 import { ua } from '../i18n/ua.js';
 import {
+  clearFiltersAndSearch,
   getSession,
   resetListPaging,
+  setAwaitingSearch,
+  setFilterCarBrands,
+  setFilterDatePreset,
+  setFilterOrigins,
+  setFilterStatuses,
+  setFilterTypes,
   setListMessageIds,
   setListMeta,
+  setSearchQuery,
   setSessionMode,
   setSessionPage,
   takeListMessageIds,
+  toggleListValue,
 } from '../session.js';
+import type { FilterAction } from './callbacks.js';
 import { parseCallback } from './callbacks.js';
 import {
   escapeHtml,
+  formatFiltersPanelHtml,
   formatLeadDetailHtml,
   formatLeadListCardHtml,
   formatListHeaderHtml,
 } from './format.js';
 import {
+  filtersKeyboard,
   isListPositionButton,
   leadItemKeyboard,
   leadsListReplyKeyboard,
@@ -66,7 +78,6 @@ async function clearPreviousList(ctx: Context, chatId: number): Promise<void> {
 
 /**
  * One Telegram message per lead (card + its own open button).
- * Inline keyboards can't sit mid-text, so this is how each item "owns" its button.
  * Prev / next / position / menu live on the reply keyboard (list mode).
  */
 export async function showLeadsList(ctx: Context, cms: CmsBotClient): Promise<void> {
@@ -77,6 +88,7 @@ export async function showLeadsList(ctx: Context, cms: CmsBotClient): Promise<vo
   if (chatId == null) return;
 
   const session = getSession(chatId);
+  session.awaitingSearch = false;
   setSessionMode(chatId, 'list');
 
   try {
@@ -85,14 +97,13 @@ export async function showLeadsList(ctx: Context, cms: CmsBotClient): Promise<vo
       page: session.page,
       limit: 5,
       q: session.q,
-      status: session.status,
-      type: session.type,
-      origin: session.origin,
-      carBrand: session.carBrand,
+      statuses: session.statuses,
+      types: session.types,
+      origins: session.origins,
+      carBrands: session.carBrands,
       datePreset: session.datePreset,
     });
 
-    // Clamp if filters shrunk the result set.
     if (result.totalPages > 0 && session.page > result.totalPages) {
       setSessionPage(chatId, result.totalPages);
       await showLeadsList(ctx, cms);
@@ -112,7 +123,7 @@ export async function showLeadsList(ctx: Context, cms: CmsBotClient): Promise<vo
     const messageIds: number[] = [];
     const listKeyboard = leadsListReplyKeyboard(result);
 
-    const header = await ctx.reply(formatListHeaderHtml(result), {
+    const header = await ctx.reply(formatListHeaderHtml(result, session), {
       ...HTML,
       reply_markup: listKeyboard,
     });
@@ -145,7 +156,10 @@ export async function showLeadsList(ctx: Context, cms: CmsBotClient): Promise<vo
 
 export async function handleMenuLeads(ctx: Context, cms: CmsBotClient): Promise<void> {
   const chatId = ctx.chat?.id;
-  if (chatId != null) resetListPaging(chatId);
+  if (chatId != null) {
+    setAwaitingSearch(chatId, false);
+    resetListPaging(chatId);
+  }
   await showLeadsList(ctx, cms);
 }
 
@@ -195,17 +209,95 @@ export async function handleMenuHome(ctx: Context): Promise<void> {
   const chatId = ctx.chat?.id;
   if (chatId != null) {
     await clearPreviousList(ctx, chatId);
+    setAwaitingSearch(chatId, false);
     setSessionMode(chatId, 'menu');
   }
   await ctx.reply(ua.backToMenu, { reply_markup: mainMenuKeyboard() });
 }
 
-export async function handleMenuSearch(ctx: Context): Promise<void> {
-  await ctx.reply(ua.searchStub);
+export async function handleMenuSearch(ctx: Context, cms: CmsBotClient): Promise<void> {
+  const telegramId = await requireApproved(ctx, cms);
+  if (!telegramId) return;
+
+  const chatId = ctx.chat?.id;
+  if (chatId != null) {
+    setSessionMode(chatId, 'menu');
+    setAwaitingSearch(chatId, true);
+  }
+
+  await ctx.reply(ua.searchPrompt, { reply_markup: mainMenuKeyboard() });
 }
 
-export async function handleMenuFilters(ctx: Context): Promise<void> {
-  await ctx.reply(ua.filtersStub);
+export async function handleSearchQuery(
+  ctx: Context,
+  cms: CmsBotClient,
+  query: string,
+): Promise<void> {
+  const chatId = ctx.chat?.id;
+  if (chatId == null) return;
+
+  setSearchQuery(chatId, query);
+  await showLeadsList(ctx, cms);
+}
+
+export async function handleMenuFilters(ctx: Context, cms: CmsBotClient): Promise<void> {
+  const telegramId = await requireApproved(ctx, cms);
+  if (!telegramId) return;
+
+  const chatId = ctx.chat?.id;
+  if (chatId == null) return;
+
+  setAwaitingSearch(chatId, false);
+  setSessionMode(chatId, 'menu');
+  const session = getSession(chatId);
+
+  await ctx.reply(formatFiltersPanelHtml(session), {
+    ...HTML,
+    reply_markup: filtersKeyboard(session),
+  });
+}
+
+function applyFilterAction(chatId: number, action: FilterAction): void {
+  const session = getSession(chatId);
+  switch (action.op) {
+    case 'status':
+      setFilterStatuses(
+        chatId,
+        toggleListValue(session.statuses, action.value),
+      );
+      return;
+    case 'type':
+      setFilterTypes(chatId, toggleListValue(session.types, action.value));
+      return;
+    case 'origin':
+      setFilterOrigins(chatId, toggleListValue(session.origins, action.value));
+      return;
+    case 'brand':
+      setFilterCarBrands(
+        chatId,
+        toggleListValue(session.carBrands, action.value),
+      );
+      return;
+    case 'date':
+      setFilterDatePreset(chatId, action.value);
+      return;
+    case 'reset':
+      clearFiltersAndSearch(chatId);
+      return;
+    case 'apply':
+      return;
+  }
+}
+
+async function refreshFiltersPanel(ctx: Context, chatId: number): Promise<void> {
+  const session = getSession(chatId);
+  const text = formatFiltersPanelHtml(session);
+  const reply_markup = filtersKeyboard(session);
+  try {
+    await ctx.editMessageText(text, { ...HTML, reply_markup });
+  } catch {
+    // Message unchanged or gone — ignore.
+  }
 }
 
 export async function showLeadDetail(
@@ -249,7 +341,6 @@ export async function handleLeadCallback(ctx: Context, cms: CmsBotClient): Promi
     return;
   }
 
-  // Legacy inline page callbacks (if any old messages remain).
   if (parsed.kind === 'page') {
     const chatId = ctx.chat?.id;
     if (chatId != null) setSessionPage(chatId, parsed.page);
@@ -261,6 +352,39 @@ export async function handleLeadCallback(ctx: Context, cms: CmsBotClient): Promi
   if (parsed.kind === 'lead') {
     await ctx.answerCallbackQuery();
     await showLeadDetail(ctx, cms, parsed.id);
+    return;
+  }
+
+  if (parsed.kind === 'filter') {
+    const telegramId = await requireApproved(ctx, cms);
+    if (!telegramId) {
+      await ctx.answerCallbackQuery({ text: ua.forbidden, show_alert: true });
+      return;
+    }
+
+    const chatId = ctx.chat?.id;
+    if (chatId == null) {
+      await ctx.answerCallbackQuery();
+      return;
+    }
+
+    const action = parsed.action;
+    applyFilterAction(chatId, action);
+
+    if (action.op === 'apply') {
+      await ctx.answerCallbackQuery();
+      await showLeadsList(ctx, cms);
+      return;
+    }
+
+    if (action.op === 'reset') {
+      await ctx.answerCallbackQuery({ text: ua.filtersResetDone });
+      await refreshFiltersPanel(ctx, chatId);
+      return;
+    }
+
+    await ctx.answerCallbackQuery();
+    await refreshFiltersPanel(ctx, chatId);
     return;
   }
 

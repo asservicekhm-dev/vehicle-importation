@@ -74,10 +74,10 @@ curl -sS -X PATCH -H "Authorization: Bearer $SECRET" -H 'content-type: applicati
 
 ## Milestone B3 — Inbox UX
 
-**Status:** engineered in repo — smoke as approved operator: «Заявки» → open → change status.
+**Status:** done.
 
 - [x] Persistent reply keyboard for approved operators: «Заявки», «Пошук», «Фільтри», «Допомога» (search/filters stub until B4).
-- [x] «Заявки»: inline list (5/page), row = name · phone · status; prev/next; page indicator.
+- [x] «Заявки»: list (5/page) with reply-keyboard prev/next + position; per-card open button; page indicator.
 - [x] Detail screen: omit empty fields; under 4096 chars; four status buttons («Нова» / «В роботі» / «Успішна» / «Відхилена»).
 - [x] In-memory session per `chatId` (page; later filters). Short `callback_data` codes (`l:`, `p:`, `s:`).
 - [x] Gate all lead actions on approved operator status.
@@ -86,9 +86,11 @@ curl -sS -X PATCH -H "Authorization: Bearer $SECRET" -H 'content-type: applicati
 
 ## Milestone B4 — Search & filters
 
-- «Пошук»: prompt for free-text; next message searches name (case-insensitive substring) or phone (digits-only contains).
-- «Фільтри» inline panel — combinable: status, lead type, `request.origin` (`usa`/`europe`/`korea`), `request.carBrand` (known brands from `@autosearch/config`), date presets (сьогодні / 7 днів / 30 днів / увесь час); «Скинути».
-- Session holds active filters + page; list API consumes them.
+**Status:** done.
+
+- [x] «Пошук»: prompt for free-text; next message searches name (case-insensitive substring) or phone (digits-only contains).
+- [x] «Фільтри» inline panel — combinable: status, lead type, `request.origin` (`usa`/`europe`/`korea`), `request.carBrand` (known brands), date presets (сьогодні / 7 днів / 30 днів / увесь час); «Скинути» / «Показати».
+- [x] Session holds active filters + page + `awaitingSearch`; list API consumes them; empty filtered result shows Ukrainian empty state.
 
 **Exit:** Combined filters + search drive the same paginated list; empty result shows Ukrainian empty state.
 

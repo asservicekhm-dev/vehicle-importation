@@ -10,9 +10,10 @@ import {
   handleMenuHome,
   handleMenuLeads,
   handleMenuSearch,
+  handleSearchQuery,
   isListPositionButton,
 } from '../leads/handlers.js';
-import { setSessionMode } from '../session.js';
+import { getSession, setAwaitingSearch, setSessionMode } from '../session.js';
 import { clearKeyboard, mainMenuKeyboard, requestAccessKeyboard } from './keyboards.js';
 
 function profileFromCtx(ctx: Context) {
@@ -134,6 +135,9 @@ export async function handleTextMessage(ctx: Context, cms: CmsBotClient): Promis
       return;
     }
 
+    const chatId = ctx.chat?.id;
+    const awaitingSearch = chatId != null && getSession(chatId).awaitingSearch;
+
     switch (text) {
       case ua.menuLeads:
         await handleMenuLeads(ctx, cms);
@@ -148,14 +152,16 @@ export async function handleTextMessage(ctx: Context, cms: CmsBotClient): Promis
         await handleListNext(ctx, cms);
         return;
       case ua.menuSearch:
-        await handleMenuSearch(ctx);
+        await handleMenuSearch(ctx, cms);
         return;
       case ua.menuFilters:
-        await handleMenuFilters(ctx);
+        await handleMenuFilters(ctx, cms);
         return;
       case ua.menuHelp: {
-        const chatId = ctx.chat?.id;
-        if (chatId != null) setSessionMode(chatId, 'menu');
+        if (chatId != null) {
+          setAwaitingSearch(chatId, false);
+          setSessionMode(chatId, 'menu');
+        }
         await ctx.reply(ua.helpApproved, { reply_markup: mainMenuKeyboard() });
         return;
       }
@@ -164,11 +170,12 @@ export async function handleTextMessage(ctx: Context, cms: CmsBotClient): Promis
           await handleListRefresh(ctx, cms);
           return;
         }
-        {
-          const chatId = ctx.chat?.id;
-          if (chatId != null) setSessionMode(chatId, 'menu');
-          await ctx.reply(ua.helpApproved, { reply_markup: mainMenuKeyboard() });
+        if (awaitingSearch && chatId != null) {
+          await handleSearchQuery(ctx, cms, text);
+          return;
         }
+        if (chatId != null) setSessionMode(chatId, 'menu');
+        await ctx.reply(ua.helpApproved, { reply_markup: mainMenuKeyboard() });
     }
   } catch (err) {
     console.error('[bot] getOperator failed', err);
