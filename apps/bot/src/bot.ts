@@ -47,12 +47,36 @@ export function createBot(env: BotEnv): Bot {
   return bot;
 }
 
-/** Long polling. Webhook wiring lands in B6. */
+/**
+ * Polling (dev) or setWebhook (prod). In webhook mode this resolves after
+ * registering the webhook; the HTTP server keeps the process alive.
+ */
 export async function startBot(bot: Bot, env: BotEnv): Promise<void> {
   if (env.telegramMode === 'webhook') {
-    throw new Error(
-      '[bot] TELEGRAM_MODE=webhook is not implemented yet (milestone B6). Use TELEGRAM_MODE=polling.',
+    const url = env.telegramWebhookUrl;
+    if (!url) {
+      throw new Error(
+        '[bot] TELEGRAM_MODE=webhook requires TELEGRAM_WEBHOOK_URL (e.g. https://site/telegram/webhook).',
+      );
+    }
+
+    try {
+      await bot.init();
+      await bot.api.setWebhook(url, {
+        secret_token: env.telegramWebhookSecret,
+        drop_pending_updates: false,
+      });
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : String(err);
+      throw new Error(
+        `[bot] Cannot set Telegram webhook (check TELEGRAM_BOT_TOKEN / URL). ${detail}`,
+      );
+    }
+
+    console.info(
+      `[bot] @${bot.botInfo.username} ready (webhook → ${url})`,
     );
+    return;
   }
 
   try {

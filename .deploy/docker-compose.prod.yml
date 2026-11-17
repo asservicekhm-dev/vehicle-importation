@@ -82,6 +82,8 @@ services:
       NEXT_PUBLIC_CMS_URL: https://${WEB_DOMAIN}${CMS_BASE_PATH:-/cms}
       URL: https://${WEB_DOMAIN}${CMS_BASE_PATH:-/cms}
       WEB_URL: ${NEXT_PUBLIC_URL:-http://web:3000}
+      BOT_INTERNAL_URL: http://bot:3002
+      BOT_INTERNAL_SECRET: ${BOT_INTERNAL_SECRET:-}
     depends_on:
       mongo:
         condition: service_started
@@ -96,6 +98,42 @@ services:
       - 'traefik.http.routers.autosearch-cms.tls=true'
       - 'traefik.http.routers.autosearch-cms.tls.certresolver=letsencrypt'
       - 'traefik.http.routers.autosearch-cms.middlewares=security@file,rate-limit@file'
+
+  bot:
+    build:
+      context: ../
+      dockerfile: Dockerfile.bot
+    image: autosearch-bot:latest
+    container_name: autosearch-bot
+    restart: unless-stopped
+    networks:
+      - autosearch-network
+    env_file:
+      - env.traefik.prod
+      - env.web.prod
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      HOST: 0.0.0.0
+      TELEGRAM_MODE: webhook
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_WEBHOOK_URL: https://${WEB_DOMAIN}/telegram/webhook
+      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
+      BOT_INTERNAL_SECRET: ${BOT_INTERNAL_SECRET:-}
+      CMS_INTERNAL_URL: http://cms:3001${CMS_BASE_PATH:-/cms}
+    depends_on:
+      cms:
+        condition: service_started
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.services.autosearch-bot.loadbalancer.server.port=3002'
+      # Priority above web (10) so /telegram is not swallowed by the site catch-all.
+      - 'traefik.http.routers.autosearch-bot.rule=Host(`${WEB_DOMAIN}`) && PathPrefix(`/telegram`)'
+      - 'traefik.http.routers.autosearch-bot.priority=50'
+      - 'traefik.http.routers.autosearch-bot.entrypoints=websecure'
+      - 'traefik.http.routers.autosearch-bot.tls=true'
+      - 'traefik.http.routers.autosearch-bot.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.autosearch-bot.middlewares=security@file,rate-limit@file'
 
   web:
     build:
@@ -126,7 +164,7 @@ services:
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.services.autosearch-web.loadbalancer.server.port=3000'
-      - 'traefik.http.routers.autosearch-web.rule=Host(`${WEB_DOMAIN}`) && !PathPrefix(`${CMS_BASE_PATH:-/cms}`)'
+      - 'traefik.http.routers.autosearch-web.rule=Host(`${WEB_DOMAIN}`) && !PathPrefix(`${CMS_BASE_PATH:-/cms}`) && !PathPrefix(`/telegram`)'
       - 'traefik.http.routers.autosearch-web.priority=10'
       - 'traefik.http.routers.autosearch-web.entrypoints=websecure'
       - 'traefik.http.routers.autosearch-web.tls=true'

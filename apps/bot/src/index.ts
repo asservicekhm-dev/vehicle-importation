@@ -30,6 +30,13 @@ async function main(): Promise<void> {
   });
 
   await startBot(bot, env);
+
+  // Webhook mode: setWebhook returns; keep the process on the HTTP server.
+  if (env.telegramMode === 'webhook') {
+    await new Promise<void>(() => {
+      /* never resolves */
+    });
+  }
 }
 
 main().catch((err) => {

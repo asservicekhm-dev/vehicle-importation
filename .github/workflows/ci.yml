@@ -12,6 +12,7 @@ on:
       - 'eslint.config.mjs'
       - 'Dockerfile.cms'
       - 'Dockerfile.web'
+      - 'Dockerfile.bot'
       - '.deploy/**'
       - 'scripts/**'
       - '.github/workflows/ci.yml'

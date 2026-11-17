@@ -108,11 +108,14 @@ curl -sS -X PATCH -H "Authorization: Bearer $SECRET" -H 'content-type: applicati
 
 ## Milestone B6 — Deploy
 
-- Root `Dockerfile.bot`: `turbo prune --scope=@autosearch/bot --docker` → install → `pnpm --filter @autosearch/bot build` → `node dist/…`; port 3002; healthcheck `/health`.
-- `.deploy/docker-compose.dev.yml`: bot service, polling, env wiring.
-- `.deploy/docker-compose.prod.yml`: bot service; Traefik `PathPrefix(/telegram)` priority above web; TLS + existing middlewares; `TELEGRAM_MODE=webhook`, `TELEGRAM_WEBHOOK_URL`, `TELEGRAM_WEBHOOK_SECRET`; CMS `BOT_INTERNAL_URL=http://bot:3002`.
-- Env samples (cms/bot/deploy); CI + deploy path filters for `apps/bot/**` and `Dockerfile.bot`.
-- Sync [AGENTS.md](../AGENTS.md) / [DEPLOYMENT.md](../DEPLOYMENT.md) / [.deploy/README.md](../.deploy/README.md) with bot ports and paths.
+**Status:** done.
+
+- [x] Root `Dockerfile.bot`: `turbo prune --scope=@autosearch/bot --docker` → install → `pnpm --filter @autosearch/bot build` → `node dist/…`; port 3002; healthcheck `/health`.
+- [x] `.deploy/docker-compose.dev.yml`: bot service, polling, env wiring.
+- [x] `.deploy/docker-compose.prod.yml`: bot service; Traefik `PathPrefix(/telegram)` priority above web; TLS + existing middlewares; `TELEGRAM_MODE=webhook`, `TELEGRAM_WEBHOOK_URL`, `TELEGRAM_WEBHOOK_SECRET`; CMS `BOT_INTERNAL_URL=http://bot:3002`.
+- [x] Env samples (cms/bot/deploy); CI + deploy path filters for `apps/bot/**` and `Dockerfile.bot`.
+- [x] Sync [AGENTS.md](../AGENTS.md) / [DEPLOYMENT.md](../DEPLOYMENT.md) / [.deploy/README.md](../.deploy/README.md) with bot ports and paths.
+- [x] `TELEGRAM_MODE=webhook` implemented (setWebhook + `/telegram/webhook`).
 
 **Exit:** Prod webhook receives Telegram updates under `/telegram`; internal CMS↔bot calls stay on Docker network; local/dev still use polling.
 

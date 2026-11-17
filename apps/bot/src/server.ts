@@ -1,5 +1,11 @@
 import type { Bot } from 'grammy';
-import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
+import { webhookCallback } from 'grammy';
+import {
+  createServer,
+  type IncomingMessage,
+  type Server,
+  type ServerResponse,
+} from 'node:http';
 
 import type { CmsBotClient, OperatorStatus } from './cms/client.js';
 import type { LeadDetail } from './cms/leads.js';
@@ -38,15 +44,33 @@ function isOperatorStatus(value: unknown): value is OperatorStatus {
   return typeof value === 'string' && (AUTH_STATUSES as readonly string[]).includes(value);
 }
 
+function isTelegramWebhookPath(path: string): boolean {
+  return path === '/telegram/webhook' || path === '/webhook';
+}
+
+type TelegramWebhookHandler = (
+  req: IncomingMessage,
+  res: ServerResponse,
+) => Promise<void>;
+
 export function startHttpServer(env: BotEnv, deps: HttpServerDeps): Server {
+  const handleUpdate: TelegramWebhookHandler | null =
+    env.telegramMode === 'webhook'
+      ? (webhookCallback(deps.bot, 'http', {
+          secretToken: env.telegramWebhookSecret,
+        }) as TelegramWebhookHandler)
+      : null;
+
   const server = createServer((req, res) => {
-    void handleRequest(req, res, env, deps);
+    void handleRequest(req, res, env, deps, handleUpdate);
   });
 
   server.listen(env.port, env.host, () => {
-    console.info(
-      `[bot] HTTP listening on http://${env.host}:${env.port} (/health, /internal/*)`,
-    );
+    const routes =
+      env.telegramMode === 'webhook'
+        ? '/health, /telegram/webhook, /internal/*'
+        : '/health, /internal/*';
+    console.info(`[bot] HTTP listening on http://${env.host}:${env.port} (${routes})`);
   });
 
   return server;
@@ -57,6 +81,7 @@ async function handleRequest(
   res: ServerResponse,
   env: BotEnv,
   deps: HttpServerDeps,
+  handleUpdate: TelegramWebhookHandler | null,
 ): Promise<void> {
   const path = pathname(req.url);
   const method = req.method ?? 'GET';
@@ -64,6 +89,15 @@ async function handleRequest(
   try {
     if (method === 'GET' && path === '/health') {
       json(res, 200, { ok: true, service: 'autosearch-bot' });
+      return;
+    }
+
+    if (method === 'POST' && isTelegramWebhookPath(path)) {
+      if (!handleUpdate) {
+        json(res, 404, { ok: false, error: 'webhook_disabled' });
+        return;
+      }
+      await handleUpdate(req, res);
       return;
     }
 
@@ -80,7 +114,9 @@ async function handleRequest(
     json(res, 404, { ok: false, error: 'not_found' });
   } catch (err) {
     console.error('[bot] HTTP handler error', err);
-    json(res, 500, { ok: false, error: 'internal_error' });
+    if (!res.headersSent) {
+      json(res, 500, { ok: false, error: 'internal_error' });
+    }
   }
 }
 

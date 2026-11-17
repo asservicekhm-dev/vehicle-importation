@@ -23,6 +23,8 @@ services:
       S3_PUBLIC_URL: ${S3_PUBLIC_URL:-http://localhost:9200/autosearch-media}
       S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE:-true}
       S3_ACL: ${S3_ACL:-public-read}
+      BOT_INTERNAL_URL: ${BOT_INTERNAL_URL:-http://bot:3002}
+      BOT_INTERNAL_SECRET: ${BOT_INTERNAL_SECRET:-dev-bot-internal-secret}
       PNPM_STORE_DIR: /pnpm-store
       AUTOSEARCH_DEPS_STATE_DIR: /deps
       WATCHPACK_POLLING: 'true'
@@ -59,6 +61,56 @@ services:
       retries: 10
       start_period: 60s
     command: ['sh', '-lc', 'pnpm --filter @autosearch/cms dev']
+
+  bot:
+    build:
+      context: ../
+      dockerfile: .deploy/Dockerfile.autosearch.dev
+    image: autosearch-dev:latest
+    container_name: autosearch-bot-dev
+    working_dir: /app
+    env_file:
+      - env.dev
+    environment:
+      TELEGRAM_MODE: polling
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      BOT_INTERNAL_SECRET: ${BOT_INTERNAL_SECRET:-dev-bot-internal-secret}
+      CMS_INTERNAL_URL: ${CMS_INTERNAL_URL:-http://cms:3001}
+      PORT: 3002
+      HOST: 0.0.0.0
+      PNPM_STORE_DIR: /pnpm-store
+      AUTOSEARCH_DEPS_STATE_DIR: /deps
+    depends_on:
+      cms:
+        condition: service_healthy
+    volumes:
+      - type: bind
+        source: ../
+        target: /app
+      - type: volume
+        source: autosearch_node_modules
+        target: /app/node_modules
+      - type: volume
+        source: pnpm_store
+        target: /pnpm-store
+      - type: volume
+        source: autosearch_deps_state
+        target: /deps
+    ports:
+      - '3202:3002'
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3002/health']
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    # Skip start when TELEGRAM_BOT_TOKEN is empty (local CMS/web without bot).
+    command:
+      [
+        'sh',
+        '-lc',
+        'if [ -z "$TELEGRAM_BOT_TOKEN" ]; then echo "[bot] TELEGRAM_BOT_TOKEN unset — sleeping"; sleep infinity; else pnpm --filter @autosearch/bot dev; fi',
+      ]
 
   web:
     build:
