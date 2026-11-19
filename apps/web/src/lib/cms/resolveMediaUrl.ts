@@ -29,3 +29,20 @@ export function getMediaUrl(
 
   return resolveMediaUrl(raw);
 }
+
+/**
+ * Browser-fetched media (favicon, apple-touch). Those requests cannot use
+ * `CMS_INTERNAL_URL` (`http://cms:3001`), which is only reachable inside Docker.
+ */
+export function getPublicMediaUrl(media: Media | string | null | undefined): string | null {
+  if (!media || typeof media === 'string') return null;
+
+  const raw = media.url?.trim();
+  if (!raw) return null;
+  if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('//')) return raw;
+
+  const base = process.env.NEXT_PUBLIC_CMS_URL?.trim().replace(/\/$/, '');
+  if (!base) return resolveMediaUrl(raw);
+
+  return `${base}${raw.startsWith('/') ? raw : `/${raw}`}`;
+}

@@ -1,4 +1,4 @@
-import { getMediaUrl } from '@/lib/cms/resolveMediaUrl';
+import { getPublicMediaUrl } from '@/lib/cms/resolveMediaUrl';
 import type { SiteSetting } from '@autosearch/cms/payload-types';
 
 export type BrandIconUrls = {
@@ -10,16 +10,11 @@ export type BrandIconUrls = {
 
 export function getBrandIconUrls(siteSettings: SiteSetting | null): BrandIconUrls {
   return {
-    faviconLight:
-      getMediaUrl(siteSettings?.faviconLight, 'favicon') ?? getMediaUrl(siteSettings?.faviconLight),
-    faviconDark:
-      getMediaUrl(siteSettings?.faviconDark, 'favicon') ?? getMediaUrl(siteSettings?.faviconDark),
-    appleTouchLight:
-      getMediaUrl(siteSettings?.appleTouchIconLight, 'icon') ??
-      getMediaUrl(siteSettings?.appleTouchIconLight),
-    appleTouchDark:
-      getMediaUrl(siteSettings?.appleTouchIconDark, 'icon') ??
-      getMediaUrl(siteSettings?.appleTouchIconDark),
+    // Originals are already 32px and 180px. The generated size keys are not in MinIO.
+    faviconLight: getPublicMediaUrl(siteSettings?.faviconLight),
+    faviconDark: getPublicMediaUrl(siteSettings?.faviconDark),
+    appleTouchLight: getPublicMediaUrl(siteSettings?.appleTouchIconLight),
+    appleTouchDark: getPublicMediaUrl(siteSettings?.appleTouchIconDark),
   };
 }
 
