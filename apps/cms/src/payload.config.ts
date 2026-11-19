@@ -112,7 +112,12 @@ export default buildConfig({
   },
   plugins: [
     s3Storage({
-      acl: process.env.S3_ACL === 'public-read' ? 'public-read' : undefined,
+      // MinIO rejects ACL headers after the first object when a bucket policy is set.
+      // Public reads come from the bucket policy in ensureS3Bucket.
+      acl:
+        process.env.S3_ENDPOINT || process.env.S3_ACL !== 'public-read'
+          ? undefined
+          : 'public-read',
       bucket: process.env.S3_BUCKET ?? '',
       collections: {
         media: s3Configured
