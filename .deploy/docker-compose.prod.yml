@@ -218,7 +218,8 @@ services:
       - mongo_data:/data/db
 
   minio:
-    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    # Docker Hub removed minio/minio. Same RELEASE.2025-04-22T22-12-26Z build.
+    image: jcometki/minio:RELEASE.2025-04-22T22-12-26Z-multiarch@sha256:a1ea29fa28355559ef137d71fc570e508a214ec84ff8083e39bc5428980b015e
     container_name: autosearch-minio
     restart: unless-stopped
     networks:
