@@ -23,6 +23,8 @@ services:
       S3_PUBLIC_URL: ${S3_PUBLIC_URL:-http://localhost:9200/autosearch-media}
       S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE:-true}
       S3_ACL: ${S3_ACL:-public-read}
+      AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
+      AWS_RESPONSE_CHECKSUM_VALIDATION: WHEN_REQUIRED
       BOT_INTERNAL_URL: ${BOT_INTERNAL_URL:-http://bot:3002}
       BOT_INTERNAL_SECRET: ${BOT_INTERNAL_SECRET:-dev-bot-internal-secret}
       PNPM_STORE_DIR: /pnpm-store
