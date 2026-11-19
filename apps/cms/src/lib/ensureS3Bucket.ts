@@ -40,6 +40,8 @@ export async function ensureS3Bucket(payload: Payload): Promise<void> {
         }
       : {}),
     region: process.env.S3_REGION || 'us-east-1',
+    requestChecksumCalculation: 'WHEN_REQUIRED',
+    responseChecksumValidation: 'WHEN_REQUIRED',
   });
 
   let created = false;

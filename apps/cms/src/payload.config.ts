@@ -137,6 +137,11 @@ export default buildConfig({
             }
           : {}),
         region: process.env.S3_REGION || 'us-east-1',
+        // AWS SDK v3 sends flexible checksums by default. MinIO accepts the
+        // first PutObject on a connection and then drops the rest, so only
+        // the first file of each seed process lands in the bucket.
+        requestChecksumCalculation: 'WHEN_REQUIRED',
+        responseChecksumValidation: 'WHEN_REQUIRED',
       },
       enabled: s3Configured,
     }),
