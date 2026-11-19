@@ -61,7 +61,9 @@ COPY --from=installer /app/apps/cms/.next/static ./apps/cms/.next/static
 COPY --from=installer /app/apps/cms/public ./apps/cms/public
 
 ENV PORT=3001
-ENV HOST=0.0.0.0
+# Standalone server.js binds HOSTNAME. Docker sets that to the container id,
+# so 127.0.0.1 refuses connections, the healthcheck fails, and Traefik drops the route.
+ENV HOSTNAME=0.0.0.0
 EXPOSE 3001
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
