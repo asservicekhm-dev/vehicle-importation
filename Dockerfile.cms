@@ -25,8 +25,12 @@ COPY --from=builder /app/out/full/ .
 # Next.js inlines `basePath` at build time. Prod Traefik serves the CMS at /cms.
 # Do not use `turbo run build` here: Turbo 2 strict envMode strips undeclared vars.
 ARG CMS_BASE_PATH=/cms
+ARG DATABASE_URI
+ARG PAYLOAD_SECRET
 ENV CMS_BASE_PATH=$CMS_BASE_PATH
 ENV NEXT_BASE_PATH=$CMS_BASE_PATH
+ENV DATABASE_URI=$DATABASE_URI
+ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 
 RUN pnpm --filter @autosearch/cms build
 
@@ -42,8 +46,12 @@ WORKDIR /app
 RUN apk add --no-cache wget
 
 ARG CMS_BASE_PATH=/cms
+ARG DATABASE_URI
+ARG PAYLOAD_SECRET
 ENV CMS_BASE_PATH=$CMS_BASE_PATH
 ENV NEXT_BASE_PATH=$CMS_BASE_PATH
+ENV DATABASE_URI=$DATABASE_URI
+ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 
 COPY --from=installer /app/apps/cms/next.config.mjs .
 COPY --from=installer /app/apps/cms/package.json .
