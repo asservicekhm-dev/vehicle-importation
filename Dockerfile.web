@@ -38,6 +38,9 @@ ENV PAYLOAD_FETCH_ALLOW_INSECURE_TLS=$PAYLOAD_FETCH_ALLOW_INSECURE_TLS
 # Bypass Turbo so NEXT_PUBLIC_* ARGs are not stripped from `next build`.
 RUN pnpm --filter @autosearch/web build
 
+# `public` is optional. COPY in the runner fails when the directory was never created.
+RUN mkdir -p apps/web/public
+
 FROM base AS runner
 WORKDIR /app
 

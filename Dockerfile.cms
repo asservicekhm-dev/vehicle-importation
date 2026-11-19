@@ -30,6 +30,9 @@ ENV NEXT_BASE_PATH=$CMS_BASE_PATH
 
 RUN pnpm --filter @autosearch/cms build
 
+# `public` is optional. COPY in the runner fails when the directory was never created.
+RUN mkdir -p apps/cms/public
+
 # Fail the image if Next did not bake basePath (avoids a silent 404 at /cms).
 RUN node -e "const m=require('./apps/cms/.next/routes-manifest.json'); if (m.basePath !== process.env.CMS_BASE_PATH) { console.error('FATAL: CMS built with basePath', JSON.stringify(m.basePath), 'expected', process.env.CMS_BASE_PATH); process.exit(1); } console.log('CMS basePath OK:', m.basePath);"
 
