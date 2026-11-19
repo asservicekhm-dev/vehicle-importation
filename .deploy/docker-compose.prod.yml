@@ -67,6 +67,8 @@ services:
       dockerfile: Dockerfile.cms
       args:
         CMS_BASE_PATH: ${CMS_BASE_PATH:-/cms}
+        DATABASE_URI: ${DATABASE_URI:-mongodb://mongo:27017/autosearch}
+        PAYLOAD_SECRET: ${PAYLOAD_SECRET:-change-me}
     image: autosearch-cms:latest
     container_name: autosearch-cms
     restart: unless-stopped
