@@ -2,7 +2,7 @@ name: autosearch
 
 services:
   traefik:
-    # Off unless `--profile bundled`. A host Traefik on network `edge` owns :80/:443.
+    # Off unless `--profile bundled`. A host Traefik on network `proxy` owns :80/:443.
     profiles: ["bundled"]
     # v3.1 Docker client used API 1.24 — fails on modern Engine. Fixed in v3.6+.
     image: traefik:v3.6
@@ -71,7 +71,7 @@ services:
     container_name: autosearch-cms
     restart: unless-stopped
     networks:
-      - edge
+      - proxy
       - autosearch-network
     env_file:
       - env.traefik.prod
@@ -120,7 +120,7 @@ services:
     container_name: autosearch-bot
     restart: unless-stopped
     networks:
-      - edge
+      - proxy
       - autosearch-network
     env_file:
       - env.traefik.prod
@@ -173,7 +173,7 @@ services:
     container_name: autosearch-web
     restart: unless-stopped
     networks:
-      - edge
+      - proxy
       - autosearch-network
     env_file:
       - env.traefik.prod
@@ -222,7 +222,7 @@ services:
     container_name: autosearch-minio
     restart: unless-stopped
     networks:
-      - edge
+      - proxy
       - autosearch-network
     env_file:
       - env.web.prod
@@ -257,9 +257,9 @@ services:
       - "traefik.http.middlewares.autosearch-rate-limit.ratelimit.burst=50"
 
 networks:
-  edge:
+  proxy:
     external: true
-    name: edge
+    name: proxy
   autosearch-network:
     external: true
 

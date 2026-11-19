@@ -22,11 +22,11 @@ else
   echo "Network autosearch-network already exists"
 fi
 
-if ! docker network inspect edge >/dev/null 2>&1; then
-  echo "Docker network edge is missing. Create it from the host Traefik stack first."
+if ! docker network inspect proxy >/dev/null 2>&1; then
+  echo "Docker network proxy is missing. Create it from the host Traefik stack first."
   exit 1
 fi
-echo "Network edge already exists"
+echo "Network proxy already exists"
 
 echo ""
 echo "Setup complete."

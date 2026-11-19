@@ -16,7 +16,7 @@ Prod stack (`.deploy/docker-compose.prod.yml`):
 - `bot` — Staff Telegram bot (`Dockerfile.bot`, webhook under `/telegram`)
 - `mongo` — MongoDB 7
 - `minio` — MinIO (`autosearch-media`)
-- `traefik` — optional Compose profile `bundled` (v3.6+). Default `up` does not start it. Public services join external network `edge` for the host Traefik; `mongo` stays on `autosearch-network` only.
+- `traefik` — optional Compose profile `bundled` (v3.6+). Default `up` does not start it. Public services join external network `proxy` for the host Traefik; `mongo` stays on `autosearch-network` only.
 
 ## CI (pull requests)
 
@@ -79,7 +79,7 @@ docker compose -f docker-compose.prod.yml \
 
 - **CMS 404 at `/cms`:** image must bake `CMS_BASE_PATH=/cms` (asserted in `Dockerfile.cms`).
 - **Traefik Docker API error:** bundled profile uses Traefik **v3.6+**.
-- **Routers missing:** host Traefik must be on network `edge` with entrypoint `websecure` and cert resolver `letsencrypt`. Stop `autosearch-traefik` if it still holds ports 80 and 443. Standalone host: `docker compose --profile bundled up -d`.
+- **Routers missing:** host Traefik must be on network `proxy` with entrypoint `websecure` and cert resolver `letsencrypt`. Stop `autosearch-traefik` if it still holds ports 80 and 443. Standalone host: `docker compose --profile bundled up -d`.
 - **MinIO auth:** `MINIO_ROOT_*` in `env.web.prod` must match `S3_ACCESS_*` when using the root account; do not override with compose defaults.
 - **Bot webhook:** public URL is `https://$WEB_DOMAIN/telegram/webhook`; confirm Traefik priority 50 and `TELEGRAM_BOT_TOKEN` / `TELEGRAM_WEBHOOK_SECRET` in `env.web.prod`.
 - **CMS notify silent:** set `BOT_INTERNAL_SECRET` on both cms and bot; compose sets `BOT_INTERNAL_URL=http://bot:3002`.

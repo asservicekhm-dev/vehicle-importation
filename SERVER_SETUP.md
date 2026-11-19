@@ -56,7 +56,7 @@ bash setup.sh
 # edit env.traefik.prod + env.web.prod
 ```
 
-`setup.sh` creates `autosearch-network` if missing, requires external network `edge`, and copies env examples. The host Traefik must already be attached to `edge`.
+`setup.sh` creates `autosearch-network` if missing, requires external network `proxy`, and copies env examples. The host Traefik must already be attached to `proxy`.
 
 ## Start
 
