@@ -47,9 +47,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     metadataBase: new URL(siteOrigin()),
-    title: {
-      default: siteSettings?.defaultMetaTitle?.trim() || siteName,
-    },
+    title: siteSettings?.defaultMetaTitle?.trim() || siteName,
     description,
     applicationName: siteName,
   };
