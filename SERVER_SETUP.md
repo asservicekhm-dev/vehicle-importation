@@ -56,7 +56,7 @@ bash setup.sh
 # edit env.traefik.prod + env.web.prod
 ```
 
-`setup.sh` creates `autosearch-network` if missing and copies env examples.
+`setup.sh` creates `autosearch-network` if missing, requires external network `edge`, and copies env examples. The host Traefik must already be attached to `edge`.
 
 ## Start
 
@@ -66,6 +66,8 @@ docker compose -f docker-compose.prod.yml \
   --env-file env.traefik.prod --env-file env.web.prod \
   up -d --build
 ```
+
+This does not start the bundled Traefik. On a host with no external proxy, add `--profile bundled`. Stop a previously running `autosearch-traefik` before the host proxy binds ports 80 and 443.
 
 Verify:
 
@@ -110,4 +112,4 @@ Prefer content seeds for demos: `pnpm seed:all` / `seed:all:local-media` (not AS
 
 - Strong `PAYLOAD_SECRET`, MinIO passwords, `REVALIDATE_SECRET`
 - Empty `NEXT_PUBLIC_GTM_ID` disables GTM
-- Keep firewall to 22/80/443; Traefik dashboard bound to localhost in compose
+- Keep firewall to 22/80/443. The bundled Traefik dashboard is bound to localhost and starts only with `--profile bundled`

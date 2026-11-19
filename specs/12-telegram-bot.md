@@ -255,8 +255,8 @@ Copy lives in the bot app (e.g. `apps/bot/src/i18n/ua.ts`). No English UI in v1.
 
 **Prod** ([`.deploy/docker-compose.prod.yml`](../.deploy/docker-compose.prod.yml)):
 
-- Service `bot` / container `autosearch-bot`, network `autosearch-network`.
-- Traefik: `PathPrefix(\`/telegram\`)` on `WEB_DOMAIN`, priority **higher than web** (e.g. 50+), TLS + existing security / rate-limit middlewares.
+- Service `bot` / container `autosearch-bot`, networks `edge` and `autosearch-network`.
+- Traefik: `PathPrefix(\`/telegram\`)` on `WEB_DOMAIN`, priority **higher than web** (e.g. 50+), TLS, middlewares `autosearch-security` and `autosearch-rate-limit`.
 - Env: token, webhook URL (`https://${WEB_DOMAIN}/telegram/webhook`), webhook secret, `BOT_INTERNAL_SECRET`, `CMS_INTERNAL_URL=http://cms:3001${CMS_BASE_PATH}`.
 - CMS gains `BOT_INTERNAL_URL=http://bot:3002` and the same shared secret.
 

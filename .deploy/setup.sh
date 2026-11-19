@@ -22,10 +22,17 @@ else
   echo "Network autosearch-network already exists"
 fi
 
+if ! docker network inspect edge >/dev/null 2>&1; then
+  echo "Docker network edge is missing. Create it from the host Traefik stack first."
+  exit 1
+fi
+echo "Network edge already exists"
+
 echo ""
 echo "Setup complete."
 echo ""
 echo "Next steps:"
-echo "  1. Edit .deploy/env.traefik.prod — set WEB_DOMAIN + MinIO hosts + TRAEFIK_ACME_EMAIL"
+echo "  1. Edit .deploy/env.traefik.prod — set WEB_DOMAIN + MinIO hosts"
 echo "  2. Edit .deploy/env.web.prod     — set secrets (CMS is https://<site>/cms)"
-echo "  3. Run docker compose (see .deploy/README.md)"
+echo "  3. Run docker compose (see .deploy/README.md). Default up uses the host Traefik."
+echo "     Add --profile bundled only on a host with no external Traefik."

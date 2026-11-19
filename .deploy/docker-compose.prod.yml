@@ -2,6 +2,8 @@ name: autosearch
 
 services:
   traefik:
+    # Off unless `--profile bundled`. A host Traefik on network `edge` owns :80/:443.
+    profiles: ["bundled"]
     # v3.1 Docker client used API 1.24 — fails on modern Engine. Fixed in v3.6+.
     image: traefik:v3.6
     container_name: autosearch-traefik
@@ -69,6 +71,7 @@ services:
     container_name: autosearch-cms
     restart: unless-stopped
     networks:
+      - edge
       - autosearch-network
     env_file:
       - env.traefik.prod
@@ -97,7 +100,17 @@ services:
       - 'traefik.http.routers.autosearch-cms.entrypoints=websecure'
       - 'traefik.http.routers.autosearch-cms.tls=true'
       - 'traefik.http.routers.autosearch-cms.tls.certresolver=letsencrypt'
-      - 'traefik.http.routers.autosearch-cms.middlewares=security@file,rate-limit@file'
+      - 'traefik.http.routers.autosearch-cms.middlewares=autosearch-security,autosearch-rate-limit'
+      - "traefik.http.middlewares.autosearch-security.headers.framedeny=false"
+      - "traefik.http.middlewares.autosearch-security.headers.contentsecuritypolicy=frame-ancestors 'self' https://tagassistant.google.com https://*.google.com https://*.googletagmanager.com"
+      - "traefik.http.middlewares.autosearch-security.headers.contenttypenosniff=true"
+      - "traefik.http.middlewares.autosearch-security.headers.browserxssfilter=true"
+      - "traefik.http.middlewares.autosearch-security.headers.referrerpolicy=strict-origin-when-cross-origin"
+      - "traefik.http.middlewares.autosearch-security.headers.stsseconds=31536000"
+      - "traefik.http.middlewares.autosearch-security.headers.stsincludesubdomains=true"
+      - "traefik.http.middlewares.autosearch-security.headers.stspreload=true"
+      - "traefik.http.middlewares.autosearch-rate-limit.ratelimit.average=100"
+      - "traefik.http.middlewares.autosearch-rate-limit.ratelimit.burst=50"
 
   bot:
     build:
@@ -107,6 +120,7 @@ services:
     container_name: autosearch-bot
     restart: unless-stopped
     networks:
+      - edge
       - autosearch-network
     env_file:
       - env.traefik.prod
@@ -133,7 +147,17 @@ services:
       - 'traefik.http.routers.autosearch-bot.entrypoints=websecure'
       - 'traefik.http.routers.autosearch-bot.tls=true'
       - 'traefik.http.routers.autosearch-bot.tls.certresolver=letsencrypt'
-      - 'traefik.http.routers.autosearch-bot.middlewares=security@file,rate-limit@file'
+      - 'traefik.http.routers.autosearch-bot.middlewares=autosearch-security,autosearch-rate-limit'
+      - "traefik.http.middlewares.autosearch-security.headers.framedeny=false"
+      - "traefik.http.middlewares.autosearch-security.headers.contentsecuritypolicy=frame-ancestors 'self' https://tagassistant.google.com https://*.google.com https://*.googletagmanager.com"
+      - "traefik.http.middlewares.autosearch-security.headers.contenttypenosniff=true"
+      - "traefik.http.middlewares.autosearch-security.headers.browserxssfilter=true"
+      - "traefik.http.middlewares.autosearch-security.headers.referrerpolicy=strict-origin-when-cross-origin"
+      - "traefik.http.middlewares.autosearch-security.headers.stsseconds=31536000"
+      - "traefik.http.middlewares.autosearch-security.headers.stsincludesubdomains=true"
+      - "traefik.http.middlewares.autosearch-security.headers.stspreload=true"
+      - "traefik.http.middlewares.autosearch-rate-limit.ratelimit.average=100"
+      - "traefik.http.middlewares.autosearch-rate-limit.ratelimit.burst=50"
 
   web:
     build:
@@ -149,6 +173,7 @@ services:
     container_name: autosearch-web
     restart: unless-stopped
     networks:
+      - edge
       - autosearch-network
     env_file:
       - env.traefik.prod
@@ -169,7 +194,17 @@ services:
       - 'traefik.http.routers.autosearch-web.entrypoints=websecure'
       - 'traefik.http.routers.autosearch-web.tls=true'
       - 'traefik.http.routers.autosearch-web.tls.certresolver=letsencrypt'
-      - 'traefik.http.routers.autosearch-web.middlewares=security@file,rate-limit@file'
+      - 'traefik.http.routers.autosearch-web.middlewares=autosearch-security,autosearch-rate-limit'
+      - "traefik.http.middlewares.autosearch-security.headers.framedeny=false"
+      - "traefik.http.middlewares.autosearch-security.headers.contentsecuritypolicy=frame-ancestors 'self' https://tagassistant.google.com https://*.google.com https://*.googletagmanager.com"
+      - "traefik.http.middlewares.autosearch-security.headers.contenttypenosniff=true"
+      - "traefik.http.middlewares.autosearch-security.headers.browserxssfilter=true"
+      - "traefik.http.middlewares.autosearch-security.headers.referrerpolicy=strict-origin-when-cross-origin"
+      - "traefik.http.middlewares.autosearch-security.headers.stsseconds=31536000"
+      - "traefik.http.middlewares.autosearch-security.headers.stsincludesubdomains=true"
+      - "traefik.http.middlewares.autosearch-security.headers.stspreload=true"
+      - "traefik.http.middlewares.autosearch-rate-limit.ratelimit.average=100"
+      - "traefik.http.middlewares.autosearch-rate-limit.ratelimit.burst=50"
 
   mongo:
     image: mongo:7
@@ -187,6 +222,7 @@ services:
     container_name: autosearch-minio
     restart: unless-stopped
     networks:
+      - edge
       - autosearch-network
     env_file:
       - env.web.prod
@@ -201,16 +237,29 @@ services:
       - 'traefik.http.routers.autosearch-minio-api.tls=true'
       - 'traefik.http.routers.autosearch-minio-api.tls.certresolver=letsencrypt'
       - 'traefik.http.routers.autosearch-minio-api.service=autosearch-minio-api'
-      - 'traefik.http.routers.autosearch-minio-api.middlewares=security@file,rate-limit@file'
+      - 'traefik.http.routers.autosearch-minio-api.middlewares=autosearch-security,autosearch-rate-limit'
       - 'traefik.http.services.autosearch-minio-console.loadbalancer.server.port=9001'
       - 'traefik.http.routers.autosearch-minio-console.rule=Host(`${WEB_MINIO_CONSOLE_DOMAIN}`)'
       - 'traefik.http.routers.autosearch-minio-console.entrypoints=websecure'
       - 'traefik.http.routers.autosearch-minio-console.tls=true'
       - 'traefik.http.routers.autosearch-minio-console.tls.certresolver=letsencrypt'
       - 'traefik.http.routers.autosearch-minio-console.service=autosearch-minio-console'
-      - 'traefik.http.routers.autosearch-minio-console.middlewares=security@file,rate-limit@file'
+      - 'traefik.http.routers.autosearch-minio-console.middlewares=autosearch-security,autosearch-rate-limit'
+      - "traefik.http.middlewares.autosearch-security.headers.framedeny=false"
+      - "traefik.http.middlewares.autosearch-security.headers.contentsecuritypolicy=frame-ancestors 'self' https://tagassistant.google.com https://*.google.com https://*.googletagmanager.com"
+      - "traefik.http.middlewares.autosearch-security.headers.contenttypenosniff=true"
+      - "traefik.http.middlewares.autosearch-security.headers.browserxssfilter=true"
+      - "traefik.http.middlewares.autosearch-security.headers.referrerpolicy=strict-origin-when-cross-origin"
+      - "traefik.http.middlewares.autosearch-security.headers.stsseconds=31536000"
+      - "traefik.http.middlewares.autosearch-security.headers.stsincludesubdomains=true"
+      - "traefik.http.middlewares.autosearch-security.headers.stspreload=true"
+      - "traefik.http.middlewares.autosearch-rate-limit.ratelimit.average=100"
+      - "traefik.http.middlewares.autosearch-rate-limit.ratelimit.burst=50"
 
 networks:
+  edge:
+    external: true
+    name: edge
   autosearch-network:
     external: true
 

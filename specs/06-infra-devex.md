@@ -51,12 +51,13 @@ Rename once at project start — packages, compose, workflow, env, and server pa
 
 ### Prod
 
-- Traefik v3.6 (pin — older Docker API issues), Let's Encrypt, security + rate-limit middlewares.
+- One Traefik per host, on external network `edge`. This stack does not start its own proxy unless Compose profile `bundled` is set (v3.6, Let's Encrypt). Public services (`web`, `cms`, `bot`, `minio`) join `edge` and `autosearch-network`. `mongo` stays on `autosearch-network` only.
+- Routers use entrypoint `websecure` and cert resolver `letsencrypt`. Header and rate-limit policy is Docker labels `autosearch-security` and `autosearch-rate-limit` (same settings on each routed service). No `traefik.docker.network` label: the host proxy is pinned to `edge`, the bundled one to `autosearch-network`.
 - Single domain: site `/`, CMS `/cms` (`CMS_BASE_PATH`), bot webhook `/telegram` (priority above web), MinIO on subdomains.
 - Web runtime: `CMS_INTERNAL_URL=http://cms:3001/cms` for SSR fetches.
 - Bot: `TELEGRAM_MODE=webhook`, public `TELEGRAM_WEBHOOK_URL=https://<site>/telegram/webhook`; CMS `BOT_INTERNAL_URL=http://bot:3002`. Internal bot notify paths stay off Traefik.
 - **Drop** legacy `cms.<site>` redirect router unless needed.
-- **Adapt:** one Traefik-per-host vs per-project decision; log rotation; post-deploy health curl.
+- **Adapt:** log rotation; post-deploy health curl.
 
 ## Env matrix (essentials)
 

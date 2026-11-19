@@ -157,7 +157,7 @@ Idempotent `payload run` scripts that upsert by slug/filename and write both loc
 
 ## 12. Deploy
 
-See [`DEPLOYMENT.md`](./DEPLOYMENT.md) and [`SERVER_SETUP.md`](./SERVER_SETUP.md). Pattern: `turbo prune` 3-stage images (`Dockerfile.cms` / `Dockerfile.web` / `Dockerfile.bot`) with `pnpm --filter … build` (not `turbo run build`), Next standalone for cms/web, bot `tsc` → `node dist`, CMS `basePath` assert + `/cms/api/health`, Traefik site `/` + CMS `/cms` + bot `/telegram`, network `autosearch-network`.
+See [`DEPLOYMENT.md`](./DEPLOYMENT.md) and [`SERVER_SETUP.md`](./SERVER_SETUP.md). Pattern: `turbo prune` 3-stage images (`Dockerfile.cms` / `Dockerfile.web` / `Dockerfile.bot`) with `pnpm --filter … build` (not `turbo run build`), Next standalone for cms/web, bot `tsc` → `node dist`, CMS `basePath` assert + `/cms/api/health`, Traefik site `/` + CMS `/cms` + bot `/telegram`. Host Traefik uses external network `edge` (bundled Traefik is Compose profile `bundled`). Private network `autosearch-network`.
 
 ## 13. Known quirks / do-not-copy from AS Service
 
