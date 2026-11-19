@@ -80,7 +80,7 @@ function resolveTitle(raw: string, siteName: string): string {
   return title;
 }
 
-const getPublishedSlug = cache(async (collection: 'pages' | 'blog', id: string, locale: Locale) => {
+const getPublishedSlug = cache((collection: 'pages' | 'blog', id: string, locale: Locale) => {
   const tag = collection === 'pages' ? CACHE_TAGS.pages : CACHE_TAGS.blog;
 
   const getCached = unstable_cache(

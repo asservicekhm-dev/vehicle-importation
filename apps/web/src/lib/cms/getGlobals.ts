@@ -28,7 +28,7 @@ async function fetchGlobal<T>(slug: GlobalSlug, locale: Locale): Promise<T | nul
   }
 }
 
-async function safeGlobal<T>(slug: GlobalSlug, locale: Locale, tag: string): Promise<T | null> {
+function safeGlobal<T>(slug: GlobalSlug, locale: Locale, tag: string): Promise<T | null> {
   const getCached = unstable_cache(
     () => fetchGlobal<T>(slug, locale),
     ['global', slug, locale],

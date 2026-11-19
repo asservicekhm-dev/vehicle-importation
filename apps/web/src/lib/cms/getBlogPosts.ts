@@ -9,7 +9,7 @@ import type { Locale } from '@autosearch/config';
 export const BLOG_PAGE_LIMIT = 12;
 
 export const getBlogPosts = cache(
-  async (
+  (
     locale: Locale,
     opts?: { page?: number; limit?: number },
   ): Promise<{ docs: Blog[]; totalDocs: number; totalPages: number; page: number }> => {
@@ -46,7 +46,7 @@ export const getBlogPosts = cache(
   },
 );
 
-export const getBlogPostBySlug = cache(async (slug: string, locale: Locale): Promise<Blog | null> => {
+export const getBlogPostBySlug = cache((slug: string, locale: Locale): Promise<Blog | null> => {
   const getCached = unstable_cache(
     async () => {
       const res = await payload.find({
